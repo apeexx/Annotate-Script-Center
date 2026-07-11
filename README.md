@@ -4,7 +4,6 @@
 
 ## 项目定位
 
-- GitHub 仓库：XiangTianzhen/annotation-script-center
 - 运行时代码：`extension/`
 - 平台资料与脚本后端：`platform-resources/`
 - 统一后端入口：`platform-resources/backend/server.js`
