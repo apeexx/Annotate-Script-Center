@@ -1,0 +1,41 @@
+{
+  "schemaVersion": 1,
+  "source": "extension/sites/data-baker/round-one-quality/group-export",
+  "project": "data-baker/round-one-quality",
+  "fileName": "data-baker-task-TASK-DEMO-001-all-20260528-120000.csv",
+  "rowCount": 18,
+  "taskId": "TASK-DEMO-001",
+  "exportedAt": "2026-05-28T12:00:00.000Z",
+  "uploadedAt": "2026-05-28T12:00:10.000Z",
+  "route": {
+    "hash": "#/group/detail?taskId=TASK-DEMO-001",
+    "pathname": "/group/detail"
+  },
+  "summary": {
+    "projectName": "闽南语示例项目",
+    "taskName": "一检质检任务示例",
+    "teamName": "示例团队",
+    "collectCount": 18
+  },
+  "mergedSummary": {
+    "incomingRowCount": 18,
+    "existingRowCount": 42,
+    "addedRowCount": 4,
+    "updatedRowCount": 10,
+    "unchangedRowCount": 4,
+    "rowCount": 46
+  },
+  "taskIds": [
+    "TASK-DEMO-001",
+    "TASK-DEMO-002"
+  ],
+  "lastUpload": {
+    "fileName": "data-baker-task-TASK-DEMO-001-all-20260528-120000.csv",
+    "incomingRowCount": 18,
+    "addedRowCount": 4,
+    "updatedRowCount": 10,
+    "unchangedRowCount": 4,
+    "uploadedAt": "2026-05-28T12:00:10.000Z"
+  },
+  "warnings": []
+}

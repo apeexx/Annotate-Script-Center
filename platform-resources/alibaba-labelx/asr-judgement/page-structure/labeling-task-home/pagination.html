@@ -1,0 +1,31 @@
+<!--
+页面板块: pagination
+真实定位:
+- ul.label-center-pagination
+说明:
+- “我的任务”和“可领取的任务”各有一个分页。可领取任务分页包含 quick jumper。
+-->
+<ul class="ant-v5-pagination label-center-pagination">
+  <li title="上一页" class="ant-v5-pagination-prev ant-v5-pagination-disabled" aria-disabled="true">
+    <button class="ant-v5-pagination-item-link" type="button" tabindex="-1" disabled="">
+      <span role="img" aria-label="left" class="anticon anticon-left"></span>
+    </button>
+  </li>
+  <li title="1" class="ant-v5-pagination-item ant-v5-pagination-item-1 ant-v5-pagination-item-active" tabindex="0">
+    <a rel="nofollow">1</a>
+  </li>
+  <li title="2" class="ant-v5-pagination-item ant-v5-pagination-item-2" tabindex="0">
+    <a rel="nofollow">2</a>
+  </li>
+  <li title="3" class="ant-v5-pagination-item ant-v5-pagination-item-3" tabindex="0">
+    <a rel="nofollow">3</a>
+  </li>
+  <li title="下一页" class="ant-v5-pagination-next" aria-disabled="false" tabindex="0">
+    <button class="ant-v5-pagination-item-link" type="button" tabindex="-1">
+      <span role="img" aria-label="right" class="anticon anticon-right"></span>
+    </button>
+  </li>
+  <li class="ant-v5-pagination-options">
+    <div class="ant-v5-pagination-options-quick-jumper">跳至<input type="text" aria-label="页" value="">页</div>
+  </li>
+</ul>

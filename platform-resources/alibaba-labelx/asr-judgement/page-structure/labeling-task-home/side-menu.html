@@ -1,0 +1,23 @@
+<!--
+页面板块: side-menu
+真实定位:
+- .left-menu-container .side-menu
+用途:
+- 左侧任务类型导航。当前选中项是“标注任务”。
+风险:
+- path 和 data-menu-id 可能随路由和运行时变化；优先依赖菜单文本和 pathname。
+-->
+<ul class="ant-v5-menu ant-v5-menu-root ant-v5-menu-inline ant-v5-menu-light side-menu" role="menu" tabindex="0" data-menu-list="true">
+  <li class="ant-v5-menu-item ant-v5-menu-item-selected" title="标注任务" role="menuitem" tabindex="-1" path="/corpora/labeling/labelingTask" belongappkey="labeling">
+    <span role="img" class="anticon ant-v5-menu-item-icon"></span>
+    <span class="ant-v5-menu-title-content">标注任务</span>
+  </li>
+  <li class="ant-v5-menu-item" title="质检任务" role="menuitem" tabindex="-1" path="/corpora/labeling/checkTask" belongappkey="labeling">
+    <span role="img" class="anticon ant-v5-menu-item-icon"></span>
+    <span class="ant-v5-menu-title-content">质检任务</span>
+  </li>
+  <li class="ant-v5-menu-item" title="验收任务" role="menuitem" tabindex="-1" path="/corpora/labeling/sampleTask" belongappkey="labeling">
+    <span role="img" class="anticon ant-v5-menu-item-icon"></span>
+    <span class="ant-v5-menu-title-content">验收任务</span>
+  </li>
+</ul>

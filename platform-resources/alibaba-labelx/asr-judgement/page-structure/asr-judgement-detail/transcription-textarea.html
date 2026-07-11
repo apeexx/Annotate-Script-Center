@@ -1,0 +1,11 @@
+<!--
+页面板块: transcription-textarea
+说明:
+- 当前 ASR 更优判断详情页未发现独立“转写文本”输入框。
+- 初始化模板里的该文件为兼容占位，避免后续脚本误以为此页存在转写框。
+建议:
+- 如果后续切换到真正的转写详情页，再用真实 outerHTML 覆盖本文件。
+-->
+<div data-collection-note="not-present-on-current-page" data-expected-selector='textarea[label="转写文本"]'>
+  当前页面未发现独立转写文本框
+</div>

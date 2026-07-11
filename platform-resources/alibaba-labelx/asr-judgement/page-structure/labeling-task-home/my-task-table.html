@@ -1,0 +1,50 @@
+<!--
+页面板块: my-task-table
+真实定位:
+- .my-task-list .ant-v5-table-wrapper
+用途:
+- 已领取任务表格。操作列包含“标注”和“释放”按钮。
+风险:
+- 任务名称、任务 ID、子任务 ID、分包 ID、状态、领取时间都会变化。
+-->
+<div class="ant-v5-table-wrapper ant-v5-table-css-var">
+  <div class="ant-v5-spin-nested-loading">
+    <div class="ant-v5-spin-container">
+      <div class="ant-v5-table ant-v5-table-css-var">
+        <div class="ant-v5-table-container">
+          <div class="ant-v5-table-content">
+            <table>
+              <thead class="ant-v5-table-thead">
+                <tr>
+                  <th class="ant-v5-table-cell" scope="col">任务名称</th>
+                  <th class="ant-v5-table-cell" scope="col">任务ID</th>
+                  <th class="ant-v5-table-cell" scope="col">子任务ID</th>
+                  <th class="ant-v5-table-cell" scope="col">分包ID</th>
+                  <th class="ant-v5-table-cell" scope="col">任务状态</th>
+                  <th class="ant-v5-table-cell" scope="col">领取时间</th>
+                  <th class="ant-v5-table-cell" scope="col">操作</th>
+                </tr>
+              </thead>
+              <tbody class="ant-v5-table-tbody">
+                <tr class="ant-v5-table-row ant-v5-table-row-level-0">
+                  <td class="ant-v5-table-cell"><span>REDACTED_TASK_NAME</span></td>
+                  <td class="ant-v5-table-cell">REDACTED_TASK_ID</td>
+                  <td class="ant-v5-table-cell">REDACTED_SUB_TASK_ID</td>
+                  <td class="ant-v5-table-cell">REDACTED_PACKAGE_ID</td>
+                  <td class="ant-v5-table-cell"><span><span role="img" class="anticon"></span>处理中</span></td>
+                  <td class="ant-v5-table-cell">REDACTED_RECEIVE_TIME</td>
+                  <td class="ant-v5-table-cell">
+                    <div>
+                      <button type="button" class="ant-v5-btn ant-v5-btn-link ant-v5-btn-color-primary ant-v5-btn-variant-link ant-v5-btn-sm label-center-task-link"><span>标注</span></button>
+                      <button type="button" class="ant-v5-btn ant-v5-btn-link ant-v5-btn-color-primary ant-v5-btn-variant-link ant-v5-btn-sm label-center-task-link"><span>释放</span></button>
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,38 @@
+<!--
+页面板块: my-tasks-section
+真实定位:
+- .my-task-list
+用途:
+- 已领取任务区域，包含未完成/已完成 tabs、任务名称过滤框和表格。
+风险:
+- rc-tabs-* id 会变化，不适合直接依赖。
+-->
+<div class="my-task-list">
+  <div class="ant-v5-tabs ant-v5-tabs-top ant-v5-tabs-card my-task-list-tabs ant-v5-tabs-css-var">
+    <div role="tablist" aria-orientation="horizontal" class="ant-v5-tabs-nav">
+      <div class="ant-v5-tabs-nav-wrap">
+        <div class="ant-v5-tabs-nav-list">
+          <div data-node-key="unfinished" class="ant-v5-tabs-tab ant-v5-tabs-tab-active">
+            <div role="tab" aria-selected="true" class="ant-v5-tabs-tab-btn" tabindex="0">未完成</div>
+          </div>
+          <div data-node-key="finished" class="ant-v5-tabs-tab">
+            <div role="tab" aria-selected="false" class="ant-v5-tabs-tab-btn" tabindex="-1">已完成</div>
+          </div>
+        </div>
+      </div>
+      <div class="ant-v5-tabs-extra-content">
+        <div class="label-center-filter">
+          <span class="label-center-task-title">任务名称：</span>
+          <input placeholder="请输入任务名称" class="ant-v5-input ant-v5-input-outlined ant-v5-input-css-var" type="text" value="">
+        </div>
+      </div>
+    </div>
+    <div class="ant-v5-tabs-content-holder">
+      <div class="ant-v5-tabs-content ant-v5-tabs-content-top">
+        <div role="tabpanel" tabindex="0" aria-hidden="false" class="ant-v5-tabs-tabpane ant-v5-tabs-tabpane-active">
+          <!-- see my-task-table.html -->
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

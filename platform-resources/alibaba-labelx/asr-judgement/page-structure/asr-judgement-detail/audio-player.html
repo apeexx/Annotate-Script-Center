@@ -1,0 +1,62 @@
+<!--
+页面板块: audio-player
+真实定位:
+- .dt-audio-base-container
+说明:
+- 包含 audio 元素、前进/后退、倍速选择和加载状态。
+-->
+<div class="dt-audio-base-container">
+  <audio preload="auto" controls="" controlslist="nodownload noplaybackrate" src="REDACTED_URL">
+    <source src="REDACTED_URL" type="audio/mpeg">
+    <source src="REDACTED_URL" type="audio/mp4">
+    <source src="REDACTED_URL" type="audio/wav">
+    您的浏览器不支持音频播放功能。
+  </audio>
+  <div class="dt-audio-base-controls">
+    <div class="control-group">
+      <div class="ant-v5-space ant-v5-space-horizontal ant-v5-space-align-center ant-v5-space-gap-row-small ant-v5-space-gap-col-small">
+        <div class="ant-v5-space-item">
+          <button type="button" class="ant-v5-btn ant-v5-btn-text ant-v5-btn-color-default ant-v5-btn-variant-text ant-v5-btn-icon-only">
+            <span class="ant-v5-btn-icon"><span role="img" aria-label="fast-backward" class="anticon anticon-fast-backward"></span></span>
+          </button>
+        </div>
+        <div class="ant-v5-space-item">
+          <button type="button" class="ant-v5-btn ant-v5-btn-text ant-v5-btn-color-default ant-v5-btn-variant-text ant-v5-btn-icon-only">
+            <span class="ant-v5-btn-icon"><span role="img" aria-label="fast-forward" class="anticon anticon-fast-forward"></span></span>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="control-divider"></div>
+    <div class="control-group">
+      <div class="ant-v5-space ant-v5-space-horizontal ant-v5-space-align-center ant-v5-space-gap-row-small ant-v5-space-gap-col-small">
+        <div class="ant-v5-space-item"><span class="control-label">倍速</span></div>
+        <div class="ant-v5-space-item">
+          <div class="ant-v5-select ant-v5-select-sm ant-v5-select-outlined ant-v5-select-css-var ant-v5-select-single ant-v5-select-show-arrow">
+            <div class="ant-v5-select-selector">
+              <span class="ant-v5-select-selection-wrap">
+                <span class="ant-v5-select-selection-search">
+                  <input type="search" autocomplete="off" class="ant-v5-select-selection-search-input" role="combobox" aria-expanded="false" aria-haspopup="listbox" readonly="" unselectable="on" value="">
+                </span>
+                <span class="ant-v5-select-selection-item" title="1x">1x</span>
+              </span>
+            </div>
+            <span class="ant-v5-select-arrow" unselectable="on" aria-hidden="true">
+              <span role="img" aria-label="down" class="anticon anticon-down ant-v5-select-suffix"></span>
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="control-divider"></div>
+    <div class="control-group">
+      <button type="button" class="ant-v5-btn ant-v5-btn-text ant-v5-btn-color-default ant-v5-btn-variant-text ant-v5-btn-sm ant-v5-btn-icon-only">
+        <span class="ant-v5-btn-icon"><span role="img" aria-label="reload" class="anticon anticon-reload"></span></span>
+      </button>
+    </div>
+    <div class="control-divider"></div>
+    <div class="control-group download-status-group">
+      <span class="download-indicator-container"><span>✅ 音频已加载</span></span>
+    </div>
+  </div>
+</div>

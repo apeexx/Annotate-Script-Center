@@ -1,0 +1,65 @@
+# 构建和发布产物
+/dist/*
+!dist/annotation-script-center-v*.zip
+!/dist/annotation-script-center-v*.crx
+!/dist/annotation-script-center-update.xml
+!/dist/annotation-script-center-crx-latest.json
+!/dist/annotation-script-center-beta.zip
+*.pem
+
+# 本地统计输出
+/platform-resources/alibaba-labelx/asr-judgement/backend/statistics-data/
+/platform-resources/alibaba-labelx/asr-transcription/backend/statistics-data/
+
+# DataBaker AI 调用日志
+/platform-resources/data-baker/round-one-quality/backend/logs/
+/platform-resources/data-baker/round-one-quality/backend/export-data/
+/platform-resources/magic-data/hakka-helper/backend/logs/
+/platform-resources/magic-data/minnan-helper/backend/logs/
+/platform-resources/alibaba-labelx/asr-judgement/backend/logs/
+/platform-resources/alibaba-labelx/asr-transcription/backend/logs/
+/platform-resources/abaka-ai/task21/backend/logs/
+/platform-resources/magic-data/**/raw_outputs/
+/platform-resources/magic-data/**/detail_results/
+/platform-resources/magic-data/**/hakka_single_vs_two_stage/
+/platform-resources/magic-data/**/phase_06_strategy_compare/
+/platform-resources/aishell-tech/minnan-helper/data/runtime/*.csv
+/platform-resources/data-baker-cvpc/liuzhou-helper/data/runtime/
+/.venv/
+/platform-resources/backend/.venv/
+/platform-resources/backend/.venv-funasr/
+/platform-resources/data-baker/round-one-quality/backend/.venv-funasr/
+/platform-resources/data-baker/round-one-quality/backend/__pycache__/
+/__pycache__/
+*.pyc
+/platform-resources/backend/project-data-download/audit-data/
+/platform-resources/backend/audit-data/ai-call-log-download/
+/platform-resources/backend/admin-dashboard/runtime-data/
+
+# 环境密钥文件
+.env
+.env.*
+!.env.example
+/config/env/ai.env
+/config/env/ai.local.env
+/config/env/backend.env
+/config/env/backend.local.env
+/config/secrets/*.pem
+/config/secrets/*.key
+/config/secrets/*.p12
+/config/secrets/package-crx-release.local.json
+/extension/shared/build-meta.local.js
+!/config/env/ai.env.example
+!/config/env/backend.env.example
+
+# 系统和编辑器临时文件
+.DS_Store
+Thumbs.db
+*.tmp
+*.log
+/_incoming_visual_assets/
+
+# 工具skills
+.agent
+.playwright-mcp/
+.superpowers/

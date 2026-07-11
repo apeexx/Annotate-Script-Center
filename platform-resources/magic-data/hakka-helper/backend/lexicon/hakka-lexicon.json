@@ -1,0 +1,8701 @@
+{
+  "schemaVersion": "1",
+  "language": "客家话",
+  "mode": "rule_lexicon",
+  "sourceFiles": [
+    "客家话正字表2605.xlsx"
+  ],
+  "updatedAt": "2026-07-01T16:40:00+08:00",
+  "entries": [
+    {
+      "id": "hakka-2-1",
+      "normalized": "个",
+      "display": "个",
+      "mandarin": "的",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ge4",
+        "sourceIndex": 2
+      }
+    },
+    {
+      "id": "hakka-3-1",
+      "normalized": "欸",
+      "display": "欸",
+      "mandarin": "了",
+      "aliases": [
+        "了"
+      ],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "i1 / liau3",
+        "sourceIndex": 3
+      }
+    },
+    {
+      "id": "hakka-4-1",
+      "normalized": "都",
+      "display": "都",
+      "mandarin": "都",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "du1",
+        "sourceIndex": 4
+      }
+    },
+    {
+      "id": "hakka-5-1",
+      "normalized": "你",
+      "display": "你",
+      "mandarin": "你",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ngi2",
+        "sourceIndex": 5
+      }
+    },
+    {
+      "id": "hakka-6-1",
+      "normalized": "𠊎",
+      "display": "𠊎",
+      "mandarin": "我",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ngai2",
+        "sourceIndex": 6
+      }
+    },
+    {
+      "id": "hakka-7-1",
+      "normalized": "爱",
+      "display": "爱",
+      "mandarin": "要",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "oi4",
+        "sourceIndex": 7
+      }
+    },
+    {
+      "id": "hakka-8-1",
+      "normalized": "去",
+      "display": "去",
+      "mandarin": "去",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "hi4",
+        "sourceIndex": 8
+      }
+    },
+    {
+      "id": "hakka-9-1",
+      "normalized": "个个",
+      "display": "个个",
+      "mandarin": "那个",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ge4ge4",
+        "sourceIndex": 9
+      }
+    },
+    {
+      "id": "hakka-10-1",
+      "normalized": "得",
+      "display": "得",
+      "mandarin": "得",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ded5",
+        "sourceIndex": 10
+      }
+    },
+    {
+      "id": "hakka-11-1",
+      "normalized": "今下",
+      "display": "今下",
+      "mandarin": "现在",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "gim1ha1",
+        "sourceIndex": 11
+      }
+    },
+    {
+      "id": "hakka-12-1",
+      "normalized": "在",
+      "display": "在",
+      "mandarin": "在",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "coi1",
+        "sourceIndex": 12
+      }
+    },
+    {
+      "id": "hakka-13-1",
+      "normalized": "𠊎兜人",
+      "display": "𠊎兜人",
+      "mandarin": "我们",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ngai2deu1ngin2",
+        "sourceIndex": 13
+      }
+    },
+    {
+      "id": "hakka-14-1",
+      "normalized": "𠊎等人",
+      "display": "𠊎等人",
+      "mandarin": "我们",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ngai2den1ngin4",
+        "sourceIndex": 14
+      }
+    },
+    {
+      "id": "hakka-15-1",
+      "normalized": "好",
+      "display": "好",
+      "mandarin": "好",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "hau3",
+        "sourceIndex": 15
+      }
+    },
+    {
+      "id": "hakka-16-1",
+      "normalized": "真係",
+      "display": "真係",
+      "mandarin": "真是",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "zin1he4",
+        "sourceIndex": 16
+      }
+    },
+    {
+      "id": "hakka-17-1",
+      "normalized": "就",
+      "display": "就",
+      "mandarin": "就",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ciu4",
+        "sourceIndex": 17
+      }
+    },
+    {
+      "id": "hakka-18-1",
+      "normalized": "做得",
+      "display": "做得",
+      "mandarin": "能",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "zo4ded5",
+        "sourceIndex": 18
+      }
+    },
+    {
+      "id": "hakka-19-1",
+      "normalized": "特別",
+      "display": "特別",
+      "mandarin": "特别",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "tiet6piet6",
+        "sourceIndex": 19
+      }
+    },
+    {
+      "id": "hakka-20-1",
+      "normalized": "听讲",
+      "display": "听讲",
+      "mandarin": "听说",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ngin3gong3",
+        "sourceIndex": 20
+      }
+    },
+    {
+      "id": "hakka-21-1",
+      "normalized": "啊",
+      "display": "啊",
+      "mandarin": "啊",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "a1",
+        "sourceIndex": 21
+      }
+    },
+    {
+      "id": "hakka-22-1",
+      "normalized": "係",
+      "display": "係",
+      "mandarin": "是",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "he4",
+        "sourceIndex": 22
+      }
+    },
+    {
+      "id": "hakka-23-1",
+      "normalized": "多",
+      "display": "多",
+      "mandarin": "多",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "do1",
+        "sourceIndex": 23
+      }
+    },
+    {
+      "id": "hakka-24-1",
+      "normalized": "𠮶",
+      "display": "𠮶",
+      "mandarin": "这",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ge3",
+        "sourceIndex": 24
+      }
+    },
+    {
+      "id": "hakka-25-1",
+      "normalized": "望",
+      "display": "望",
+      "mandarin": "看",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "mong4",
+        "sourceIndex": 25
+      }
+    },
+    {
+      "id": "hakka-26-1",
+      "normalized": "看",
+      "display": "看",
+      "mandarin": "看",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "kon4",
+        "sourceIndex": 26
+      }
+    },
+    {
+      "id": "hakka-27-1",
+      "normalized": "人",
+      "display": "人",
+      "mandarin": "人",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ngin2",
+        "sourceIndex": 27
+      }
+    },
+    {
+      "id": "hakka-28-1",
+      "normalized": "还",
+      "display": "还",
+      "mandarin": "还",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "van2 / han2",
+        "sourceIndex": 28
+      }
+    },
+    {
+      "id": "hakka-29-1",
+      "normalized": "真",
+      "display": "真",
+      "mandarin": "真",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "zin1",
+        "sourceIndex": 29
+      }
+    },
+    {
+      "id": "hakka-30-1",
+      "normalized": "的个",
+      "display": "的个",
+      "mandarin": "这个",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ge1go4",
+        "sourceIndex": 30
+      }
+    },
+    {
+      "id": "hakka-31-1",
+      "normalized": "买",
+      "display": "买",
+      "mandarin": "买",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "mai1",
+        "sourceIndex": 31
+      }
+    },
+    {
+      "id": "hakka-32-1",
+      "normalized": "唔",
+      "display": "唔",
+      "mandarin": "不",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "m2",
+        "sourceIndex": 32
+      }
+    },
+    {
+      "id": "hakka-33-1",
+      "normalized": "有",
+      "display": "有",
+      "mandarin": "有",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "iu1",
+        "sourceIndex": 33
+      }
+    },
+    {
+      "id": "hakka-34-1",
+      "normalized": "咹",
+      "display": "咹",
+      "mandarin": "很",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "an3",
+        "sourceIndex": 34
+      }
+    },
+    {
+      "id": "hakka-35-1",
+      "normalized": "讲",
+      "display": "讲",
+      "mandarin": "说",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "gong3",
+        "sourceIndex": 35
+      }
+    },
+    {
+      "id": "hakka-36-1",
+      "normalized": "里背",
+      "display": "里背",
+      "mandarin": "里",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "li3boi4",
+        "sourceIndex": 36
+      }
+    },
+    {
+      "id": "hakka-37-1",
+      "normalized": "時节",
+      "display": "時节",
+      "mandarin": "时候",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "si2zet5",
+        "sourceIndex": 37
+      }
+    },
+    {
+      "id": "hakka-38-1",
+      "normalized": "用",
+      "display": "用",
+      "mandarin": "用",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "iung4",
+        "sourceIndex": 38
+      }
+    },
+    {
+      "id": "hakka-39-1",
+      "normalized": "無",
+      "display": "無",
+      "mandarin": "吗",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "vu2",
+        "sourceIndex": 39
+      }
+    },
+    {
+      "id": "hakka-40-1",
+      "normalized": "也",
+      "display": "也",
+      "mandarin": "也",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ia1",
+        "sourceIndex": 40
+      }
+    },
+    {
+      "id": "hakka-41-1",
+      "normalized": "做",
+      "display": "做",
+      "mandarin": "做",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "zo4",
+        "sourceIndex": 41
+      }
+    },
+    {
+      "id": "hakka-42-1",
+      "normalized": "个",
+      "display": "个",
+      "mandarin": "那",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ge4",
+        "sourceIndex": 42
+      }
+    },
+    {
+      "id": "hakka-43-1",
+      "normalized": "又",
+      "display": "又",
+      "mandarin": "又",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "iu4",
+        "sourceIndex": 43
+      }
+    },
+    {
+      "id": "hakka-44-1",
+      "normalized": "你大家",
+      "display": "你大家",
+      "mandarin": "你们",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ngi2tai4ga1",
+        "sourceIndex": 44
+      }
+    },
+    {
+      "id": "hakka-45-1",
+      "normalized": "你兜",
+      "display": "你兜",
+      "mandarin": "你们",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ngi2deu1",
+        "sourceIndex": 45
+      }
+    },
+    {
+      "id": "hakka-46-1",
+      "normalized": "你等人",
+      "display": "你等人",
+      "mandarin": "你们",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ngi2den1ngin4",
+        "sourceIndex": 46
+      }
+    },
+    {
+      "id": "hakka-47-1",
+      "normalized": "记得",
+      "display": "记得",
+      "mandarin": "记得",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "gi4ded5",
+        "sourceIndex": 47
+      }
+    },
+    {
+      "id": "hakka-48-1",
+      "normalized": "咹欸",
+      "display": "咹欸",
+      "mandarin": "这么",
+      "aliases": [
+        "咹"
+      ],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "an3e2 / an3",
+        "sourceIndex": 48
+      }
+    },
+    {
+      "id": "hakka-49-1",
+      "normalized": "比",
+      "display": "比",
+      "mandarin": "比",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "bi3",
+        "sourceIndex": 49
+      }
+    },
+    {
+      "id": "hakka-50-1",
+      "normalized": "到",
+      "display": "到",
+      "mandarin": "到",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "dau4",
+        "sourceIndex": 50
+      }
+    },
+    {
+      "id": "hakka-51-1",
+      "normalized": "连",
+      "display": "连",
+      "mandarin": "连",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "lien2",
+        "sourceIndex": 51
+      }
+    },
+    {
+      "id": "hakka-52-1",
+      "normalized": "唔爱",
+      "display": "唔爱",
+      "mandarin": "不要",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "m2oi4",
+        "sourceIndex": 52
+      }
+    },
+    {
+      "id": "hakka-53-1",
+      "normalized": "会",
+      "display": "会",
+      "mandarin": "会",
+      "aliases": [],
+      "notes": [
+        "注意区分oi"
+      ],
+      "tags": [],
+      "attributes": {
+        "pinyin": "voi4",
+        "sourceIndex": 53
+      }
+    },
+    {
+      "id": "hakka-54-1",
+      "normalized": "秋晡日",
+      "display": "秋晡日",
+      "mandarin": "昨天",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ciu1bu1ngit5",
+        "sourceIndex": 54
+      }
+    },
+    {
+      "id": "hakka-55-1",
+      "normalized": "将",
+      "display": "将",
+      "mandarin": "把",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ziong4 / ciong1",
+        "sourceIndex": 55
+      }
+    },
+    {
+      "id": "hakka-56-1",
+      "normalized": "上",
+      "display": "上",
+      "mandarin": "上",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "song1",
+        "sourceIndex": 56
+      }
+    },
+    {
+      "id": "hakka-57-1",
+      "normalized": "冇",
+      "display": "冇",
+      "mandarin": "没",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "mo2",
+        "sourceIndex": 57
+      }
+    },
+    {
+      "id": "hakka-58-1",
+      "normalized": "屋下",
+      "display": "屋下",
+      "mandarin": "家",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "vuk5ha1",
+        "sourceIndex": 58
+      }
+    },
+    {
+      "id": "hakka-59-1",
+      "normalized": "跟",
+      "display": "跟",
+      "mandarin": "跟",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "gen1",
+        "sourceIndex": 59
+      }
+    },
+    {
+      "id": "hakka-60-1",
+      "normalized": "啰",
+      "display": "啰",
+      "mandarin": "吧",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "lo2",
+        "sourceIndex": 60
+      }
+    },
+    {
+      "id": "hakka-61-1",
+      "normalized": "忒",
+      "display": "忒",
+      "mandarin": "太",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "tet5",
+        "sourceIndex": 61
+      }
+    },
+    {
+      "id": "hakka-62-1",
+      "normalized": "食",
+      "display": "食",
+      "mandarin": "吃",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "set6",
+        "sourceIndex": 62
+      }
+    },
+    {
+      "id": "hakka-63-1",
+      "normalized": "来",
+      "display": "来",
+      "mandarin": "来",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "loi2",
+        "sourceIndex": 63
+      }
+    },
+    {
+      "id": "hakka-64-1",
+      "normalized": "样欸",
+      "display": "样欸",
+      "mandarin": "怎么",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ngiong4e2",
+        "sourceIndex": 64
+      }
+    },
+    {
+      "id": "hakka-65-1",
+      "normalized": "着",
+      "display": "着",
+      "mandarin": "着",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "dau3 / cok6",
+        "sourceIndex": 65
+      }
+    },
+    {
+      "id": "hakka-66-1",
+      "normalized": "哎呀",
+      "display": "哎呀",
+      "mandarin": "哎呀",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ngai4nga4",
+        "sourceIndex": 66
+      }
+    },
+    {
+      "id": "hakka-67-1",
+      "normalized": "想",
+      "display": "想",
+      "mandarin": "想",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "siong3",
+        "sourceIndex": 67
+      }
+    },
+    {
+      "id": "hakka-68-1",
+      "normalized": "细人仔",
+      "display": "细人仔",
+      "mandarin": "孩子",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "se4ngin2",
+        "sourceIndex": 68
+      }
+    },
+    {
+      "id": "hakka-69-1",
+      "normalized": "咱等人",
+      "display": "咱等人",
+      "mandarin": "咱们",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ci4den1ngin2",
+        "sourceIndex": 69
+      }
+    },
+    {
+      "id": "hakka-70-1",
+      "normalized": "呢",
+      "display": "呢",
+      "mandarin": "呢",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ni2",
+        "sourceIndex": 70
+      }
+    },
+    {
+      "id": "hakka-71-1",
+      "normalized": "该兜",
+      "display": "该兜",
+      "mandarin": "那些",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "goi1deu1",
+        "sourceIndex": 71
+      }
+    },
+    {
+      "id": "hakka-72-1",
+      "normalized": "䟘",
+      "display": "䟘",
+      "mandarin": "起来",
+      "aliases": [],
+      "notes": [
+        "䟘床"
+      ],
+      "tags": [],
+      "attributes": {
+        "pinyin": "hong4",
+        "sourceIndex": 72
+      }
+    },
+    {
+      "id": "hakka-73-1",
+      "normalized": "起来",
+      "display": "起来",
+      "mandarin": "起来",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "hi3loi2",
+        "sourceIndex": 73
+      }
+    },
+    {
+      "id": "hakka-74-1",
+      "normalized": "系唔系",
+      "display": "系唔系",
+      "mandarin": "是不是",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ge1he4he4",
+        "sourceIndex": 74
+      }
+    },
+    {
+      "id": "hakka-75-1",
+      "normalized": "上摆",
+      "display": "上摆",
+      "mandarin": "上次",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "song1bai3",
+        "sourceIndex": 75
+      }
+    },
+    {
+      "id": "hakka-76-1",
+      "normalized": "共下",
+      "display": "共下",
+      "mandarin": "一起",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "kiung4ha4",
+        "sourceIndex": 76
+      }
+    },
+    {
+      "id": "hakka-77-1",
+      "normalized": "𠮶次",
+      "display": "𠮶次",
+      "mandarin": "这次",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ge3ci4",
+        "sourceIndex": 77
+      }
+    },
+    {
+      "id": "hakka-78-1",
+      "normalized": "带",
+      "display": "带",
+      "mandarin": "带",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "dai4",
+        "sourceIndex": 78
+      }
+    },
+    {
+      "id": "hakka-79-1",
+      "normalized": "畀",
+      "display": "畀",
+      "mandarin": "给",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "bi4",
+        "sourceIndex": 79
+      }
+    },
+    {
+      "id": "hakka-80-1",
+      "normalized": "游戏",
+      "display": "游戏",
+      "mandarin": "游戏",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "iu2hi4",
+        "sourceIndex": 80
+      }
+    },
+    {
+      "id": "hakka-81-1",
+      "normalized": "亟",
+      "display": "亟",
+      "mandarin": "快",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "hi4",
+        "sourceIndex": 81
+      }
+    },
+    {
+      "id": "hakka-82-1",
+      "normalized": "佢",
+      "display": "佢",
+      "mandarin": "他",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "gi2",
+        "sourceIndex": 82
+      }
+    },
+    {
+      "id": "hakka-83-1",
+      "normalized": "佢等人",
+      "display": "佢等人",
+      "mandarin": "他们",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "gi2den1ngin4",
+        "sourceIndex": 83
+      }
+    },
+    {
+      "id": "hakka-84-1",
+      "normalized": "好多",
+      "display": "好多",
+      "mandarin": "好多",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "hau4do1",
+        "sourceIndex": 84
+      }
+    },
+    {
+      "id": "hakka-85-1",
+      "normalized": "老",
+      "display": "老",
+      "mandarin": "老",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "lau3",
+        "sourceIndex": 85
+      }
+    },
+    {
+      "id": "hakka-86-1",
+      "normalized": "的兜",
+      "display": "的兜",
+      "mandarin": "这些",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ge1deu1",
+        "sourceIndex": 86
+      }
+    },
+    {
+      "id": "hakka-87-1",
+      "normalized": "料",
+      "display": "料",
+      "mandarin": "玩",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "liau4",
+        "sourceIndex": 87
+      }
+    },
+    {
+      "id": "hakka-88-1",
+      "normalized": "畀",
+      "display": "畀",
+      "mandarin": "让",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "bi4",
+        "sourceIndex": 88
+      }
+    },
+    {
+      "id": "hakka-89-1",
+      "normalized": "做得",
+      "display": "做得",
+      "mandarin": "可以",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "zo4ded5",
+        "sourceIndex": 89
+      }
+    },
+    {
+      "id": "hakka-90-1",
+      "normalized": "卖",
+      "display": "卖",
+      "mandarin": "卖",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "mai4",
+        "sourceIndex": 90
+      }
+    },
+    {
+      "id": "hakka-91-1",
+      "normalized": "抵得",
+      "display": "抵得",
+      "mandarin": "知道",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "de3ded5",
+        "sourceIndex": 91
+      }
+    },
+    {
+      "id": "hakka-92-1",
+      "normalized": "脉个",
+      "display": "脉个",
+      "mandarin": "什么",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "mak6ge1",
+        "sourceIndex": 92
+      }
+    },
+    {
+      "id": "hakka-93-1",
+      "normalized": "打",
+      "display": "打",
+      "mandarin": "打",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "da3 / den3",
+        "sourceIndex": 93
+      }
+    },
+    {
+      "id": "hakka-94-1",
+      "normalized": "试著",
+      "display": "试著",
+      "mandarin": "觉得",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ci4zu4",
+        "sourceIndex": 94
+      }
+    },
+    {
+      "id": "hakka-95-1",
+      "normalized": "唔使",
+      "display": "唔使",
+      "mandarin": "不用",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "m2si3",
+        "sourceIndex": 95
+      }
+    },
+    {
+      "id": "hakka-96-1",
+      "normalized": "看到",
+      "display": "看到",
+      "mandarin": "看到",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "kon4dau4",
+        "sourceIndex": 96
+      }
+    },
+    {
+      "id": "hakka-97-1",
+      "normalized": "今年",
+      "display": "今年",
+      "mandarin": "今年",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "gim1ngien2",
+        "sourceIndex": 97
+      }
+    },
+    {
+      "id": "hakka-98-1",
+      "normalized": "看下",
+      "display": "看下",
+      "mandarin": "看看",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "kon4ha4",
+        "sourceIndex": 98
+      }
+    },
+    {
+      "id": "hakka-99-1",
+      "normalized": "隔籬",
+      "display": "隔籬",
+      "mandarin": "隔壁",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "gak6li2",
+        "sourceIndex": 99
+      }
+    },
+    {
+      "id": "hakka-100-1",
+      "normalized": "个边",
+      "display": "个边",
+      "mandarin": "那边",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ge4bien1",
+        "sourceIndex": 100
+      }
+    },
+    {
+      "id": "hakka-101-1",
+      "normalized": "被",
+      "display": "被",
+      "mandarin": "被",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "pi1",
+        "sourceIndex": 101
+      }
+    },
+    {
+      "id": "hakka-102-1",
+      "normalized": "大齐家",
+      "display": "大齐家",
+      "mandarin": "大家",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "tai4ce4ga1",
+        "sourceIndex": 102
+      }
+    },
+    {
+      "id": "hakka-103-1",
+      "normalized": "哇",
+      "display": "哇",
+      "mandarin": "哇",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ai1",
+        "sourceIndex": 103
+      }
+    },
+    {
+      "id": "hakka-104-1",
+      "normalized": "暗晡",
+      "display": "暗晡",
+      "mandarin": "晚上",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "am4bu1",
+        "sourceIndex": 104
+      }
+    },
+    {
+      "id": "hakka-105-1",
+      "normalized": "晡夜",
+      "display": "晡夜",
+      "mandarin": "晚上",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "bu1ya4",
+        "sourceIndex": 105
+      }
+    },
+    {
+      "id": "hakka-106-1",
+      "normalized": "一样",
+      "display": "一样",
+      "mandarin": "一样",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "it5ngiong4",
+        "sourceIndex": 106
+      }
+    },
+    {
+      "id": "hakka-107-1",
+      "normalized": "电影",
+      "display": "电影",
+      "mandarin": "电影",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "tien4iang3",
+        "sourceIndex": 107
+      }
+    },
+    {
+      "id": "hakka-108-1",
+      "normalized": "可",
+      "display": "可",
+      "mandarin": "可",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ko3",
+        "sourceIndex": 108
+      }
+    },
+    {
+      "id": "hakka-109-1",
+      "normalized": "就係",
+      "display": "就係",
+      "mandarin": "就是",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ciu4he4",
+        "sourceIndex": 109
+      }
+    },
+    {
+      "id": "hakka-110-1",
+      "normalized": "正",
+      "display": "正",
+      "mandarin": "才",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "zin4 / zang4",
+        "sourceIndex": 110
+      }
+    },
+    {
+      "id": "hakka-111-1",
+      "normalized": "肯定",
+      "display": "肯定",
+      "mandarin": "肯定",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ken3din4",
+        "sourceIndex": 111
+      }
+    },
+    {
+      "id": "hakka-112-1",
+      "normalized": "像",
+      "display": "像",
+      "mandarin": "像",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ciong4 / ciang1",
+        "sourceIndex": 112
+      }
+    },
+    {
+      "id": "hakka-113-1",
+      "normalized": "𠊎屋下",
+      "display": "𠊎屋下",
+      "mandarin": "我家",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ngai2vuk5ha1",
+        "sourceIndex": 113
+      }
+    },
+    {
+      "id": "hakka-114-1",
+      "normalized": "听",
+      "display": "听",
+      "mandarin": "听",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "tang4 / ngin3",
+        "sourceIndex": 114
+      }
+    },
+    {
+      "id": "hakka-115-1",
+      "normalized": "本事",
+      "display": "本事",
+      "mandarin": "厉害",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "bun3se4",
+        "sourceIndex": 115
+      }
+    },
+    {
+      "id": "hakka-116-1",
+      "normalized": "新",
+      "display": "新",
+      "mandarin": "新",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "sin1",
+        "sourceIndex": 116
+      }
+    },
+    {
+      "id": "hakka-117-1",
+      "normalized": "唔做得",
+      "display": "唔做得",
+      "mandarin": "不能",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "m2zo4ded5",
+        "sourceIndex": 117
+      }
+    },
+    {
+      "id": "hakka-118-1",
+      "normalized": "只",
+      "display": "只",
+      "mandarin": "个",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "zak5",
+        "sourceIndex": 118
+      }
+    },
+    {
+      "id": "hakka-119-1",
+      "normalized": "唔会",
+      "display": "唔会",
+      "mandarin": "不会",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "m2voi4",
+        "sourceIndex": 119
+      }
+    },
+    {
+      "id": "hakka-120-1",
+      "normalized": "味道",
+      "display": "味道",
+      "mandarin": "味道",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "mi4tau4",
+        "sourceIndex": 120
+      }
+    },
+    {
+      "id": "hakka-121-1",
+      "normalized": "最",
+      "display": "最",
+      "mandarin": "最",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "zui4",
+        "sourceIndex": 121
+      }
+    },
+    {
+      "id": "hakka-122-1",
+      "normalized": "知",
+      "display": "知",
+      "mandarin": "知道",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "di1",
+        "sourceIndex": 122
+      }
+    },
+    {
+      "id": "hakka-123-1",
+      "normalized": "知影",
+      "display": "知影",
+      "mandarin": "知道",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "di1iang3",
+        "sourceIndex": 123
+      }
+    },
+    {
+      "id": "hakka-124-1",
+      "normalized": "讲",
+      "display": "讲",
+      "mandarin": "说",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "gong3",
+        "sourceIndex": 124
+      }
+    },
+    {
+      "id": "hakka-125-1",
+      "normalized": "话",
+      "display": "话",
+      "mandarin": "话",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "va4",
+        "sourceIndex": 125
+      }
+    },
+    {
+      "id": "hakka-126-1",
+      "normalized": "讲古",
+      "display": "讲古",
+      "mandarin": "讲故事",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "gong3gu3",
+        "sourceIndex": 126
+      }
+    },
+    {
+      "id": "hakka-127-1",
+      "normalized": "仰般",
+      "display": "仰般",
+      "mandarin": "怎么",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ngiong3ban1",
+        "sourceIndex": 127
+      }
+    },
+    {
+      "id": "hakka-128-1",
+      "normalized": "样般",
+      "display": "样般",
+      "mandarin": "怎么",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ngiong4ban1",
+        "sourceIndex": 128
+      }
+    },
+    {
+      "id": "hakka-129-1",
+      "normalized": "哪仔",
+      "display": "哪仔",
+      "mandarin": "哪里",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "na3e3",
+        "sourceIndex": 129
+      }
+    },
+    {
+      "id": "hakka-130-1",
+      "normalized": "哪",
+      "display": "哪",
+      "mandarin": "哪",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "na3",
+        "sourceIndex": 130
+      }
+    },
+    {
+      "id": "hakka-131-1",
+      "normalized": "个滴",
+      "display": "个滴",
+      "mandarin": "这些",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ge4did1",
+        "sourceIndex": 131
+      }
+    },
+    {
+      "id": "hakka-132-1",
+      "normalized": "该滴",
+      "display": "该滴",
+      "mandarin": "那些",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "goi1did1",
+        "sourceIndex": 132
+      }
+    },
+    {
+      "id": "hakka-133-1",
+      "normalized": "这",
+      "display": "这",
+      "mandarin": "这",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "li4 / e3",
+        "sourceIndex": 133
+      }
+    },
+    {
+      "id": "hakka-134-1",
+      "normalized": "该",
+      "display": "该",
+      "mandarin": "那",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "goi1",
+        "sourceIndex": 134
+      }
+    },
+    {
+      "id": "hakka-135-1",
+      "normalized": "这边",
+      "display": "这边",
+      "mandarin": "这边",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "li4bien1",
+        "sourceIndex": 135
+      }
+    },
+    {
+      "id": "hakka-136-1",
+      "normalized": "该边",
+      "display": "该边",
+      "mandarin": "那边",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "goi1bien1",
+        "sourceIndex": 136
+      }
+    },
+    {
+      "id": "hakka-137-1",
+      "normalized": "这里",
+      "display": "这里",
+      "mandarin": "这里",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "li4li3",
+        "sourceIndex": 137
+      }
+    },
+    {
+      "id": "hakka-138-1",
+      "normalized": "那里",
+      "display": "那里",
+      "mandarin": "那里",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "goi1li3",
+        "sourceIndex": 138
+      }
+    },
+    {
+      "id": "hakka-139-1",
+      "normalized": "做脉个",
+      "display": "做脉个",
+      "mandarin": "干什么",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "zo4mak6ge1",
+        "sourceIndex": 139
+      }
+    },
+    {
+      "id": "hakka-140-1",
+      "normalized": "脉个",
+      "display": "脉个",
+      "mandarin": "什么",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "mak6ge1",
+        "sourceIndex": 140
+      }
+    },
+    {
+      "id": "hakka-141-1",
+      "normalized": "几多",
+      "display": "几多",
+      "mandarin": "多少",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ji3do1",
+        "sourceIndex": 141
+      }
+    },
+    {
+      "id": "hakka-142-1",
+      "normalized": "几",
+      "display": "几",
+      "mandarin": "几",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ji3",
+        "sourceIndex": 142
+      }
+    },
+    {
+      "id": "hakka-143-1",
+      "normalized": "久",
+      "display": "久",
+      "mandarin": "久",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "giu3",
+        "sourceIndex": 143
+      }
+    },
+    {
+      "id": "hakka-144-1",
+      "normalized": "早",
+      "display": "早",
+      "mandarin": "早",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "zau3",
+        "sourceIndex": 144
+      }
+    },
+    {
+      "id": "hakka-145-1",
+      "normalized": "暗",
+      "display": "暗",
+      "mandarin": "晚",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "am4",
+        "sourceIndex": 145
+      }
+    },
+    {
+      "id": "hakka-146-1",
+      "normalized": "朝",
+      "display": "朝",
+      "mandarin": "早上",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "zeu1",
+        "sourceIndex": 146
+      }
+    },
+    {
+      "id": "hakka-147-1",
+      "normalized": "昼",
+      "display": "昼",
+      "mandarin": "中午",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "zu4",
+        "sourceIndex": 147
+      }
+    },
+    {
+      "id": "hakka-148-1",
+      "normalized": "晡",
+      "display": "晡",
+      "mandarin": "下午",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "bu1",
+        "sourceIndex": 148
+      }
+    },
+    {
+      "id": "hakka-149-1",
+      "normalized": "夜",
+      "display": "夜",
+      "mandarin": "晚上",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ya4",
+        "sourceIndex": 149
+      }
+    },
+    {
+      "id": "hakka-150-1",
+      "normalized": "今",
+      "display": "今",
+      "mandarin": "今",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "gim1",
+        "sourceIndex": 150
+      }
+    },
+    {
+      "id": "hakka-151-1",
+      "normalized": "昨",
+      "display": "昨",
+      "mandarin": "昨",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "cok6",
+        "sourceIndex": 151
+      }
+    },
+    {
+      "id": "hakka-152-1",
+      "normalized": "明",
+      "display": "明",
+      "mandarin": "明",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "miang2",
+        "sourceIndex": 152
+      }
+    },
+    {
+      "id": "hakka-153-1",
+      "normalized": "后",
+      "display": "后",
+      "mandarin": "后",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "heu4",
+        "sourceIndex": 153
+      }
+    },
+    {
+      "id": "hakka-154-1",
+      "normalized": "前",
+      "display": "前",
+      "mandarin": "前",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "qien2",
+        "sourceIndex": 154
+      }
+    },
+    {
+      "id": "hakka-155-1",
+      "normalized": "日",
+      "display": "日",
+      "mandarin": "天/日",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ngid5",
+        "sourceIndex": 155
+      }
+    },
+    {
+      "id": "hakka-156-1",
+      "normalized": "月",
+      "display": "月",
+      "mandarin": "月",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ngiad5",
+        "sourceIndex": 156
+      }
+    },
+    {
+      "id": "hakka-157-1",
+      "normalized": "年",
+      "display": "年",
+      "mandarin": "年",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ngien2",
+        "sourceIndex": 157
+      }
+    },
+    {
+      "id": "hakka-158-1",
+      "normalized": "点钟",
+      "display": "点钟",
+      "mandarin": "点钟",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "diem3zung1",
+        "sourceIndex": 158
+      }
+    },
+    {
+      "id": "hakka-159-1",
+      "normalized": "分",
+      "display": "分",
+      "mandarin": "分",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "fun1",
+        "sourceIndex": 159
+      }
+    },
+    {
+      "id": "hakka-160-1",
+      "normalized": "秒",
+      "display": "秒",
+      "mandarin": "秒",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "meu3",
+        "sourceIndex": 160
+      }
+    },
+    {
+      "id": "hakka-161-1",
+      "normalized": "而家",
+      "display": "而家",
+      "mandarin": "现在",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "i2ga1",
+        "sourceIndex": 161
+      }
+    },
+    {
+      "id": "hakka-162-1",
+      "normalized": "刚才",
+      "display": "刚才",
+      "mandarin": "刚才",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "gong1coi1",
+        "sourceIndex": 162
+      }
+    },
+    {
+      "id": "hakka-163-1",
+      "normalized": "等下",
+      "display": "等下",
+      "mandarin": "等下",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "den3ha4",
+        "sourceIndex": 163
+      }
+    },
+    {
+      "id": "hakka-164-1",
+      "normalized": "一阵",
+      "display": "一阵",
+      "mandarin": "一会儿",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "it5qin4",
+        "sourceIndex": 164
+      }
+    },
+    {
+      "id": "hakka-165-1",
+      "normalized": "先",
+      "display": "先",
+      "mandarin": "先",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "xian1",
+        "sourceIndex": 165
+      }
+    },
+    {
+      "id": "hakka-166-1",
+      "normalized": "正",
+      "display": "正",
+      "mandarin": "才",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "zin4",
+        "sourceIndex": 166
+      }
+    },
+    {
+      "id": "hakka-167-1",
+      "normalized": "就",
+      "display": "就",
+      "mandarin": "就",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ciu4",
+        "sourceIndex": 167
+      }
+    },
+    {
+      "id": "hakka-168-1",
+      "normalized": "又",
+      "display": "又",
+      "mandarin": "又",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "iu4",
+        "sourceIndex": 168
+      }
+    },
+    {
+      "id": "hakka-169-1",
+      "normalized": "再",
+      "display": "再",
+      "mandarin": "再",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "zoi4",
+        "sourceIndex": 169
+      }
+    },
+    {
+      "id": "hakka-170-1",
+      "normalized": "还",
+      "display": "还",
+      "mandarin": "还",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "han2",
+        "sourceIndex": 170
+      }
+    },
+    {
+      "id": "hakka-171-1",
+      "normalized": "已经",
+      "display": "已经",
+      "mandarin": "已经",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "i1gin1",
+        "sourceIndex": 171
+      }
+    },
+    {
+      "id": "hakka-172-1",
+      "normalized": "曾经",
+      "display": "曾经",
+      "mandarin": "曾经",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "cen2gin1",
+        "sourceIndex": 172
+      }
+    },
+    {
+      "id": "hakka-173-1",
+      "normalized": "过",
+      "display": "过",
+      "mandarin": "过",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "go4",
+        "sourceIndex": 173
+      }
+    },
+    {
+      "id": "hakka-174-1",
+      "normalized": "着",
+      "display": "着",
+      "mandarin": "着",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "zu4",
+        "sourceIndex": 174
+      }
+    },
+    {
+      "id": "hakka-175-1",
+      "normalized": "了",
+      "display": "了",
+      "mandarin": "了",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "liau3",
+        "sourceIndex": 175
+      }
+    },
+    {
+      "id": "hakka-176-1",
+      "normalized": "在",
+      "display": "在",
+      "mandarin": "在",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "coi4",
+        "sourceIndex": 176
+      }
+    },
+    {
+      "id": "hakka-177-1",
+      "normalized": "有",
+      "display": "有",
+      "mandarin": "有",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "iu3",
+        "sourceIndex": 177
+      }
+    },
+    {
+      "id": "hakka-178-1",
+      "normalized": "无",
+      "display": "无",
+      "mandarin": "没有",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "mo2",
+        "sourceIndex": 178
+      }
+    },
+    {
+      "id": "hakka-179-1",
+      "normalized": "唔",
+      "display": "唔",
+      "mandarin": "不",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "m2",
+        "sourceIndex": 179
+      }
+    },
+    {
+      "id": "hakka-180-1",
+      "normalized": "莫",
+      "display": "莫",
+      "mandarin": "别",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "mog6",
+        "sourceIndex": 180
+      }
+    },
+    {
+      "id": "hakka-181-1",
+      "normalized": "勿",
+      "display": "勿",
+      "mandarin": "不要",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "vid5",
+        "sourceIndex": 181
+      }
+    },
+    {
+      "id": "hakka-182-1",
+      "normalized": "效果",
+      "display": "效果",
+      "mandarin": "效果",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 182,
+        "sourceSheet": "正字",
+        "pinyin": "hau4go3"
+      }
+    },
+    {
+      "id": "hakka-183-1",
+      "normalized": "容易",
+      "display": "容易",
+      "mandarin": "容易",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 183,
+        "sourceSheet": "正字",
+        "pinyin": "iung2i4"
+      }
+    },
+    {
+      "id": "hakka-184-1",
+      "normalized": "市场",
+      "display": "市场",
+      "mandarin": "市场",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 184,
+        "sourceSheet": "正字",
+        "pinyin": "si4cong2"
+      }
+    },
+    {
+      "id": "hakka-185-1",
+      "normalized": "转来",
+      "display": "转来",
+      "mandarin": "回来",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 185,
+        "sourceSheet": "正字",
+        "pinyin": "zon3loi2"
+      }
+    },
+    {
+      "id": "hakka-186-1",
+      "normalized": "好食",
+      "display": "好食",
+      "mandarin": "好吃",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 186,
+        "sourceSheet": "正字",
+        "pinyin": "hau4set6"
+      }
+    },
+    {
+      "id": "hakka-187-1",
+      "normalized": "朝晨头",
+      "display": "朝晨头",
+      "mandarin": "早上",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 187,
+        "sourceSheet": "正字",
+        "pinyin": "zau1sen2theu2"
+      }
+    },
+    {
+      "id": "hakka-188-1",
+      "normalized": "亟滴",
+      "display": "亟滴",
+      "mandarin": "赶紧",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 188,
+        "sourceSheet": "正字",
+        "pinyin": "ki4dit5"
+      }
+    },
+    {
+      "id": "hakka-189-1",
+      "normalized": "月",
+      "display": "月",
+      "mandarin": "月",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 189,
+        "sourceSheet": "正字",
+        "pinyin": "ngiat6"
+      }
+    },
+    {
+      "id": "hakka-190-1",
+      "normalized": "学",
+      "display": "学",
+      "mandarin": "学",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 190,
+        "sourceSheet": "正字",
+        "pinyin": "hok6"
+      }
+    },
+    {
+      "id": "hakka-191-1",
+      "normalized": "活动",
+      "display": "活动",
+      "mandarin": "活动",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 191,
+        "sourceSheet": "正字",
+        "pinyin": "kwat5tung4"
+      }
+    },
+    {
+      "id": "hakka-192-1",
+      "normalized": "有人",
+      "display": "有人",
+      "mandarin": "有人",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 192,
+        "sourceSheet": "正字",
+        "pinyin": "iu1ngin2"
+      }
+    },
+    {
+      "id": "hakka-193-1",
+      "normalized": "地方",
+      "display": "地方",
+      "mandarin": "地方",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 193,
+        "sourceSheet": "正字",
+        "pinyin": "ti4fong1"
+      }
+    },
+    {
+      "id": "hakka-194-1",
+      "normalized": "每天",
+      "display": "每天",
+      "mandarin": "每天",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 194,
+        "sourceSheet": "正字",
+        "pinyin": "mi1tien1"
+      }
+    },
+    {
+      "id": "hakka-195-1",
+      "normalized": "衫",
+      "display": "衫",
+      "mandarin": "衣服",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 195,
+        "sourceSheet": "正字",
+        "pinyin": "sam1"
+      }
+    },
+    {
+      "id": "hakka-196-1",
+      "normalized": "教",
+      "display": "教",
+      "mandarin": "教",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 196,
+        "sourceSheet": "正字",
+        "pinyin": "gau4"
+      }
+    },
+    {
+      "id": "hakka-197-1",
+      "normalized": "舊年",
+      "display": "舊年",
+      "mandarin": "去年",
+      "aliases": [
+        "旧年"
+      ],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 197,
+        "sourceSheet": "正字",
+        "pinyin": "kiu4ngien2"
+      }
+    },
+    {
+      "id": "hakka-198-1",
+      "normalized": "时",
+      "display": "时",
+      "mandarin": "时",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 198,
+        "sourceSheet": "正字",
+        "pinyin": "si2"
+      }
+    },
+    {
+      "id": "hakka-199-1",
+      "normalized": "中意",
+      "display": "中意",
+      "mandarin": "喜欢",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 199,
+        "sourceSheet": "正字",
+        "pinyin": "zung4i4"
+      }
+    },
+    {
+      "id": "hakka-200-1",
+      "normalized": "恁多",
+      "display": "恁多",
+      "mandarin": "很多",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 200,
+        "sourceSheet": "正字",
+        "pinyin": "ngim3an3"
+      }
+    },
+    {
+      "id": "hakka-201-1",
+      "normalized": "放",
+      "display": "放",
+      "mandarin": "放",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 201,
+        "sourceSheet": "正字",
+        "pinyin": "biong4"
+      }
+    },
+    {
+      "id": "hakka-202-1",
+      "normalized": "下",
+      "display": "下",
+      "mandarin": "下",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 202,
+        "sourceSheet": "正字",
+        "pinyin": "ha1"
+      }
+    },
+    {
+      "id": "hakka-203-1",
+      "normalized": "穰",
+      "display": "穰、攘",
+      "mandarin": "热闹",
+      "aliases": [
+        "攘"
+      ],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 203,
+        "sourceSheet": "正字",
+        "pinyin": "yang2"
+      }
+    },
+    {
+      "id": "hakka-204-1",
+      "normalized": "热闹",
+      "display": "热闹",
+      "mandarin": "热闹",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 204,
+        "sourceSheet": "正字",
+        "pinyin": "ngiat6nau4"
+      }
+    },
+    {
+      "id": "hakka-205-1",
+      "normalized": "不过",
+      "display": "不过",
+      "mandarin": "但",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 205,
+        "sourceSheet": "正字",
+        "pinyin": "biu1go1 / fu3go4"
+      }
+    },
+    {
+      "id": "hakka-206-1",
+      "normalized": "智能",
+      "display": "智能",
+      "mandarin": "智能",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 206,
+        "sourceSheet": "正字",
+        "pinyin": "zi4nen3"
+      }
+    },
+    {
+      "id": "hakka-207-1",
+      "normalized": "村",
+      "display": "村",
+      "mandarin": "村",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 207,
+        "sourceSheet": "正字",
+        "pinyin": "cun1"
+      }
+    },
+    {
+      "id": "hakka-208-1",
+      "normalized": "豆腐",
+      "display": "豆腐",
+      "mandarin": "豆腐",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 208,
+        "sourceSheet": "正字",
+        "pinyin": "theu4fu4"
+      }
+    },
+    {
+      "id": "hakka-209-1",
+      "normalized": "𠮶儿",
+      "display": "𠮶儿",
+      "mandarin": "这儿",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 209,
+        "sourceSheet": "正字",
+        "pinyin": "gê3ngin2"
+      }
+    },
+    {
+      "id": "hakka-210-1",
+      "normalized": "完只",
+      "display": "完只",
+      "mandarin": "整个",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 210,
+        "sourceSheet": "正字",
+        "pinyin": "van2zak5"
+      }
+    },
+    {
+      "id": "hakka-211-1",
+      "normalized": "更",
+      "display": "更",
+      "mandarin": "更",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 211,
+        "sourceSheet": "正字",
+        "pinyin": "gen4"
+      }
+    },
+    {
+      "id": "hakka-212-1",
+      "normalized": "排队",
+      "display": "排队",
+      "mandarin": "排队",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 212,
+        "sourceSheet": "正字",
+        "pinyin": "pai2dui4"
+      }
+    },
+    {
+      "id": "hakka-213-1",
+      "normalized": "等",
+      "display": "等",
+      "mandarin": "等",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 213,
+        "sourceSheet": "正字",
+        "pinyin": "doi3 / den1"
+      }
+    },
+    {
+      "id": "hakka-214-1",
+      "normalized": "广场",
+      "display": "广场",
+      "mandarin": "广场",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 214,
+        "sourceSheet": "正字",
+        "pinyin": "guong3cong2"
+      }
+    },
+    {
+      "id": "hakka-215-1",
+      "normalized": "晒",
+      "display": "晒",
+      "mandarin": "晒",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 215,
+        "sourceSheet": "正字",
+        "pinyin": "sai4"
+      }
+    },
+    {
+      "id": "hakka-216-1",
+      "normalized": "虽然",
+      "display": "虽然",
+      "mandarin": "虽然",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 216,
+        "sourceSheet": "正字",
+        "pinyin": "sui1ien2"
+      }
+    },
+    {
+      "id": "hakka-217-1",
+      "normalized": "细",
+      "display": "细",
+      "mandarin": "小",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 217,
+        "sourceSheet": "正字",
+        "pinyin": "sai3"
+      }
+    },
+    {
+      "id": "hakka-218-1",
+      "normalized": "村裡背",
+      "display": "村裡背",
+      "mandarin": "村里",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 218,
+        "sourceSheet": "正字",
+        "pinyin": "cun1li3poi4"
+      }
+    },
+    {
+      "id": "hakka-219-1",
+      "normalized": "几多",
+      "display": "几多",
+      "mandarin": "多少",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 219,
+        "sourceSheet": "正字",
+        "pinyin": "gei1do1"
+      }
+    },
+    {
+      "id": "hakka-220-1",
+      "normalized": "学堂",
+      "display": "学堂",
+      "mandarin": "学校",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 220,
+        "sourceSheet": "正字",
+        "pinyin": "hok6thong2"
+      }
+    },
+    {
+      "id": "hakka-221-1",
+      "normalized": "昨晡",
+      "display": "昨晡",
+      "mandarin": "昨晚",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 221,
+        "sourceSheet": "正字",
+        "pinyin": "cok6bu1"
+      }
+    },
+    {
+      "id": "hakka-222-1",
+      "normalized": "一",
+      "display": "一",
+      "mandarin": "一",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 222,
+        "sourceSheet": "正字",
+        "pinyin": "it5"
+      }
+    },
+    {
+      "id": "hakka-223-1",
+      "normalized": "准备",
+      "display": "准备",
+      "mandarin": "准备",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 223,
+        "sourceSheet": "正字",
+        "pinyin": "zun3pi4"
+      }
+    },
+    {
+      "id": "hakka-224-1",
+      "normalized": "争滴",
+      "display": "争滴",
+      "mandarin": "差点",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 224,
+        "sourceSheet": "正字",
+        "pinyin": "zen1dit5"
+      }
+    },
+    {
+      "id": "hakka-225-1",
+      "normalized": "公园",
+      "display": "公园",
+      "mandarin": "公园",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 225,
+        "sourceSheet": "正字",
+        "pinyin": "gung1ngan2"
+      }
+    },
+    {
+      "id": "hakka-226-1",
+      "normalized": "真是太",
+      "display": "真是太",
+      "mandarin": "真是太",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 226,
+        "sourceSheet": "正字",
+        "pinyin": "zin1he4tet5"
+      }
+    },
+    {
+      "id": "hakka-227-1",
+      "normalized": "香",
+      "display": "香",
+      "mandarin": "香",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 227,
+        "sourceSheet": "正字",
+        "pinyin": "hiong1"
+      }
+    },
+    {
+      "id": "hakka-228-1",
+      "normalized": "屋下里背",
+      "display": "屋下里背",
+      "mandarin": "家里",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 228,
+        "sourceSheet": "正字",
+        "pinyin": "vuk5ha4li3boi4"
+      }
+    },
+    {
+      "id": "hakka-229-1",
+      "normalized": "面",
+      "display": "面",
+      "mandarin": "脸",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 229,
+        "sourceSheet": "正字",
+        "pinyin": "mien6"
+      }
+    },
+    {
+      "id": "hakka-230-1",
+      "normalized": "身坯",
+      "display": "身坯",
+      "mandarin": "身躯",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 230,
+        "sourceSheet": "正字",
+        "pinyin": "sin1phi1"
+      }
+    },
+    {
+      "id": "hakka-231-1",
+      "normalized": "目汁",
+      "display": "目汁",
+      "mandarin": "眼泪",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 231,
+        "sourceSheet": "正字",
+        "pinyin": "muk6tsip5"
+      }
+    },
+    {
+      "id": "hakka-232-1",
+      "normalized": "口澜水",
+      "display": "口澜水",
+      "mandarin": "口水",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 232,
+        "sourceSheet": "正字",
+        "pinyin": "heu3lan1sui3"
+      }
+    },
+    {
+      "id": "hakka-233-1",
+      "normalized": "靓",
+      "display": "靓",
+      "mandarin": "漂亮",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 233,
+        "sourceSheet": "正字",
+        "pinyin": "liang4"
+      }
+    },
+    {
+      "id": "hakka-234-1",
+      "normalized": "仗板",
+      "display": "仗板",
+      "mandarin": "漂亮",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 234,
+        "sourceSheet": "正字",
+        "pinyin": "cong4ban3"
+      }
+    },
+    {
+      "id": "hakka-235-1",
+      "normalized": "高",
+      "display": "高",
+      "mandarin": "高",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 235,
+        "sourceSheet": "正字",
+        "pinyin": "gau1"
+      }
+    },
+    {
+      "id": "hakka-236-1",
+      "normalized": "表演",
+      "display": "表演",
+      "mandarin": "表演",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 236,
+        "sourceSheet": "正字",
+        "pinyin": "biau3ien1"
+      }
+    },
+    {
+      "id": "hakka-237-1",
+      "normalized": "菜市场",
+      "display": "菜市场",
+      "mandarin": "菜市场",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 237,
+        "sourceSheet": "正字",
+        "pinyin": "coi4si4cong2"
+      }
+    },
+    {
+      "id": "hakka-238-1",
+      "normalized": "啦",
+      "display": "啦",
+      "mandarin": "啦",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 238,
+        "sourceSheet": "正字",
+        "pinyin": "la1"
+      }
+    },
+    {
+      "id": "hakka-239-1",
+      "normalized": "水",
+      "display": "水",
+      "mandarin": "水",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 239,
+        "sourceSheet": "正字",
+        "pinyin": "sui3"
+      }
+    },
+    {
+      "id": "hakka-240-1",
+      "normalized": "贵",
+      "display": "贵",
+      "mandarin": "贵",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 240,
+        "sourceSheet": "正字",
+        "pinyin": "gui4"
+      }
+    },
+    {
+      "id": "hakka-241-1",
+      "normalized": "几只",
+      "display": "几只",
+      "mandarin": "几个",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 241,
+        "sourceSheet": "正字",
+        "pinyin": "gi1zak5"
+      }
+    },
+    {
+      "id": "hakka-242-1",
+      "normalized": "看起来",
+      "display": "看起来",
+      "mandarin": "看起来",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 242,
+        "sourceSheet": "正字",
+        "pinyin": "kon4hi3loi2"
+      }
+    },
+    {
+      "id": "hakka-243-1",
+      "normalized": "下摆",
+      "display": "下摆",
+      "mandarin": "下次",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 243,
+        "sourceSheet": "正字",
+        "pinyin": "ha1bai3"
+      }
+    },
+    {
+      "id": "hakka-244-1",
+      "normalized": "价钱",
+      "display": "价钱",
+      "mandarin": "价格",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 244,
+        "sourceSheet": "正字",
+        "pinyin": "ga4zien3"
+      }
+    },
+    {
+      "id": "hakka-245-1",
+      "normalized": "声音",
+      "display": "声音",
+      "mandarin": "声音",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 245,
+        "sourceSheet": "正字",
+        "pinyin": "sang1im1"
+      }
+    },
+    {
+      "id": "hakka-246-1",
+      "normalized": "一模一样",
+      "display": "一模一样",
+      "mandarin": "一模一样",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 246,
+        "sourceSheet": "正字",
+        "pinyin": "it5mu2it5ngiong4"
+      }
+    },
+    {
+      "id": "hakka-247-1",
+      "normalized": "哎哟",
+      "display": "哎哟",
+      "mandarin": "哎哟",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 247,
+        "sourceSheet": "正字",
+        "pinyin": "ngai4io1"
+      }
+    },
+    {
+      "id": "hakka-248-1",
+      "normalized": "参加",
+      "display": "参加",
+      "mandarin": "参加",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 248,
+        "sourceSheet": "正字",
+        "pinyin": "cam4ga1"
+      }
+    },
+    {
+      "id": "hakka-249-1",
+      "normalized": "手艺",
+      "display": "手艺",
+      "mandarin": "手艺",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 249,
+        "sourceSheet": "正字",
+        "pinyin": "su3ngi4"
+      }
+    },
+    {
+      "id": "hakka-250-1",
+      "normalized": "运动",
+      "display": "运动",
+      "mandarin": "运动",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 250,
+        "sourceSheet": "正字",
+        "pinyin": "iun4tung4"
+      }
+    },
+    {
+      "id": "hakka-251-1",
+      "normalized": "小心",
+      "display": "小心",
+      "mandarin": "小心",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 251,
+        "sourceSheet": "正字",
+        "pinyin": "siau3sim1"
+      }
+    },
+    {
+      "id": "hakka-252-1",
+      "normalized": "尝尝",
+      "display": "尝尝",
+      "mandarin": "尝尝",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 252,
+        "sourceSheet": "正字",
+        "pinyin": "song2song2"
+      }
+    },
+    {
+      "id": "hakka-253-1",
+      "normalized": "颜色",
+      "display": "颜色",
+      "mandarin": "颜色",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 253,
+        "sourceSheet": "正字",
+        "pinyin": "ngan2set5"
+      }
+    },
+    {
+      "id": "hakka-254-1",
+      "normalized": "医院",
+      "display": "医院",
+      "mandarin": "医院",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 254,
+        "sourceSheet": "正字",
+        "pinyin": "i4ien4"
+      }
+    },
+    {
+      "id": "hakka-255-1",
+      "normalized": "种",
+      "display": "种",
+      "mandarin": "种",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 255,
+        "sourceSheet": "正字",
+        "pinyin": "zung4"
+      }
+    },
+    {
+      "id": "hakka-256-1",
+      "normalized": "朝滴",
+      "display": "朝滴",
+      "mandarin": "早点",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 256,
+        "sourceSheet": "正字",
+        "pinyin": "zau1dit5"
+      }
+    },
+    {
+      "id": "hakka-257-1",
+      "normalized": "过日",
+      "display": "过日",
+      "mandarin": "经常",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 257,
+        "sourceSheet": "正字",
+        "pinyin": "go4ngit5"
+      }
+    },
+    {
+      "id": "hakka-258-1",
+      "normalized": "𠮶片",
+      "display": "𠮶片",
+      "mandarin": "这边",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 258,
+        "sourceSheet": "正字",
+        "pinyin": "ge3pien3"
+      }
+    },
+    {
+      "id": "hakka-259-1",
+      "normalized": "门口",
+      "display": "门口",
+      "mandarin": "门口",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 259,
+        "sourceSheet": "正字",
+        "pinyin": "mun2keu3"
+      }
+    },
+    {
+      "id": "hakka-260-1",
+      "normalized": "看着",
+      "display": "看着",
+      "mandarin": "看着",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 260,
+        "sourceSheet": "正字",
+        "pinyin": "kon4cok6"
+      }
+    },
+    {
+      "id": "hakka-261-1",
+      "normalized": "送",
+      "display": "送",
+      "mandarin": "送",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 261,
+        "sourceSheet": "正字",
+        "pinyin": "sung4"
+      }
+    },
+    {
+      "id": "hakka-262-1",
+      "normalized": "底背",
+      "display": "底背",
+      "mandarin": "里面",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 262,
+        "sourceSheet": "正字",
+        "pinyin": "di1boi4"
+      }
+    },
+    {
+      "id": "hakka-263-1",
+      "normalized": "跳",
+      "display": "跳",
+      "mandarin": "跳",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 263,
+        "sourceSheet": "正字",
+        "pinyin": "tiau4"
+      }
+    },
+    {
+      "id": "hakka-264-1",
+      "normalized": "还有",
+      "display": "还有",
+      "mandarin": "还有",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 264,
+        "sourceSheet": "正字",
+        "pinyin": "van2sien2"
+      }
+    },
+    {
+      "id": "hakka-265-1",
+      "normalized": "跑步",
+      "display": "跑步",
+      "mandarin": "跑步",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 265,
+        "sourceSheet": "正字",
+        "pinyin": "pok6pu4"
+      }
+    },
+    {
+      "id": "hakka-266-1",
+      "normalized": "报名",
+      "display": "报名",
+      "mandarin": "报名",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 266,
+        "sourceSheet": "正字",
+        "pinyin": "bau4miang2"
+      }
+    },
+    {
+      "id": "hakka-267-1",
+      "normalized": "练",
+      "display": "练",
+      "mandarin": "练",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 267,
+        "sourceSheet": "正字",
+        "pinyin": "lien4"
+      }
+    },
+    {
+      "id": "hakka-268-1",
+      "normalized": "小区",
+      "display": "小区",
+      "mandarin": "小区",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 268,
+        "sourceSheet": "正字",
+        "pinyin": "siau3ki1"
+      }
+    },
+    {
+      "id": "hakka-269-1",
+      "normalized": "喊",
+      "display": "喊",
+      "mandarin": "叫",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 269,
+        "sourceSheet": "正字",
+        "pinyin": "ham3"
+      }
+    },
+    {
+      "id": "hakka-270-1",
+      "normalized": "写",
+      "display": "写",
+      "mandarin": "写",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 270,
+        "sourceSheet": "正字",
+        "pinyin": "sia3"
+      }
+    },
+    {
+      "id": "hakka-271-1",
+      "normalized": "还爱",
+      "display": "还爱",
+      "mandarin": "还要",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 271,
+        "sourceSheet": "正字",
+        "pinyin": "van2oi4"
+      }
+    },
+    {
+      "id": "hakka-272-1",
+      "normalized": "𠮶部",
+      "display": "𠮶部",
+      "mandarin": "这部",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 272,
+        "sourceSheet": "正字",
+        "pinyin": "ge3pu4"
+      }
+    },
+    {
+      "id": "hakka-273-1",
+      "normalized": "柚子",
+      "display": "柚子",
+      "mandarin": "柚子",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 273,
+        "sourceSheet": "正字",
+        "pinyin": "iu4zi3"
+      }
+    },
+    {
+      "id": "hakka-274-1",
+      "normalized": "老板",
+      "display": "老板",
+      "mandarin": "老板",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 274,
+        "sourceSheet": "正字",
+        "pinyin": "lau3ban3"
+      }
+    },
+    {
+      "id": "hakka-275-1",
+      "normalized": "老人家",
+      "display": "老人家",
+      "mandarin": "老人家",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 275,
+        "sourceSheet": "正字",
+        "pinyin": "lau3ngin2ga1"
+      }
+    },
+    {
+      "id": "hakka-276-1",
+      "normalized": "超市",
+      "display": "超市",
+      "mandarin": "超市",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 276,
+        "sourceSheet": "正字",
+        "pinyin": "cau1si4"
+      }
+    },
+    {
+      "id": "hakka-277-1",
+      "normalized": "热天",
+      "display": "热天",
+      "mandarin": "夏天",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 277,
+        "sourceSheet": "正字",
+        "pinyin": "ngiat6tien1"
+      }
+    },
+    {
+      "id": "hakka-278-1",
+      "normalized": "妹欸",
+      "display": "妹欸",
+      "mandarin": "女儿",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 278,
+        "sourceSheet": "正字",
+        "pinyin": "moi4e3"
+      }
+    },
+    {
+      "id": "hakka-279-1",
+      "normalized": "条",
+      "display": "条",
+      "mandarin": "条",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 279,
+        "sourceSheet": "正字",
+        "pinyin": "tiau2"
+      }
+    },
+    {
+      "id": "hakka-280-1",
+      "normalized": "网上",
+      "display": "网上",
+      "mandarin": "网上",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 280,
+        "sourceSheet": "正字",
+        "pinyin": "miong3song1"
+      }
+    },
+    {
+      "id": "hakka-281-1",
+      "normalized": "适合",
+      "display": "适合",
+      "mandarin": "适合",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 281,
+        "sourceSheet": "正字",
+        "pinyin": "tit5hap6"
+      }
+    },
+    {
+      "id": "hakka-282-1",
+      "normalized": "讲",
+      "display": "讲",
+      "mandarin": "讲",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 282,
+        "sourceSheet": "正字",
+        "pinyin": "gong3"
+      }
+    },
+    {
+      "id": "hakka-283-1",
+      "normalized": "技术",
+      "display": "技术",
+      "mandarin": "技术",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 283,
+        "sourceSheet": "正字",
+        "pinyin": "ki1sut6"
+      }
+    },
+    {
+      "id": "hakka-284-1",
+      "normalized": "直头",
+      "display": "直头",
+      "mandarin": "简直",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 284,
+        "sourceSheet": "正字",
+        "pinyin": "tsit6theu2"
+      }
+    },
+    {
+      "id": "hakka-285-1",
+      "normalized": "总係",
+      "display": "总係",
+      "mandarin": "总是",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 285,
+        "sourceSheet": "正字",
+        "pinyin": "zung3he4"
+      }
+    },
+    {
+      "id": "hakka-286-1",
+      "normalized": "绝",
+      "display": "绝",
+      "mandarin": "绝",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 286,
+        "sourceSheet": "正字",
+        "pinyin": "tsiet6"
+      }
+    },
+    {
+      "id": "hakka-287-1",
+      "normalized": "一樣个",
+      "display": "一樣个",
+      "mandarin": "似的",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 287,
+        "sourceSheet": "正字",
+        "pinyin": "it5ngiong4ge4"
+      }
+    },
+    {
+      "id": "hakka-288-1",
+      "normalized": "𠮶件",
+      "display": "𠮶件",
+      "mandarin": "这件",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 288,
+        "sourceSheet": "正字",
+        "pinyin": "ge3kian4"
+      }
+    },
+    {
+      "id": "hakka-289-1",
+      "normalized": "跟着",
+      "display": "跟着",
+      "mandarin": "跟着",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 289,
+        "sourceSheet": "正字",
+        "pinyin": "gen1dau3"
+      }
+    },
+    {
+      "id": "hakka-290-1",
+      "normalized": "河边",
+      "display": "河边",
+      "mandarin": "河边",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 290,
+        "sourceSheet": "正字",
+        "pinyin": "ho2bien1"
+      }
+    },
+    {
+      "id": "hakka-291-1",
+      "normalized": "画",
+      "display": "画",
+      "mandarin": "画",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 291,
+        "sourceSheet": "正字",
+        "pinyin": "fa4"
+      }
+    },
+    {
+      "id": "hakka-292-1",
+      "normalized": "班",
+      "display": "班",
+      "mandarin": "班",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 292,
+        "sourceSheet": "正字",
+        "pinyin": "ban1"
+      }
+    },
+    {
+      "id": "hakka-293-1",
+      "normalized": "唔好",
+      "display": "唔好",
+      "mandarin": "不好",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 293,
+        "sourceSheet": "正字",
+        "pinyin": "m2hau3"
+      }
+    },
+    {
+      "id": "hakka-294-1",
+      "normalized": "个种",
+      "display": "个种",
+      "mandarin": "那种",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 294,
+        "sourceSheet": "正字",
+        "pinyin": "ge4zung4"
+      }
+    },
+    {
+      "id": "hakka-295-1",
+      "normalized": "𠮶条",
+      "display": "𠮶条",
+      "mandarin": "这条",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 295,
+        "sourceSheet": "正字",
+        "pinyin": "ge3tiau2"
+      }
+    },
+    {
+      "id": "hakka-296-1",
+      "normalized": "工作",
+      "display": "工作",
+      "mandarin": "工作",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 296,
+        "sourceSheet": "正字",
+        "pinyin": "gung1zo4"
+      }
+    },
+    {
+      "id": "hakka-297-1",
+      "normalized": "开始",
+      "display": "开始",
+      "mandarin": "开始",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 297,
+        "sourceSheet": "正字",
+        "pinyin": "koi1ci3"
+      }
+    },
+    {
+      "id": "hakka-298-1",
+      "normalized": "装",
+      "display": "装",
+      "mandarin": "装",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 298,
+        "sourceSheet": "正字",
+        "pinyin": "zong4"
+      }
+    },
+    {
+      "id": "hakka-299-1",
+      "normalized": "质量",
+      "display": "质量",
+      "mandarin": "质量",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 299,
+        "sourceSheet": "正字",
+        "pinyin": "tsit5liong2"
+      }
+    },
+    {
+      "id": "hakka-300-1",
+      "normalized": "动作",
+      "display": "动作",
+      "mandarin": "动作",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 300,
+        "sourceSheet": "正字",
+        "pinyin": "tung4zo4"
+      }
+    },
+    {
+      "id": "hakka-301-1",
+      "normalized": "啉",
+      "display": "啉",
+      "mandarin": "喝",
+      "aliases": [],
+      "notes": [
+        "喝（液体）。~酒、~水。"
+      ],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 301,
+        "sourceSheet": "正字",
+        "pinyin": "lim1"
+      }
+    },
+    {
+      "id": "hakka-302-1",
+      "normalized": "食",
+      "display": "食",
+      "mandarin": "吃",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 302,
+        "sourceSheet": "正字",
+        "pinyin": "siit6"
+      }
+    },
+    {
+      "id": "hakka-303-1",
+      "normalized": "行",
+      "display": "行",
+      "mandarin": "走",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 303,
+        "sourceSheet": "正字",
+        "pinyin": "hang2"
+      }
+    },
+    {
+      "id": "hakka-304-1",
+      "normalized": "走",
+      "display": "走",
+      "mandarin": "跑",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 304,
+        "sourceSheet": "正字",
+        "pinyin": "zeu3"
+      }
+    },
+    {
+      "id": "hakka-305-1",
+      "normalized": "转屋下",
+      "display": "转屋下",
+      "mandarin": "回家",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 305,
+        "sourceSheet": "正字",
+        "pinyin": "zon3vuk5ha4"
+      }
+    },
+    {
+      "id": "hakka-306-1",
+      "normalized": "睡目",
+      "display": "睡目",
+      "mandarin": "睡觉",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 306,
+        "sourceSheet": "正字",
+        "pinyin": "soi4muk6"
+      }
+    },
+    {
+      "id": "hakka-307-1",
+      "normalized": "起身",
+      "display": "起身",
+      "mandarin": "起床",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 307,
+        "sourceSheet": "正字",
+        "pinyin": "hi3sin1"
+      }
+    },
+    {
+      "id": "hakka-308-1",
+      "normalized": "洗身",
+      "display": "洗身",
+      "mandarin": "洗澡",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 308,
+        "sourceSheet": "正字",
+        "pinyin": "se3sin1"
+      }
+    },
+    {
+      "id": "hakka-309-1",
+      "normalized": "着衫",
+      "display": "着衫",
+      "mandarin": "穿衣服",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 309,
+        "sourceSheet": "正字",
+        "pinyin": "cok5sam1"
+      }
+    },
+    {
+      "id": "hakka-310-1",
+      "normalized": "脱衫",
+      "display": "脱衫",
+      "mandarin": "脱衣服",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 310,
+        "sourceSheet": "正字",
+        "pinyin": "tot5sam1"
+      }
+    },
+    {
+      "id": "hakka-311-1",
+      "normalized": "开门",
+      "display": "开门",
+      "mandarin": "开门",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 311,
+        "sourceSheet": "正字",
+        "pinyin": "koi1mun2"
+      }
+    },
+    {
+      "id": "hakka-312-1",
+      "normalized": "关门",
+      "display": "关门",
+      "mandarin": "关门",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 312,
+        "sourceSheet": "正字",
+        "pinyin": "guan1mun2"
+      }
+    },
+    {
+      "id": "hakka-313-1",
+      "normalized": "讲话",
+      "display": "讲话",
+      "mandarin": "说话",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 313,
+        "sourceSheet": "正字",
+        "pinyin": "gong3fa4"
+      }
+    },
+    {
+      "id": "hakka-314-1",
+      "normalized": "听",
+      "display": "听",
+      "mandarin": "听",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 314,
+        "sourceSheet": "正字",
+        "pinyin": "thiang1"
+      }
+    },
+    {
+      "id": "hakka-315-1",
+      "normalized": "看",
+      "display": "看",
+      "mandarin": "看",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 315,
+        "sourceSheet": "正字",
+        "pinyin": "kon4"
+      }
+    },
+    {
+      "id": "hakka-316-1",
+      "normalized": "想",
+      "display": "想",
+      "mandarin": "想",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 316,
+        "sourceSheet": "正字",
+        "pinyin": "siong3"
+      }
+    },
+    {
+      "id": "hakka-317-1",
+      "normalized": "知",
+      "display": "知",
+      "mandarin": "知道",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 317,
+        "sourceSheet": "正字",
+        "pinyin": "ti1"
+      }
+    },
+    {
+      "id": "hakka-318-1",
+      "normalized": "唔知",
+      "display": "唔知",
+      "mandarin": "不知道",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 318,
+        "sourceSheet": "正字",
+        "pinyin": "m2ti1"
+      }
+    },
+    {
+      "id": "hakka-319-1",
+      "normalized": "爱",
+      "display": "爱",
+      "mandarin": "要",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 319,
+        "sourceSheet": "正字",
+        "pinyin": "oi4"
+      }
+    },
+    {
+      "id": "hakka-320-1",
+      "normalized": "唔爱",
+      "display": "唔爱",
+      "mandarin": "不要",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 320,
+        "sourceSheet": "正字",
+        "pinyin": "m2oi4"
+      }
+    },
+    {
+      "id": "hakka-321-1",
+      "normalized": "会",
+      "display": "会",
+      "mandarin": "会",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 321,
+        "sourceSheet": "正字",
+        "pinyin": "voi4"
+      }
+    },
+    {
+      "id": "hakka-322-1",
+      "normalized": "唔会",
+      "display": "唔会",
+      "mandarin": "不会",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 322,
+        "sourceSheet": "正字",
+        "pinyin": "m2voi4"
+      }
+    },
+    {
+      "id": "hakka-323-1",
+      "normalized": "做得",
+      "display": "做得",
+      "mandarin": "可以",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 323,
+        "sourceSheet": "正字",
+        "pinyin": "zo4det5"
+      }
+    },
+    {
+      "id": "hakka-324-1",
+      "normalized": "做唔得",
+      "display": "做唔得",
+      "mandarin": "不可以",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 324,
+        "sourceSheet": "正字",
+        "pinyin": "zo4m2det5"
+      }
+    },
+    {
+      "id": "hakka-325-1",
+      "normalized": "好",
+      "display": "好",
+      "mandarin": "好",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 325,
+        "sourceSheet": "正字",
+        "pinyin": "hau3"
+      }
+    },
+    {
+      "id": "hakka-326-1",
+      "normalized": "坏",
+      "display": "坏",
+      "mandarin": "坏",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 326,
+        "sourceSheet": "正字",
+        "pinyin": "fai4"
+      }
+    },
+    {
+      "id": "hakka-327-1",
+      "normalized": "大",
+      "display": "大",
+      "mandarin": "大",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 327,
+        "sourceSheet": "正字",
+        "pinyin": "thai4"
+      }
+    },
+    {
+      "id": "hakka-328-1",
+      "normalized": "长",
+      "display": "长",
+      "mandarin": "长",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 328,
+        "sourceSheet": "正字",
+        "pinyin": "cong2"
+      }
+    },
+    {
+      "id": "hakka-329-1",
+      "normalized": "短",
+      "display": "短",
+      "mandarin": "短",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 329,
+        "sourceSheet": "正字",
+        "pinyin": "don3"
+      }
+    },
+    {
+      "id": "hakka-330-1",
+      "normalized": "多",
+      "display": "多",
+      "mandarin": "多",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 330,
+        "sourceSheet": "正字",
+        "pinyin": "to1"
+      }
+    },
+    {
+      "id": "hakka-331-1",
+      "normalized": "少",
+      "display": "少",
+      "mandarin": "少",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 331,
+        "sourceSheet": "正字",
+        "pinyin": "sau3"
+      }
+    },
+    {
+      "id": "hakka-332-1",
+      "normalized": "远",
+      "display": "远",
+      "mandarin": "远",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 332,
+        "sourceSheet": "正字",
+        "pinyin": "ien3"
+      }
+    },
+    {
+      "id": "hakka-333-1",
+      "normalized": "近",
+      "display": "近",
+      "mandarin": "近",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 333,
+        "sourceSheet": "正字",
+        "pinyin": "kiun4"
+      }
+    },
+    {
+      "id": "hakka-334-1",
+      "normalized": "快",
+      "display": "快",
+      "mandarin": "快",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 334,
+        "sourceSheet": "正字",
+        "pinyin": "kuai4"
+      }
+    },
+    {
+      "id": "hakka-335-1",
+      "normalized": "慢",
+      "display": "慢",
+      "mandarin": "慢",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 335,
+        "sourceSheet": "正字",
+        "pinyin": "man4"
+      }
+    },
+    {
+      "id": "hakka-336-1",
+      "normalized": "新",
+      "display": "新",
+      "mandarin": "新",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 336,
+        "sourceSheet": "正字",
+        "pinyin": "sin1"
+      }
+    },
+    {
+      "id": "hakka-337-1",
+      "normalized": "旧",
+      "display": "旧",
+      "mandarin": "旧",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 337,
+        "sourceSheet": "正字",
+        "pinyin": "kiu4"
+      }
+    },
+    {
+      "id": "hakka-338-1",
+      "normalized": "轻",
+      "display": "轻",
+      "mandarin": "轻",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 338,
+        "sourceSheet": "正字",
+        "pinyin": "khiang1"
+      }
+    },
+    {
+      "id": "hakka-339-1",
+      "normalized": "重",
+      "display": "重",
+      "mandarin": "重",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 339,
+        "sourceSheet": "正字",
+        "pinyin": "chung4"
+      }
+    },
+    {
+      "id": "hakka-340-1",
+      "normalized": "冷",
+      "display": "冷",
+      "mandarin": "冷",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 340,
+        "sourceSheet": "正字",
+        "pinyin": "lang3"
+      }
+    },
+    {
+      "id": "hakka-341-1",
+      "normalized": "热",
+      "display": "热",
+      "mandarin": "热",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 341,
+        "sourceSheet": "正字",
+        "pinyin": "ngiat6"
+      }
+    },
+    {
+      "id": "hakka-342-1",
+      "normalized": "凉",
+      "display": "凉",
+      "mandarin": "凉",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 342,
+        "sourceSheet": "正字",
+        "pinyin": "liong2"
+      }
+    },
+    {
+      "id": "hakka-343-1",
+      "normalized": "暖",
+      "display": "暖",
+      "mandarin": "暖",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 343,
+        "sourceSheet": "正字",
+        "pinyin": "non3"
+      }
+    },
+    {
+      "id": "hakka-344-1",
+      "normalized": "干",
+      "display": "干",
+      "mandarin": "干",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 344,
+        "sourceSheet": "正字",
+        "pinyin": "gon1"
+      }
+    },
+    {
+      "id": "hakka-345-1",
+      "normalized": "湿",
+      "display": "湿",
+      "mandarin": "湿",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 345,
+        "sourceSheet": "正字",
+        "pinyin": "sip5"
+      }
+    },
+    {
+      "id": "hakka-346-1",
+      "normalized": "干净",
+      "display": "干净",
+      "mandarin": "干净",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 346,
+        "sourceSheet": "正字",
+        "pinyin": "gon1tshiang4"
+      }
+    },
+    {
+      "id": "hakka-347-1",
+      "normalized": "滥糁",
+      "display": "滥糁",
+      "mandarin": "脏",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 347,
+        "sourceSheet": "正字",
+        "pinyin": "lam4sam3"
+      }
+    },
+    {
+      "id": "hakka-348-1",
+      "normalized": "肥",
+      "display": "肥",
+      "mandarin": "胖",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 348,
+        "sourceSheet": "正字",
+        "pinyin": "phui2"
+      }
+    },
+    {
+      "id": "hakka-349-1",
+      "normalized": "瘦",
+      "display": "瘦",
+      "mandarin": "瘦",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 349,
+        "sourceSheet": "正字",
+        "pinyin": "seu4"
+      }
+    },
+    {
+      "id": "hakka-350-1",
+      "normalized": "硬",
+      "display": "硬",
+      "mandarin": "硬",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 350,
+        "sourceSheet": "正字",
+        "pinyin": "ngang4"
+      }
+    },
+    {
+      "id": "hakka-351-1",
+      "normalized": "软",
+      "display": "软",
+      "mandarin": "软",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 351,
+        "sourceSheet": "正字",
+        "pinyin": "ngion3"
+      }
+    },
+    {
+      "id": "hakka-352-1",
+      "normalized": "甜",
+      "display": "甜",
+      "mandarin": "甜",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 352,
+        "sourceSheet": "正字",
+        "pinyin": "thiam2"
+      }
+    },
+    {
+      "id": "hakka-353-1",
+      "normalized": "苦",
+      "display": "苦",
+      "mandarin": "苦",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 353,
+        "sourceSheet": "正字",
+        "pinyin": "fu3"
+      }
+    },
+    {
+      "id": "hakka-354-1",
+      "normalized": "酸",
+      "display": "酸",
+      "mandarin": "酸",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 354,
+        "sourceSheet": "正字",
+        "pinyin": "son1"
+      }
+    },
+    {
+      "id": "hakka-355-1",
+      "normalized": "辣",
+      "display": "辣",
+      "mandarin": "辣",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 355,
+        "sourceSheet": "正字",
+        "pinyin": "lat6"
+      }
+    },
+    {
+      "id": "hakka-356-1",
+      "normalized": "咸",
+      "display": "咸",
+      "mandarin": "咸",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 356,
+        "sourceSheet": "正字",
+        "pinyin": "ham2"
+      }
+    },
+    {
+      "id": "hakka-357-1",
+      "normalized": "淡",
+      "display": "淡",
+      "mandarin": "淡",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 357,
+        "sourceSheet": "正字",
+        "pinyin": "tham3"
+      }
+    },
+    {
+      "id": "hakka-358-1",
+      "normalized": "饱",
+      "display": "饱",
+      "mandarin": "饱",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 358,
+        "sourceSheet": "正字",
+        "pinyin": "pau3"
+      }
+    },
+    {
+      "id": "hakka-359-1",
+      "normalized": "饥",
+      "display": "饥",
+      "mandarin": "饿",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 359,
+        "sourceSheet": "正字",
+        "pinyin": "gi1"
+      }
+    },
+    {
+      "id": "hakka-360-1",
+      "normalized": "渴",
+      "display": "渴",
+      "mandarin": "渴",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 360,
+        "sourceSheet": "正字",
+        "pinyin": "hot5"
+      }
+    },
+    {
+      "id": "hakka-361-1",
+      "normalized": "疲",
+      "display": "疲",
+      "mandarin": "累",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 361,
+        "sourceSheet": "正字",
+        "pinyin": "phoi2"
+      }
+    },
+    {
+      "id": "hakka-362-1",
+      "normalized": "睐",
+      "display": "睐 / 睇",
+      "mandarin": "看",
+      "aliases": [
+        "睇"
+      ],
+      "notes": [
+        "看。~书、~电视。"
+      ],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 362,
+        "sourceSheet": "正字",
+        "pinyin": "lai4 / thai3"
+      }
+    },
+    {
+      "id": "hakka-363-1",
+      "normalized": "话",
+      "display": "话",
+      "mandarin": "告诉",
+      "aliases": [],
+      "notes": [
+        "告诉、说。~佢知。"
+      ],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 363,
+        "sourceSheet": "正字",
+        "pinyin": "va4"
+      }
+    },
+    {
+      "id": "hakka-364-1",
+      "normalized": "睡",
+      "display": "睡",
+      "mandarin": "睡",
+      "aliases": [],
+      "notes": [
+        "睡。~目。"
+      ],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 364,
+        "sourceSheet": "正字",
+        "pinyin": "soi4"
+      }
+    },
+    {
+      "id": "hakka-365-1",
+      "normalized": "企",
+      "display": "企",
+      "mandarin": "站",
+      "aliases": [],
+      "notes": [
+        "站。~起来。"
+      ],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 365,
+        "sourceSheet": "正字",
+        "pinyin": "ki1"
+      }
+    },
+    {
+      "id": "hakka-366-1",
+      "normalized": "趸",
+      "display": "趸",
+      "mandarin": "蹲",
+      "aliases": [],
+      "notes": [
+        "蹲。"
+      ],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 366,
+        "sourceSheet": "正字",
+        "pinyin": "dun3"
+      }
+    },
+    {
+      "id": "hakka-367-1",
+      "normalized": "揩",
+      "display": "揩",
+      "mandarin": "挑",
+      "aliases": [],
+      "notes": [
+        "挑。~水。"
+      ],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 367,
+        "sourceSheet": "正字",
+        "pinyin": "kai2 / hoi2"
+      }
+    },
+    {
+      "id": "hakka-368-1",
+      "normalized": "擐",
+      "display": "擐",
+      "mandarin": "提",
+      "aliases": [],
+      "notes": [
+        "提、拎。~等个包。"
+      ],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 368,
+        "sourceSheet": "正字",
+        "pinyin": "kuan4"
+      }
+    },
+    {
+      "id": "hakka-369-1",
+      "normalized": "擸",
+      "display": "擸",
+      "mandarin": "捡",
+      "aliases": [],
+      "notes": [
+        "捡、拾。~起来。"
+      ],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 369,
+        "sourceSheet": "正字",
+        "pinyin": "lap6"
+      }
+    },
+    {
+      "id": "hakka-370-1",
+      "normalized": "掴",
+      "display": "掴",
+      "mandarin": "打",
+      "aliases": [],
+      "notes": [
+        "打（耳光）。~一巴掌。"
+      ],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 370,
+        "sourceSheet": "正字",
+        "pinyin": "gok6"
+      }
+    },
+    {
+      "id": "hakka-371-1",
+      "normalized": "识",
+      "display": "识",
+      "mandarin": "知道",
+      "aliases": [],
+      "notes": [
+        "知道、认识。~唔~？"
+      ],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 371,
+        "sourceSheet": "正字",
+        "pinyin": "sit6"
+      }
+    },
+    {
+      "id": "hakka-372-1",
+      "normalized": "滴",
+      "display": "滴",
+      "mandarin": "知道",
+      "aliases": [],
+      "notes": [
+        "知道。唔~。"
+      ],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 372,
+        "sourceSheet": "正字",
+        "pinyin": "dit5"
+      }
+    },
+    {
+      "id": "hakka-373-1",
+      "normalized": "了",
+      "display": "了",
+      "mandarin": "完毕",
+      "aliases": [],
+      "notes": [
+        "完毕、了结。~结、~解。"
+      ],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 373,
+        "sourceSheet": "正字",
+        "pinyin": "liau3"
+      }
+    },
+    {
+      "id": "hakka-374-1",
+      "normalized": "噍",
+      "display": "噍",
+      "mandarin": "咬",
+      "aliases": [],
+      "notes": [
+        "咬，嚼"
+      ],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 374,
+        "sourceSheet": "正字",
+        "pinyin": "ziau4"
+      }
+    },
+    {
+      "id": "hakka-375-1",
+      "normalized": "啮",
+      "display": "啮",
+      "mandarin": "咬",
+      "aliases": [],
+      "notes": [
+        "用牙咬"
+      ],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 375,
+        "sourceSheet": "正字",
+        "pinyin": "ngai4"
+      }
+    },
+    {
+      "id": "hakka-376-1",
+      "normalized": "食朝",
+      "display": "食朝",
+      "mandarin": "吃早饭",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 376,
+        "sourceSheet": "正字",
+        "pinyin": "set6zau1"
+      }
+    },
+    {
+      "id": "hakka-377-1",
+      "normalized": "舐",
+      "display": "舐",
+      "mandarin": "舔",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 377,
+        "sourceSheet": "正字",
+        "pinyin": "sei1"
+      }
+    },
+    {
+      "id": "hakka-378-1",
+      "normalized": "摝",
+      "display": "摝",
+      "mandarin": "搅拌",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 378,
+        "sourceSheet": "正字",
+        "pinyin": "luk6"
+      }
+    },
+    {
+      "id": "hakka-379-1",
+      "normalized": "搲",
+      "display": "搲",
+      "mandarin": "抓",
+      "aliases": [],
+      "notes": [
+        "以手抓细小物"
+      ],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 379,
+        "sourceSheet": "正字",
+        "pinyin": "va3"
+      }
+    },
+    {
+      "id": "hakka-380-1",
+      "normalized": "的",
+      "display": "的",
+      "mandarin": "缝",
+      "aliases": [],
+      "notes": [
+        "用线缝"
+      ],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 380,
+        "sourceSheet": "正字",
+        "pinyin": "tit5"
+      }
+    },
+    {
+      "id": "hakka-381-1",
+      "normalized": "蹴",
+      "display": "蹴（趜）",
+      "mandarin": "追赶",
+      "aliases": [
+        "趜"
+      ],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 381,
+        "sourceSheet": "正字",
+        "pinyin": "tsuk6"
+      }
+    },
+    {
+      "id": "hakka-382-1",
+      "normalized": "鼻",
+      "display": "鼻",
+      "mandarin": "闻",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 382,
+        "sourceSheet": "正字",
+        "pinyin": "pi4"
+      }
+    },
+    {
+      "id": "hakka-383-1",
+      "normalized": "拂",
+      "display": "拂",
+      "mandarin": "丢掉",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 383,
+        "sourceSheet": "正字",
+        "pinyin": "fut6 / fia4"
+      }
+    },
+    {
+      "id": "hakka-384-1",
+      "normalized": "眠",
+      "display": "眠",
+      "mandarin": "睡觉",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 384,
+        "sourceSheet": "正字",
+        "pinyin": "min2"
+      }
+    },
+    {
+      "id": "hakka-385-1",
+      "normalized": "逻",
+      "display": "逻",
+      "mandarin": "去",
+      "aliases": [],
+      "notes": [
+        "去…"
+      ],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 385,
+        "sourceSheet": "正字",
+        "pinyin": "la2"
+      }
+    },
+    {
+      "id": "hakka-386-1",
+      "normalized": "时间",
+      "display": "时间",
+      "mandarin": "时间",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 386,
+        "sourceSheet": "正字",
+        "pinyin": "si2gan4"
+      }
+    },
+    {
+      "id": "hakka-387-1",
+      "normalized": "问题",
+      "display": "问题",
+      "mandarin": "问题",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 387,
+        "sourceSheet": "正字",
+        "pinyin": "mun4ti2"
+      }
+    },
+    {
+      "id": "hakka-388-1",
+      "normalized": "居然",
+      "display": "居然",
+      "mandarin": "居然",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 388,
+        "sourceSheet": "正字",
+        "pinyin": "gi1ien2"
+      }
+    },
+    {
+      "id": "hakka-389-1",
+      "normalized": "从",
+      "display": "从",
+      "mandarin": "从",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 389,
+        "sourceSheet": "正字",
+        "pinyin": "tsung2"
+      }
+    },
+    {
+      "id": "hakka-390-1",
+      "normalized": "个天",
+      "display": "个天",
+      "mandarin": "那天",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 390,
+        "sourceSheet": "正字",
+        "pinyin": "ge4tien1"
+      }
+    },
+    {
+      "id": "hakka-391-1",
+      "normalized": "鱼",
+      "display": "鱼",
+      "mandarin": "鱼",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 391,
+        "sourceSheet": "正字",
+        "pinyin": "ng2"
+      }
+    },
+    {
+      "id": "hakka-392-1",
+      "normalized": "本地",
+      "display": "本地",
+      "mandarin": "本地",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 392,
+        "sourceSheet": "正字",
+        "pinyin": "bun3ti4"
+      }
+    },
+    {
+      "id": "hakka-393-1",
+      "normalized": "伶俐",
+      "display": "伶俐",
+      "mandarin": "干净",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 393,
+        "sourceSheet": "正字",
+        "pinyin": "lang2li4"
+      }
+    },
+    {
+      "id": "hakka-394-1",
+      "normalized": "好像",
+      "display": "好像",
+      "mandarin": "好像",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 394,
+        "sourceSheet": "正字",
+        "pinyin": "hau3ciong4"
+      }
+    },
+    {
+      "id": "hakka-395-1",
+      "normalized": "菜",
+      "display": "菜",
+      "mandarin": "菜",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 395,
+        "sourceSheet": "正字",
+        "pinyin": "coi4"
+      }
+    },
+    {
+      "id": "hakka-396-1",
+      "normalized": "买点",
+      "display": "买点",
+      "mandarin": "买点",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 396,
+        "sourceSheet": "正字",
+        "pinyin": "mai1diam3"
+      }
+    },
+    {
+      "id": "hakka-397-1",
+      "normalized": "出门",
+      "display": "出门",
+      "mandarin": "出门",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 397,
+        "sourceSheet": "正字",
+        "pinyin": "cui4mun2"
+      }
+    },
+    {
+      "id": "hakka-398-1",
+      "normalized": "个欸",
+      "display": "个欸",
+      "mandarin": "那里",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 398,
+        "sourceSheet": "正字",
+        "pinyin": "ge4e2"
+      }
+    },
+    {
+      "id": "hakka-399-1",
+      "normalized": "划算",
+      "display": "划算",
+      "mandarin": "划算",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 399,
+        "sourceSheet": "正字",
+        "pinyin": "gua3son3"
+      }
+    },
+    {
+      "id": "hakka-400-1",
+      "normalized": "坐",
+      "display": "坐",
+      "mandarin": "坐",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 400,
+        "sourceSheet": "正字",
+        "pinyin": "co4"
+      }
+    },
+    {
+      "id": "hakka-401-1",
+      "normalized": "花",
+      "display": "花",
+      "mandarin": "花",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 401,
+        "sourceSheet": "正字",
+        "pinyin": "fa1"
+      }
+    },
+    {
+      "id": "hakka-402-1",
+      "normalized": "怕",
+      "display": "怕",
+      "mandarin": "怕",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 402,
+        "sourceSheet": "正字",
+        "pinyin": "pa4"
+      }
+    },
+    {
+      "id": "hakka-403-1",
+      "normalized": "亲手",
+      "display": "亲手",
+      "mandarin": "帮忙",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 403,
+        "sourceSheet": "正字",
+        "pinyin": "tsin4su3"
+      }
+    },
+    {
+      "id": "hakka-404-1",
+      "normalized": "政府",
+      "display": "政府",
+      "mandarin": "政府",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 404,
+        "sourceSheet": "正字",
+        "pinyin": "zin4fu3"
+      }
+    },
+    {
+      "id": "hakka-405-1",
+      "normalized": "脉人",
+      "display": "脉人",
+      "mandarin": "谁",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 405,
+        "sourceSheet": "正字",
+        "pinyin": "mak6ngin2"
+      }
+    },
+    {
+      "id": "hakka-406-1",
+      "normalized": "视频",
+      "display": "视频",
+      "mandarin": "视频",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 406,
+        "sourceSheet": "正字",
+        "pinyin": "si4pin2"
+      }
+    },
+    {
+      "id": "hakka-407-1",
+      "normalized": "最好",
+      "display": "最好",
+      "mandarin": "最好",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 407,
+        "sourceSheet": "正字",
+        "pinyin": "zui4hau3"
+      }
+    },
+    {
+      "id": "hakka-408-1",
+      "normalized": "甜",
+      "display": "甜",
+      "mandarin": "甜",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 408,
+        "sourceSheet": "正字",
+        "pinyin": "tiam2"
+      }
+    },
+    {
+      "id": "hakka-409-1",
+      "normalized": "平时",
+      "display": "平时",
+      "mandarin": "平时",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 409,
+        "sourceSheet": "正字",
+        "pinyin": "pien2si2"
+      }
+    },
+    {
+      "id": "hakka-410-1",
+      "normalized": "买菜",
+      "display": "买菜",
+      "mandarin": "买菜",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 410,
+        "sourceSheet": "正字",
+        "pinyin": "mai1coi4"
+      }
+    },
+    {
+      "id": "hakka-411-1",
+      "normalized": "提前",
+      "display": "提前",
+      "mandarin": "提前",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 411,
+        "sourceSheet": "正字",
+        "pinyin": "si2tsien2"
+      }
+    },
+    {
+      "id": "hakka-412-1",
+      "normalized": "住",
+      "display": "住",
+      "mandarin": "住",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 412,
+        "sourceSheet": "正字",
+        "pinyin": "cu4"
+      }
+    },
+    {
+      "id": "hakka-413-1",
+      "normalized": "唱",
+      "display": "唱",
+      "mandarin": "唱",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 413,
+        "sourceSheet": "正字",
+        "pinyin": "cong4"
+      }
+    },
+    {
+      "id": "hakka-414-1",
+      "normalized": "身体",
+      "display": "身体",
+      "mandarin": "身体",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 414,
+        "sourceSheet": "正字",
+        "pinyin": "sin1pun4"
+      }
+    },
+    {
+      "id": "hakka-415-1",
+      "normalized": "朋友",
+      "display": "朋友",
+      "mandarin": "朋友",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 415,
+        "sourceSheet": "正字",
+        "pinyin": "pen2iu1"
+      }
+    },
+    {
+      "id": "hakka-416-1",
+      "normalized": "阵",
+      "display": "阵",
+      "mandarin": "伙伴",
+      "aliases": [],
+      "notes": [
+        "伙伴,同伴"
+      ],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 416,
+        "sourceSheet": "正字",
+        "pinyin": "zin4"
+      }
+    },
+    {
+      "id": "hakka-417-1",
+      "normalized": "前",
+      "display": "前",
+      "mandarin": "前",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 417,
+        "sourceSheet": "正字",
+        "pinyin": "tsien2"
+      }
+    },
+    {
+      "id": "hakka-418-1",
+      "normalized": "老人",
+      "display": "老人",
+      "mandarin": "老人",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 418,
+        "sourceSheet": "正字",
+        "pinyin": "lau3ngin2"
+      }
+    },
+    {
+      "id": "hakka-419-1",
+      "normalized": "位置",
+      "display": "位置",
+      "mandarin": "位置",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 419,
+        "sourceSheet": "正字",
+        "pinyin": "vi4zi4"
+      }
+    },
+    {
+      "id": "hakka-420-1",
+      "normalized": "垃圾",
+      "display": "垃圾",
+      "mandarin": "垃圾",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 420,
+        "sourceSheet": "正字",
+        "pinyin": "lap6sap6"
+      }
+    },
+    {
+      "id": "hakka-421-1",
+      "normalized": "尾",
+      "display": "尾",
+      "mandarin": "最后",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 421,
+        "sourceSheet": "正字",
+        "pinyin": "mi3"
+      }
+    },
+    {
+      "id": "hakka-422-1",
+      "normalized": "寻",
+      "display": "寻",
+      "mandarin": "找",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 422,
+        "sourceSheet": "正字",
+        "pinyin": "xim2"
+      }
+    },
+    {
+      "id": "hakka-423-1",
+      "normalized": "搵",
+      "display": "搵",
+      "mandarin": "找",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 423,
+        "sourceSheet": "正字",
+        "pinyin": "vun3"
+      }
+    },
+    {
+      "id": "hakka-424-1",
+      "normalized": "揣",
+      "display": "揣",
+      "mandarin": "找",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 424,
+        "sourceSheet": "正字",
+        "pinyin": "con3"
+      }
+    },
+    {
+      "id": "hakka-425-1",
+      "normalized": "摸",
+      "display": "摸",
+      "mandarin": "摸",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 425,
+        "sourceSheet": "正字",
+        "pinyin": "mo1"
+      }
+    },
+    {
+      "id": "hakka-426-1",
+      "normalized": "拈",
+      "display": "拈",
+      "mandarin": "拿",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 426,
+        "sourceSheet": "正字",
+        "pinyin": "ngiam1"
+      }
+    },
+    {
+      "id": "hakka-427-1",
+      "normalized": "拿",
+      "display": "拿",
+      "mandarin": "拿",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 427,
+        "sourceSheet": "正字",
+        "pinyin": "na2"
+      }
+    },
+    {
+      "id": "hakka-428-1",
+      "normalized": "提",
+      "display": "提",
+      "mandarin": "提",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 428,
+        "sourceSheet": "正字",
+        "pinyin": "ti2"
+      }
+    },
+    {
+      "id": "hakka-429-1",
+      "normalized": "扛",
+      "display": "扛",
+      "mandarin": "扛",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 429,
+        "sourceSheet": "正字",
+        "pinyin": "kong1"
+      }
+    },
+    {
+      "id": "hakka-430-1",
+      "normalized": "搬",
+      "display": "搬",
+      "mandarin": "搬",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 430,
+        "sourceSheet": "正字",
+        "pinyin": "ban1"
+      }
+    },
+    {
+      "id": "hakka-431-1",
+      "normalized": "推",
+      "display": "推",
+      "mandarin": "推",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 431,
+        "sourceSheet": "正字",
+        "pinyin": "tui1"
+      }
+    },
+    {
+      "id": "hakka-432-1",
+      "normalized": "拉",
+      "display": "拉",
+      "mandarin": "拉",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 432,
+        "sourceSheet": "正字",
+        "pinyin": "la1"
+      }
+    },
+    {
+      "id": "hakka-433-1",
+      "normalized": "拖",
+      "display": "拖",
+      "mandarin": "拖",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 433,
+        "sourceSheet": "正字",
+        "pinyin": "to1"
+      }
+    },
+    {
+      "id": "hakka-434-1",
+      "normalized": "扯",
+      "display": "扯",
+      "mandarin": "扯",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 434,
+        "sourceSheet": "正字",
+        "pinyin": "ca3"
+      }
+    },
+    {
+      "id": "hakka-435-1",
+      "normalized": "拽",
+      "display": "拽",
+      "mandarin": "拽",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 435,
+        "sourceSheet": "正字",
+        "pinyin": "zai4"
+      }
+    },
+    {
+      "id": "hakka-436-1",
+      "normalized": "抛",
+      "display": "抛",
+      "mandarin": "抛",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 436,
+        "sourceSheet": "正字",
+        "pinyin": "pau1"
+      }
+    },
+    {
+      "id": "hakka-437-1",
+      "normalized": "丢",
+      "display": "丢",
+      "mandarin": "丢",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 437,
+        "sourceSheet": "正字",
+        "pinyin": "diu1"
+      }
+    },
+    {
+      "id": "hakka-438-1",
+      "normalized": "掷",
+      "display": "掷",
+      "mandarin": "扔",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 438,
+        "sourceSheet": "正字",
+        "pinyin": "cit6"
+      }
+    },
+    {
+      "id": "hakka-439-1",
+      "normalized": "摔",
+      "display": "摔",
+      "mandarin": "摔",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 439,
+        "sourceSheet": "正字",
+        "pinyin": "sut5"
+      }
+    },
+    {
+      "id": "hakka-440-1",
+      "normalized": "跌",
+      "display": "跌",
+      "mandarin": "跌",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 440,
+        "sourceSheet": "正字",
+        "pinyin": "diet5"
+      }
+    },
+    {
+      "id": "hakka-441-1",
+      "normalized": "倒",
+      "display": "倒",
+      "mandarin": "倒",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 441,
+        "sourceSheet": "正字",
+        "pinyin": "do4"
+      }
+    },
+    {
+      "id": "hakka-442-1",
+      "normalized": "翻",
+      "display": "翻",
+      "mandarin": "翻",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 442,
+        "sourceSheet": "正字",
+        "pinyin": "fan1"
+      }
+    },
+    {
+      "id": "hakka-443-1",
+      "normalized": "滚",
+      "display": "滚",
+      "mandarin": "滚",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 443,
+        "sourceSheet": "正字",
+        "pinyin": "gun3"
+      }
+    },
+    {
+      "id": "hakka-444-1",
+      "normalized": "爬",
+      "display": "爬",
+      "mandarin": "爬",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 444,
+        "sourceSheet": "正字",
+        "pinyin": "pa2"
+      }
+    },
+    {
+      "id": "hakka-445-1",
+      "normalized": "攀",
+      "display": "攀",
+      "mandarin": "攀",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 445,
+        "sourceSheet": "正字",
+        "pinyin": "pan1"
+      }
+    },
+    {
+      "id": "hakka-446-1",
+      "normalized": "越",
+      "display": "越",
+      "mandarin": "越",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 446,
+        "sourceSheet": "正字",
+        "pinyin": "yuet6"
+      }
+    },
+    {
+      "id": "hakka-447-1",
+      "normalized": "跨",
+      "display": "跨",
+      "mandarin": "跨",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 447,
+        "sourceSheet": "正字",
+        "pinyin": "kua4"
+      }
+    },
+    {
+      "id": "hakka-448-1",
+      "normalized": "迈",
+      "display": "迈",
+      "mandarin": "迈",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 448,
+        "sourceSheet": "正字",
+        "pinyin": "mai4"
+      }
+    },
+    {
+      "id": "hakka-449-1",
+      "normalized": "踩",
+      "display": "踩",
+      "mandarin": "踩",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 449,
+        "sourceSheet": "正字",
+        "pinyin": "cai3"
+      }
+    },
+    {
+      "id": "hakka-450-1",
+      "normalized": "踏",
+      "display": "踏",
+      "mandarin": "踏",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 450,
+        "sourceSheet": "正字",
+        "pinyin": "tap6"
+      }
+    },
+    {
+      "id": "hakka-451-1",
+      "normalized": "踢",
+      "display": "踢",
+      "mandarin": "踢",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 451,
+        "sourceSheet": "正字",
+        "pinyin": "tit5"
+      }
+    },
+    {
+      "id": "hakka-452-1",
+      "normalized": "踹",
+      "display": "踹",
+      "mandarin": "踹",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 452,
+        "sourceSheet": "正字",
+        "pinyin": "con4"
+      }
+    },
+    {
+      "id": "hakka-453-1",
+      "normalized": "蹬",
+      "display": "蹬",
+      "mandarin": "蹬",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 453,
+        "sourceSheet": "正字",
+        "pinyin": "den1"
+      }
+    },
+    {
+      "id": "hakka-454-1",
+      "normalized": "跪",
+      "display": "跪",
+      "mandarin": "跪",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 454,
+        "sourceSheet": "正字",
+        "pinyin": "kui4"
+      }
+    },
+    {
+      "id": "hakka-455-1",
+      "normalized": "拜",
+      "display": "拜",
+      "mandarin": "拜",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 455,
+        "sourceSheet": "正字",
+        "pinyin": "bai4"
+      }
+    },
+    {
+      "id": "hakka-456-1",
+      "normalized": "叩",
+      "display": "叩",
+      "mandarin": "叩",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 456,
+        "sourceSheet": "正字",
+        "pinyin": "kiu4"
+      }
+    },
+    {
+      "id": "hakka-457-1",
+      "normalized": "鞠躬",
+      "display": "鞠躬",
+      "mandarin": "鞠躬",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 457,
+        "sourceSheet": "正字",
+        "pinyin": "kiuk5giung1"
+      }
+    },
+    {
+      "id": "hakka-458-1",
+      "normalized": "点头",
+      "display": "点头",
+      "mandarin": "点头",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 458,
+        "sourceSheet": "正字",
+        "pinyin": "diam3theu2"
+      }
+    },
+    {
+      "id": "hakka-459-1",
+      "normalized": "摇头",
+      "display": "摇头",
+      "mandarin": "摇头",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 459,
+        "sourceSheet": "正字",
+        "pinyin": "yeu2theu2"
+      }
+    },
+    {
+      "id": "hakka-460-1",
+      "normalized": "摆手",
+      "display": "摆手",
+      "mandarin": "摆手",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 460,
+        "sourceSheet": "正字",
+        "pinyin": "bai3su3"
+      }
+    },
+    {
+      "id": "hakka-461-1",
+      "normalized": "挥手",
+      "display": "挥手",
+      "mandarin": "挥手",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 461,
+        "sourceSheet": "正字",
+        "pinyin": "fai1su3"
+      }
+    },
+    {
+      "id": "hakka-462-1",
+      "normalized": "招手",
+      "display": "招手",
+      "mandarin": "招手",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 462,
+        "sourceSheet": "正字",
+        "pinyin": "zau1su3"
+      }
+    },
+    {
+      "id": "hakka-463-1",
+      "normalized": "握手",
+      "display": "握手",
+      "mandarin": "握手",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 463,
+        "sourceSheet": "正字",
+        "pinyin": "vok5su3"
+      }
+    },
+    {
+      "id": "hakka-464-1",
+      "normalized": "拥抱",
+      "display": "拥抱",
+      "mandarin": "拥抱",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 464,
+        "sourceSheet": "正字",
+        "pinyin": "yung1pau4"
+      }
+    },
+    {
+      "id": "hakka-465-1",
+      "normalized": "亲吻",
+      "display": "亲吻",
+      "mandarin": "亲吻",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 465,
+        "sourceSheet": "正字",
+        "pinyin": "cin1vun3"
+      }
+    },
+    {
+      "id": "hakka-466-1",
+      "normalized": "抚摸",
+      "display": "抚摸",
+      "mandarin": "抚摸",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 466,
+        "sourceSheet": "正字",
+        "pinyin": "fu3mo1"
+      }
+    },
+    {
+      "id": "hakka-467-1",
+      "normalized": "拍打",
+      "display": "拍打",
+      "mandarin": "拍打",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 467,
+        "sourceSheet": "正字",
+        "pinyin": "pak5da3"
+      }
+    },
+    {
+      "id": "hakka-468-1",
+      "normalized": "敲击",
+      "display": "敲击",
+      "mandarin": "敲击",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 468,
+        "sourceSheet": "正字",
+        "pinyin": "kau1kit5"
+      }
+    },
+    {
+      "id": "hakka-469-1",
+      "normalized": "碰撞",
+      "display": "碰撞",
+      "mandarin": "碰撞",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 469,
+        "sourceSheet": "正字",
+        "pinyin": "pong4cong4"
+      }
+    },
+    {
+      "id": "hakka-470-1",
+      "normalized": "摩擦",
+      "display": "摩擦",
+      "mandarin": "摩擦",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 470,
+        "sourceSheet": "正字",
+        "pinyin": "mo1cat5"
+      }
+    },
+    {
+      "id": "hakka-471-1",
+      "normalized": "挤压",
+      "display": "挤压",
+      "mandarin": "挤压",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 471,
+        "sourceSheet": "正字",
+        "pinyin": "zit5ap5"
+      }
+    },
+    {
+      "id": "hakka-472-1",
+      "normalized": "揉捏",
+      "display": "揉捏",
+      "mandarin": "揉捏",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 472,
+        "sourceSheet": "正字",
+        "pinyin": "yiu2ngiap5"
+      }
+    },
+    {
+      "id": "hakka-473-1",
+      "normalized": "搅拌",
+      "display": "搅拌",
+      "mandarin": "搅拌",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 473,
+        "sourceSheet": "正字",
+        "pinyin": "kau3ban4"
+      }
+    },
+    {
+      "id": "hakka-474-1",
+      "normalized": "摇晃",
+      "display": "摇晃",
+      "mandarin": "摇晃",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 474,
+        "sourceSheet": "正字",
+        "pinyin": "yeu2fong4"
+      }
+    },
+    {
+      "id": "hakka-475-1",
+      "normalized": "振动",
+      "display": "振动",
+      "mandarin": "振动",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 475,
+        "sourceSheet": "正字",
+        "pinyin": "zin4tung4"
+      }
+    },
+    {
+      "id": "hakka-476-1",
+      "normalized": "颤抖",
+      "display": "颤抖",
+      "mandarin": "颤抖",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 476,
+        "sourceSheet": "正字",
+        "pinyin": "zan4teu4"
+      }
+    },
+    {
+      "id": "hakka-477-1",
+      "normalized": "哆嗦",
+      "display": "哆嗦",
+      "mandarin": "哆嗦",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 477,
+        "sourceSheet": "正字",
+        "pinyin": "do1so1"
+      }
+    },
+    {
+      "id": "hakka-478-1",
+      "normalized": "痉挛",
+      "display": "痉挛",
+      "mandarin": "痉挛",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 478,
+        "sourceSheet": "正字",
+        "pinyin": "gin4loan2"
+      }
+    },
+    {
+      "id": "hakka-479-1",
+      "normalized": "抽搐",
+      "display": "抽搐",
+      "mandarin": "抽搐",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 479,
+        "sourceSheet": "正字",
+        "pinyin": "cu1cu1"
+      }
+    },
+    {
+      "id": "hakka-480-1",
+      "normalized": "窒息",
+      "display": "窒息",
+      "mandarin": "窒息",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 480,
+        "sourceSheet": "正字",
+        "pinyin": "zit5sit5"
+      }
+    },
+    {
+      "id": "hakka-481-1",
+      "normalized": "咳嗽",
+      "display": "咳嗽",
+      "mandarin": "咳嗽",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 481,
+        "sourceSheet": "正字",
+        "pinyin": "ket5sau4"
+      }
+    },
+    {
+      "id": "hakka-482-1",
+      "normalized": "喷鼻风",
+      "display": "喷鼻风",
+      "mandarin": "打喷嚏",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 482,
+        "sourceSheet": "正字",
+        "pinyin": "pun4 phi4 fung1"
+      }
+    },
+    {
+      "id": "hakka-483-1",
+      "normalized": "打嗝",
+      "display": "打嗝",
+      "mandarin": "打嗝",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 483,
+        "sourceSheet": "正字",
+        "pinyin": "da3 got5"
+      }
+    },
+    {
+      "id": "hakka-484-1",
+      "normalized": "呵欠",
+      "display": "呵欠",
+      "mandarin": "哈欠",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 484,
+        "sourceSheet": "正字",
+        "pinyin": "ho1 qiam4"
+      }
+    },
+    {
+      "id": "hakka-485-1",
+      "normalized": "流鼻水",
+      "display": "流鼻水",
+      "mandarin": "流鼻涕",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 485,
+        "sourceSheet": "正字",
+        "pinyin": "liu2 phi4 sui3"
+      }
+    },
+    {
+      "id": "hakka-486-1",
+      "normalized": "流汗",
+      "display": "流汗",
+      "mandarin": "流汗",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 486,
+        "sourceSheet": "正字",
+        "pinyin": "liu2 hon4"
+      }
+    },
+    {
+      "id": "hakka-487-1",
+      "normalized": "流血",
+      "display": "流血",
+      "mandarin": "流血",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 487,
+        "sourceSheet": "正字",
+        "pinyin": "liu2 hiet5"
+      }
+    },
+    {
+      "id": "hakka-488-1",
+      "normalized": "痛",
+      "display": "痛",
+      "mandarin": "痛",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 488,
+        "sourceSheet": "正字",
+        "pinyin": "thung4"
+      }
+    },
+    {
+      "id": "hakka-489-1",
+      "normalized": "痒",
+      "display": "痒",
+      "mandarin": "痒",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 489,
+        "sourceSheet": "正字",
+        "pinyin": "iong2"
+      }
+    },
+    {
+      "id": "hakka-490-1",
+      "normalized": "酸",
+      "display": "酸",
+      "mandarin": "酸痛",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 490,
+        "sourceSheet": "正字",
+        "pinyin": "son1"
+      }
+    },
+    {
+      "id": "hakka-491-1",
+      "normalized": "麻",
+      "display": "麻",
+      "mandarin": "麻",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 491,
+        "sourceSheet": "正字",
+        "pinyin": "ma2"
+      }
+    },
+    {
+      "id": "hakka-492-1",
+      "normalized": "肿",
+      "display": "肿",
+      "mandarin": "肿",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 492,
+        "sourceSheet": "正字",
+        "pinyin": "zung3"
+      }
+    },
+    {
+      "id": "hakka-493-1",
+      "normalized": "发炎",
+      "display": "发炎",
+      "mandarin": "发炎",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 493,
+        "sourceSheet": "正字",
+        "pinyin": "fat5 ngiam2"
+      }
+    },
+    {
+      "id": "hakka-494-1",
+      "normalized": "生病",
+      "display": "生病",
+      "mandarin": "生病",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 494,
+        "sourceSheet": "正字",
+        "pinyin": "sang1 phiang4"
+      }
+    },
+    {
+      "id": "hakka-495-1",
+      "normalized": "感冒",
+      "display": "感冒",
+      "mandarin": "感冒",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 495,
+        "sourceSheet": "正字",
+        "pinyin": "gam3 mau4"
+      }
+    },
+    {
+      "id": "hakka-496-1",
+      "normalized": "发烧",
+      "display": "发烧",
+      "mandarin": "发烧",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 496,
+        "sourceSheet": "正字",
+        "pinyin": "fat5 sau1"
+      }
+    },
+    {
+      "id": "hakka-497-1",
+      "normalized": "喘气",
+      "display": "喘气",
+      "mandarin": "喘气",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 497,
+        "sourceSheet": "正字",
+        "pinyin": "con3 hi4"
+      }
+    },
+    {
+      "id": "hakka-498-1",
+      "normalized": "晕",
+      "display": "晕",
+      "mandarin": "晕",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 498,
+        "sourceSheet": "正字",
+        "pinyin": "iun1"
+      }
+    },
+    {
+      "id": "hakka-499-1",
+      "normalized": "吐",
+      "display": "吐",
+      "mandarin": "呕吐",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 499,
+        "sourceSheet": "正字",
+        "pinyin": "thu3"
+      }
+    },
+    {
+      "id": "hakka-500-1",
+      "normalized": "泻",
+      "display": "泻",
+      "mandarin": "拉肚子",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 500,
+        "sourceSheet": "正字",
+        "pinyin": "sia4"
+      }
+    },
+    {
+      "id": "hakka-501-1",
+      "normalized": "便秘",
+      "display": "便秘",
+      "mandarin": "便秘",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 501,
+        "sourceSheet": "正字",
+        "pinyin": "pien4 phi4"
+      }
+    },
+    {
+      "id": "hakka-502-1",
+      "normalized": "食药",
+      "display": "食药",
+      "mandarin": "吃药",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 502,
+        "sourceSheet": "正字",
+        "pinyin": "sit5 iot5"
+      }
+    },
+    {
+      "id": "hakka-503-1",
+      "normalized": "打针",
+      "display": "打针",
+      "mandarin": "打针",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 503,
+        "sourceSheet": "正字",
+        "pinyin": "da3 zam1"
+      }
+    },
+    {
+      "id": "hakka-504-1",
+      "normalized": "住院",
+      "display": "住院",
+      "mandarin": "住院",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 504,
+        "sourceSheet": "正字",
+        "pinyin": "zu4 ien4"
+      }
+    },
+    {
+      "id": "hakka-505-1",
+      "normalized": "出院",
+      "display": "出院",
+      "mandarin": "出院",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 505,
+        "sourceSheet": "正字",
+        "pinyin": "cut5 ien4"
+      }
+    },
+    {
+      "id": "hakka-506-1",
+      "normalized": "康复",
+      "display": "康复",
+      "mandarin": "康复",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 506,
+        "sourceSheet": "正字",
+        "pinyin": "kang1 fuk5"
+      }
+    },
+    {
+      "id": "hakka-507-1",
+      "normalized": "死",
+      "display": "死",
+      "mandarin": "死",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 507,
+        "sourceSheet": "正字",
+        "pinyin": "xi3"
+      }
+    },
+    {
+      "id": "hakka-508-1",
+      "normalized": "活",
+      "display": "活",
+      "mandarin": "活",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 508,
+        "sourceSheet": "正字",
+        "pinyin": "fat5"
+      }
+    },
+    {
+      "id": "hakka-509-1",
+      "normalized": "呼吸",
+      "display": "呼吸",
+      "mandarin": "呼吸",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 509,
+        "sourceSheet": "正字",
+        "pinyin": "fu1 hip5"
+      }
+    },
+    {
+      "id": "hakka-510-1",
+      "normalized": "心跳",
+      "display": "心跳",
+      "mandarin": "心跳",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 510,
+        "sourceSheet": "正字",
+        "pinyin": "sim1 thiau4"
+      }
+    },
+    {
+      "id": "hakka-511-1",
+      "normalized": "脉搏",
+      "display": "脉搏",
+      "mandarin": "脉搏",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 511,
+        "sourceSheet": "正字",
+        "pinyin": "mak6 bok5"
+      }
+    },
+    {
+      "id": "hakka-512-1",
+      "normalized": "血压",
+      "display": "血压",
+      "mandarin": "血压",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 512,
+        "sourceSheet": "正字",
+        "pinyin": "hiet5 ap5"
+      }
+    },
+    {
+      "id": "hakka-513-1",
+      "normalized": "血糖",
+      "display": "血糖",
+      "mandarin": "血糖",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 513,
+        "sourceSheet": "正字",
+        "pinyin": "hiet5 thong2"
+      }
+    },
+    {
+      "id": "hakka-514-1",
+      "normalized": "细胞",
+      "display": "细胞",
+      "mandarin": "细胞",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 514,
+        "sourceSheet": "正字",
+        "pinyin": "se4 pau1"
+      }
+    },
+    {
+      "id": "hakka-515-1",
+      "normalized": "细菌",
+      "display": "细菌",
+      "mandarin": "细菌",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 515,
+        "sourceSheet": "正字",
+        "pinyin": "se4 kiun1"
+      }
+    },
+    {
+      "id": "hakka-516-1",
+      "normalized": "病毒",
+      "display": "病毒",
+      "mandarin": "病毒",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 516,
+        "sourceSheet": "正字",
+        "pinyin": "phiang4 thuk5"
+      }
+    },
+    {
+      "id": "hakka-517-1",
+      "normalized": "感染",
+      "display": "感染",
+      "mandarin": "感染",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 517,
+        "sourceSheet": "正字",
+        "pinyin": "gam3 ngiam3"
+      }
+    },
+    {
+      "id": "hakka-518-1",
+      "normalized": "传染",
+      "display": "传染",
+      "mandarin": "传染",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 518,
+        "sourceSheet": "正字",
+        "pinyin": "con2 ngiam3"
+      }
+    },
+    {
+      "id": "hakka-519-1",
+      "normalized": "预防",
+      "display": "预防",
+      "mandarin": "预防",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 519,
+        "sourceSheet": "正字",
+        "pinyin": "yi4 fong2"
+      }
+    },
+    {
+      "id": "hakka-520-1",
+      "normalized": "治疗",
+      "display": "治疗",
+      "mandarin": "治疗",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 520,
+        "sourceSheet": "正字",
+        "pinyin": "zi4 liau2"
+      }
+    },
+    {
+      "id": "hakka-521-1",
+      "normalized": "手术",
+      "display": "手术",
+      "mandarin": "手术",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 521,
+        "sourceSheet": "正字",
+        "pinyin": "su3 sut5"
+      }
+    },
+    {
+      "id": "hakka-522-1",
+      "normalized": "检查",
+      "display": "检查",
+      "mandarin": "检查",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 522,
+        "sourceSheet": "正字",
+        "pinyin": "giam3 ca1"
+      }
+    },
+    {
+      "id": "hakka-523-1",
+      "normalized": "化验",
+      "display": "化验",
+      "mandarin": "化验",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 523,
+        "sourceSheet": "正字",
+        "pinyin": "fa4 ngiam4"
+      }
+    },
+    {
+      "id": "hakka-524-1",
+      "normalized": "拍片",
+      "display": "拍片",
+      "mandarin": "拍片",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 524,
+        "sourceSheet": "正字",
+        "pinyin": "pak5 phien4"
+      }
+    },
+    {
+      "id": "hakka-525-1",
+      "normalized": "医生",
+      "display": "医生",
+      "mandarin": "医生",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 525,
+        "sourceSheet": "正字",
+        "pinyin": "yi1 sang1"
+      }
+    },
+    {
+      "id": "hakka-526-1",
+      "normalized": "护士",
+      "display": "护士",
+      "mandarin": "护士",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 526,
+        "sourceSheet": "正字",
+        "pinyin": "fu4 si4"
+      }
+    },
+    {
+      "id": "hakka-527-1",
+      "normalized": "病人",
+      "display": "病人",
+      "mandarin": "病人",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 527,
+        "sourceSheet": "正字",
+        "pinyin": "phiang4 ngin2"
+      }
+    },
+    {
+      "id": "hakka-528-1",
+      "normalized": "病房",
+      "display": "病房",
+      "mandarin": "病房",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 528,
+        "sourceSheet": "正字",
+        "pinyin": "phiang4 fong2"
+      }
+    },
+    {
+      "id": "hakka-529-1",
+      "normalized": "病床",
+      "display": "病床",
+      "mandarin": "病床",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 529,
+        "sourceSheet": "正字",
+        "pinyin": "phiang4 cong2"
+      }
+    },
+    {
+      "id": "hakka-530-1",
+      "normalized": "药方",
+      "display": "药方",
+      "mandarin": "药方",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 530,
+        "sourceSheet": "正字",
+        "pinyin": "iot5 fong1"
+      }
+    },
+    {
+      "id": "hakka-531-1",
+      "normalized": "中药",
+      "display": "中药",
+      "mandarin": "中药",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 531,
+        "sourceSheet": "正字",
+        "pinyin": "zung1 iot5"
+      }
+    },
+    {
+      "id": "hakka-532-1",
+      "normalized": "西药",
+      "display": "西药",
+      "mandarin": "西药",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 532,
+        "sourceSheet": "正字",
+        "pinyin": "xi1 iot5"
+      }
+    },
+    {
+      "id": "hakka-533-1",
+      "normalized": "药丸",
+      "display": "药丸",
+      "mandarin": "药丸",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 533,
+        "sourceSheet": "正字",
+        "pinyin": "iot5 ien2"
+      }
+    },
+    {
+      "id": "hakka-534-1",
+      "normalized": "药水",
+      "display": "药水",
+      "mandarin": "药水",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 534,
+        "sourceSheet": "正字",
+        "pinyin": "iot5 sui3"
+      }
+    },
+    {
+      "id": "hakka-535-1",
+      "normalized": "药膏",
+      "display": "药膏",
+      "mandarin": "药膏",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 535,
+        "sourceSheet": "正字",
+        "pinyin": "iot5 gau1"
+      }
+    },
+    {
+      "id": "hakka-536-1",
+      "normalized": "药粉",
+      "display": "药粉",
+      "mandarin": "药粉",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 536,
+        "sourceSheet": "正字",
+        "pinyin": "iot5 fun3"
+      }
+    },
+    {
+      "id": "hakka-537-1",
+      "normalized": "纱布",
+      "display": "纱布",
+      "mandarin": "纱布",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 537,
+        "sourceSheet": "正字",
+        "pinyin": "sa1 pu4"
+      }
+    },
+    {
+      "id": "hakka-538-1",
+      "normalized": "绷带",
+      "display": "绷带",
+      "mandarin": "绷带",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 538,
+        "sourceSheet": "正字",
+        "pinyin": "bang1 tai4"
+      }
+    },
+    {
+      "id": "hakka-539-1",
+      "normalized": "拐杖",
+      "display": "拐杖",
+      "mandarin": "拐杖",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 539,
+        "sourceSheet": "正字",
+        "pinyin": "guai3 zong4"
+      }
+    },
+    {
+      "id": "hakka-540-1",
+      "normalized": "轮椅",
+      "display": "轮椅",
+      "mandarin": "轮椅",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 540,
+        "sourceSheet": "正字",
+        "pinyin": "lun2 yi2"
+      }
+    },
+    {
+      "id": "hakka-541-1",
+      "normalized": "救护车",
+      "display": "救护车",
+      "mandarin": "救护车",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 541,
+        "sourceSheet": "正字",
+        "pinyin": "giu4 fu4 ca1"
+      }
+    },
+    {
+      "id": "hakka-542-1",
+      "normalized": "最后",
+      "display": "最后",
+      "mandarin": "最后",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 542,
+        "sourceSheet": "正字",
+        "pinyin": "zui4heu4"
+      }
+    },
+    {
+      "id": "hakka-543-1",
+      "normalized": "新来",
+      "display": "新来",
+      "mandarin": "新来",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 543,
+        "sourceSheet": "正字",
+        "pinyin": "sin1loi2"
+      }
+    },
+    {
+      "id": "hakka-544-1",
+      "normalized": "直接",
+      "display": "直接",
+      "mandarin": "直接",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 544,
+        "sourceSheet": "正字",
+        "pinyin": "tsit6tsap5"
+      }
+    },
+    {
+      "id": "hakka-545-1",
+      "normalized": "摘",
+      "display": "摘",
+      "mandarin": "摘",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 545,
+        "sourceSheet": "正字",
+        "pinyin": "tit5"
+      }
+    },
+    {
+      "id": "hakka-546-1",
+      "normalized": "瑜伽",
+      "display": "瑜伽",
+      "mandarin": "瑜伽",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 546,
+        "sourceSheet": "正字",
+        "pinyin": "i1kia1"
+      }
+    },
+    {
+      "id": "hakka-547-1",
+      "normalized": "有意思",
+      "display": "有意思",
+      "mandarin": "有意思",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 547,
+        "sourceSheet": "正字",
+        "pinyin": "iu1i4si1"
+      }
+    },
+    {
+      "id": "hakka-548-1",
+      "normalized": "煮",
+      "display": "煮",
+      "mandarin": "煮",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 548,
+        "sourceSheet": "正字",
+        "pinyin": "zu3"
+      }
+    },
+    {
+      "id": "hakka-549-1",
+      "normalized": "街上",
+      "display": "街上",
+      "mandarin": "街上",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 549,
+        "sourceSheet": "正字",
+        "pinyin": "gai1song1"
+      }
+    },
+    {
+      "id": "hakka-550-1",
+      "normalized": "少",
+      "display": "少",
+      "mandarin": "少",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 550,
+        "sourceSheet": "正字",
+        "pinyin": "sau4"
+      }
+    },
+    {
+      "id": "hakka-551-1",
+      "normalized": "请",
+      "display": "请",
+      "mandarin": "请",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 551,
+        "sourceSheet": "正字",
+        "pinyin": "tsiang3"
+      }
+    },
+    {
+      "id": "hakka-552-1",
+      "normalized": "医生",
+      "display": "医生",
+      "mandarin": "医生",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 552,
+        "sourceSheet": "正字",
+        "pinyin": "i4sin4"
+      }
+    },
+    {
+      "id": "hakka-553-1",
+      "normalized": "换",
+      "display": "换",
+      "mandarin": "换",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 553,
+        "sourceSheet": "正字",
+        "pinyin": "von4"
+      }
+    },
+    {
+      "id": "hakka-554-1",
+      "normalized": "担心",
+      "display": "担心",
+      "mandarin": "担心",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 554,
+        "sourceSheet": "正字",
+        "pinyin": "dan3sim1"
+      }
+    },
+    {
+      "id": "hakka-555-1",
+      "normalized": "再也",
+      "display": "再也",
+      "mandarin": "再也",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 555,
+        "sourceSheet": "正字",
+        "pinyin": "zai4ia1"
+      }
+    },
+    {
+      "id": "hakka-556-1",
+      "normalized": "正做得",
+      "display": "正做得",
+      "mandarin": "才能",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 556,
+        "sourceSheet": "正字",
+        "pinyin": "zin4zo4ded5"
+      }
+    },
+    {
+      "id": "hakka-557-1",
+      "normalized": "唔係",
+      "display": "唔係",
+      "mandarin": "不是",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 557,
+        "sourceSheet": "正字",
+        "pinyin": "m2he4"
+      }
+    },
+    {
+      "id": "hakka-558-1",
+      "normalized": "真好",
+      "display": "真好",
+      "mandarin": "真好",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 558,
+        "sourceSheet": "正字",
+        "pinyin": "zin1hau3"
+      }
+    },
+    {
+      "id": "hakka-559-1",
+      "normalized": "风景",
+      "display": "风景",
+      "mandarin": "风景",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 559,
+        "sourceSheet": "正字",
+        "pinyin": "fung1gin3"
+      }
+    },
+    {
+      "id": "hakka-560-1",
+      "normalized": "事",
+      "display": "事",
+      "mandarin": "事",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 560,
+        "sourceSheet": "正字",
+        "pinyin": "si4"
+      }
+    },
+    {
+      "id": "hakka-561-1",
+      "normalized": "个话",
+      "display": "个话",
+      "mandarin": "的话",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 561,
+        "sourceSheet": "正字",
+        "pinyin": "ge4go4"
+      }
+    },
+    {
+      "id": "hakka-562-1",
+      "normalized": "过年",
+      "display": "过年",
+      "mandarin": "过年",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 562,
+        "sourceSheet": "正字",
+        "pinyin": "go4ngien2"
+      }
+    },
+    {
+      "id": "hakka-563-1",
+      "normalized": "教练",
+      "display": "教练",
+      "mandarin": "教练",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 563,
+        "sourceSheet": "正字",
+        "pinyin": "gau4lien4"
+      }
+    },
+    {
+      "id": "hakka-564-1",
+      "normalized": "散步",
+      "display": "散步",
+      "mandarin": "散步",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 564,
+        "sourceSheet": "正字",
+        "pinyin": "san3pu4"
+      }
+    },
+    {
+      "id": "hakka-565-1",
+      "normalized": "正行",
+      "display": "正行",
+      "mandarin": "才行",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 565,
+        "sourceSheet": "正字",
+        "pinyin": "zin4hang2"
+      }
+    },
+    {
+      "id": "hakka-566-1",
+      "normalized": "设计",
+      "display": "设计",
+      "mandarin": "设计",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 566,
+        "sourceSheet": "正字",
+        "pinyin": "sat5gi4"
+      }
+    },
+    {
+      "id": "hakka-567-1",
+      "normalized": "根本",
+      "display": "根本",
+      "mandarin": "根本",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 567,
+        "sourceSheet": "正字",
+        "pinyin": "gen1bun3"
+      }
+    },
+    {
+      "id": "hakka-568-1",
+      "normalized": "下昼",
+      "display": "下昼",
+      "mandarin": "下午",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 568,
+        "sourceSheet": "正字",
+        "pinyin": "ha1zu4"
+      }
+    },
+    {
+      "id": "hakka-569-1",
+      "normalized": "上昼",
+      "display": "上昼",
+      "mandarin": "上午",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 569,
+        "sourceSheet": "正字",
+        "pinyin": "song1zu4"
+      }
+    },
+    {
+      "id": "hakka-570-1",
+      "normalized": "当昼",
+      "display": "当昼",
+      "mandarin": "中午",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 570,
+        "sourceSheet": "正字",
+        "pinyin": "dang1zu4"
+      }
+    },
+    {
+      "id": "hakka-571-1",
+      "normalized": "上背",
+      "display": "上背",
+      "mandarin": "上面",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 571,
+        "sourceSheet": "正字",
+        "pinyin": "song1boi4"
+      }
+    },
+    {
+      "id": "hakka-572-1",
+      "normalized": "突然",
+      "display": "突然",
+      "mandarin": "突然",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 572,
+        "sourceSheet": "正字",
+        "pinyin": "tut6ien2"
+      }
+    },
+    {
+      "id": "hakka-573-1",
+      "normalized": "热",
+      "display": "热",
+      "mandarin": "热",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 573,
+        "sourceSheet": "正字",
+        "pinyin": "ngiat6"
+      }
+    },
+    {
+      "id": "hakka-574-1",
+      "normalized": "结果",
+      "display": "结果",
+      "mandarin": "结果",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 574,
+        "sourceSheet": "正字",
+        "pinyin": "ket5go3"
+      }
+    },
+    {
+      "id": "hakka-575-1",
+      "normalized": "推荐",
+      "display": "推荐",
+      "mandarin": "推荐",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 575,
+        "sourceSheet": "正字",
+        "pinyin": "zui1tsen4"
+      }
+    },
+    {
+      "id": "hakka-576-1",
+      "normalized": "环保",
+      "display": "环保",
+      "mandarin": "环保",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 576,
+        "sourceSheet": "正字",
+        "pinyin": "van2bau3"
+      }
+    },
+    {
+      "id": "hakka-577-1",
+      "normalized": "师傅",
+      "display": "师傅",
+      "mandarin": "师傅",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 577,
+        "sourceSheet": "正字",
+        "pinyin": "si1fu4"
+      }
+    },
+    {
+      "id": "hakka-578-1",
+      "normalized": "成日",
+      "display": "成日",
+      "mandarin": "整天",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 578,
+        "sourceSheet": "正字",
+        "pinyin": "sang2ngit5"
+      }
+    },
+    {
+      "id": "hakka-579-1",
+      "normalized": "死",
+      "display": "死",
+      "mandarin": "死",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 579,
+        "sourceSheet": "正字",
+        "pinyin": "si3"
+      }
+    },
+    {
+      "id": "hakka-580-1",
+      "normalized": "当",
+      "display": "当",
+      "mandarin": "当",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 580,
+        "sourceSheet": "正字",
+        "pinyin": "dong4"
+      }
+    },
+    {
+      "id": "hakka-581-1",
+      "normalized": "总",
+      "display": "总",
+      "mandarin": "总",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 581,
+        "sourceSheet": "正字",
+        "pinyin": "zung3"
+      }
+    },
+    {
+      "id": "hakka-582-1",
+      "normalized": "嫩",
+      "display": "嫩",
+      "mandarin": "嫩",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 582,
+        "sourceSheet": "正字",
+        "pinyin": "nun4"
+      }
+    },
+    {
+      "id": "hakka-583-1",
+      "normalized": "发",
+      "display": "发",
+      "mandarin": "发",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 583,
+        "sourceSheet": "正字",
+        "pinyin": "bot5"
+      }
+    },
+    {
+      "id": "hakka-584-1",
+      "normalized": "生意",
+      "display": "生意",
+      "mandarin": "生意",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 584,
+        "sourceSheet": "正字",
+        "pinyin": "sin4i4"
+      }
+    },
+    {
+      "id": "hakka-585-1",
+      "normalized": "该",
+      "display": "该",
+      "mandarin": "该",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 585,
+        "sourceSheet": "正字",
+        "pinyin": "goi1"
+      }
+    },
+    {
+      "id": "hakka-586-1",
+      "normalized": "唔敢",
+      "display": "唔敢",
+      "mandarin": "不敢",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 586,
+        "sourceSheet": "正字",
+        "pinyin": "vu2gam3"
+      }
+    },
+    {
+      "id": "hakka-587-1",
+      "normalized": "舞",
+      "display": "舞",
+      "mandarin": "舞",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 587,
+        "sourceSheet": "正字",
+        "pinyin": "mu3"
+      }
+    },
+    {
+      "id": "hakka-588-1",
+      "normalized": "戴",
+      "display": "戴",
+      "mandarin": "戴",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 588,
+        "sourceSheet": "正字",
+        "pinyin": "dai4"
+      }
+    },
+    {
+      "id": "hakka-589-1",
+      "normalized": "发现",
+      "display": "发现",
+      "mandarin": "发现",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 589,
+        "sourceSheet": "正字",
+        "pinyin": "fat5hien4"
+      }
+    },
+    {
+      "id": "hakka-590-1",
+      "normalized": "天",
+      "display": "天",
+      "mandarin": "天",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 590,
+        "sourceSheet": "正字",
+        "pinyin": "tien1"
+      }
+    },
+    {
+      "id": "hakka-591-1",
+      "normalized": "开心",
+      "display": "开心",
+      "mandarin": "开心",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 591,
+        "sourceSheet": "正字",
+        "pinyin": "koi1sim1"
+      }
+    },
+    {
+      "id": "hakka-592-1",
+      "normalized": "屋",
+      "display": "屋",
+      "mandarin": "房子",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 592,
+        "sourceSheet": "正字",
+        "pinyin": "vuk5"
+      }
+    },
+    {
+      "id": "hakka-593-1",
+      "normalized": "车",
+      "display": "车",
+      "mandarin": "车",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 593,
+        "sourceSheet": "正字",
+        "pinyin": "ki1"
+      }
+    },
+    {
+      "id": "hakka-594-1",
+      "normalized": "麻烦",
+      "display": "麻烦",
+      "mandarin": "麻烦",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 594,
+        "sourceSheet": "正字",
+        "pinyin": "lim2fan2"
+      }
+    },
+    {
+      "id": "hakka-595-1",
+      "normalized": "新出",
+      "display": "新出",
+      "mandarin": "新出",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 595,
+        "sourceSheet": "正字",
+        "pinyin": "sin1cut5"
+      }
+    },
+    {
+      "id": "hakka-596-1",
+      "normalized": "清楚",
+      "display": "清楚",
+      "mandarin": "清楚",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 596,
+        "sourceSheet": "正字",
+        "pinyin": "tsin1cu3"
+      }
+    },
+    {
+      "id": "hakka-597-1",
+      "normalized": "头先",
+      "display": "头先",
+      "mandarin": "刚才",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 597,
+        "sourceSheet": "正字",
+        "pinyin": "theu2sen1"
+      }
+    },
+    {
+      "id": "hakka-598-1",
+      "normalized": "特效",
+      "display": "特效",
+      "mandarin": "特效",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 598,
+        "sourceSheet": "正字",
+        "pinyin": "tet6hau4"
+      }
+    },
+    {
+      "id": "hakka-599-1",
+      "normalized": "游水",
+      "display": "游水",
+      "mandarin": "游泳",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 599,
+        "sourceSheet": "正字",
+        "pinyin": "iu2sui3"
+      }
+    },
+    {
+      "id": "hakka-600-1",
+      "normalized": "精神",
+      "display": "精神",
+      "mandarin": "精神",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 600,
+        "sourceSheet": "正字",
+        "pinyin": "tsiang1sin1"
+      }
+    },
+    {
+      "id": "hakka-601-1",
+      "normalized": "楼下",
+      "display": "楼下",
+      "mandarin": "楼下",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "sourceIndex": 601,
+        "sourceSheet": "正字",
+        "pinyin": "leu2ha1"
+      }
+    },
+    {
+      "id": "hakka-602-1",
+      "normalized": "隔壁",
+      "display": "隔壁",
+      "mandarin": "隔壁",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "gak5 piak5",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 602,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-603-1",
+      "normalized": "隔离",
+      "display": "隔离",
+      "mandarin": "旁边",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "gak5 li2",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 603,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-604-1",
+      "normalized": "对门",
+      "display": "对门",
+      "mandarin": "对门",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "dui4 mun2",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 604,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-605-1",
+      "normalized": "窗口",
+      "display": "窗口",
+      "mandarin": "窗户",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "cung1 kieu3",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 605,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-606-1",
+      "normalized": "门背",
+      "display": "门背",
+      "mandarin": "门后",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "mun2 boi4",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 606,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-607-1",
+      "normalized": "门坎",
+      "display": "门坎",
+      "mandarin": "门槛",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "mun2 kam3",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 607,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-608-1",
+      "normalized": "阶下",
+      "display": "阶下",
+      "mandarin": "台阶下",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "gai1 ha1",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 608,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-609-1",
+      "normalized": "天井",
+      "display": "天井",
+      "mandarin": "天井",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "tien1 ziang3",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 609,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-610-1",
+      "normalized": "厨房",
+      "display": "厨房",
+      "mandarin": "厨房",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "cu2 fong2",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 610,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-611-1",
+      "normalized": "灶下",
+      "display": "灶下",
+      "mandarin": "厨房",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "zau4 ha1",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 611,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-612-1",
+      "normalized": "浴堂",
+      "display": "浴堂",
+      "mandarin": "浴室",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "yuk5 tong2",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 612,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-613-1",
+      "normalized": "屎坑",
+      "display": "屎坑",
+      "mandarin": "厕所",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "si3 hang1",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 613,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-614-1",
+      "normalized": "猪栏",
+      "display": "猪栏",
+      "mandarin": "猪圈",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "zu1 lan2",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 614,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-615-1",
+      "normalized": "牛栏",
+      "display": "牛栏",
+      "mandarin": "牛圈",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ngiu2 lan2",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 615,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-616-1",
+      "normalized": "鸡埘",
+      "display": "鸡埘",
+      "mandarin": "鸡窝",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "gai1 si2",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 616,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-617-1",
+      "normalized": "狗窦",
+      "display": "狗窦",
+      "mandarin": "狗窝",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "gieu3 teu4",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 617,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-618-1",
+      "normalized": "屋檐",
+      "display": "屋檐",
+      "mandarin": "屋檐",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "vuk5 ngiam2",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 618,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-619-1",
+      "normalized": "瓦顶",
+      "display": "瓦顶",
+      "mandarin": "屋顶",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "nga3 dang3",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 619,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-620-1",
+      "normalized": "栋梁",
+      "display": "栋梁",
+      "mandarin": "房梁",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "tung4 liong2",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 620,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-621-1",
+      "normalized": "柱子",
+      "display": "柱子",
+      "mandarin": "柱子",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "cu4 zi3",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 621,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-622-1",
+      "normalized": "墙壁",
+      "display": "墙壁",
+      "mandarin": "墙壁",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "chiong2 piak5",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 622,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-623-1",
+      "normalized": "地板",
+      "display": "地板",
+      "mandarin": "地板",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "ti4 ban3",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 623,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-624-1",
+      "normalized": "楼梯",
+      "display": "楼梯",
+      "mandarin": "楼梯",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "leu2 tai1",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 624,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-625-1",
+      "normalized": "走廊",
+      "display": "走廊",
+      "mandarin": "走廊",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "zeu3 long2",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 625,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-626-1",
+      "normalized": "院子",
+      "display": "院子",
+      "mandarin": "院子",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "yen4 zi3",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 626,
+        "sourceSheet": "正字"
+      }
+    },
+    {
+      "id": "hakka-627-1",
+      "normalized": "围墙",
+      "display": "围墙",
+      "mandarin": "围墙",
+      "aliases": [],
+      "notes": [],
+      "tags": [],
+      "attributes": {
+        "pinyin": "vi2 chiong2",
+        "priority": 1,
+        "senseId": 1,
+        "sourceIndex": 627,
+        "sourceSheet": "正字"
+      }
+    }
+  ]
+}

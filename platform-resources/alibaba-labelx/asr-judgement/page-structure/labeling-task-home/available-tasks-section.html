@@ -1,0 +1,43 @@
+<!--
+页面板块: available-tasks-section
+真实定位:
+- .all-task-list-container
+用途:
+- 可领取任务列表。视觉上像任务列表，DOM 实际是 Ant Design Table。
+风险:
+- “领取”按钮是业务动作，结构采集和脚本初始化阶段不要点击。
+-->
+<div class="all-task-list-container">
+  <div class="ant-v5-table-wrapper ant-v5-table-css-var">
+    <div class="ant-v5-spin-nested-loading">
+      <div class="ant-v5-spin-container">
+        <div class="ant-v5-table ant-v5-table-css-var">
+          <div class="ant-v5-table-container">
+            <div class="ant-v5-table-content">
+              <table>
+                <tbody class="ant-v5-table-tbody">
+                  <tr class="ant-v5-table-row ant-v5-table-row-level-0">
+                    <td class="ant-v5-table-cell"><span>任务名称：REDACTED_TASK_NAME</span></td>
+                    <td class="ant-v5-table-cell"><span>任务ID：REDACTED_TASK_ID</span></td>
+                    <td class="ant-v5-table-cell">
+                      <div class="ant-v5-spin ant-v5-spin-sm ant-v5-spin-spinning" aria-live="polite" aria-busy="true">
+                        <span class="ant-v5-spin-dot-holder"><span class="ant-v5-spin-dot ant-v5-spin-dot-spin"></span></span>
+                      </div>
+                    </td>
+                    <td class="ant-v5-table-cell">
+                      <div>
+                        <button type="button" class="ant-v5-btn ant-v5-btn-link ant-v5-btn-color-primary ant-v5-btn-variant-link ant-v5-btn-sm label-center-task-link">
+                          <span>领取</span>
+                        </button>
+                      </div>
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

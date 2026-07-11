@@ -1,0 +1,99 @@
+<!--
+页面板块: task-item
+真实定位:
+- .labelRender-item[data-index][data-id]
+说明:
+- 单条题卡由“内容区 + 回答区”组成。
+- 当前页面是多题卡列表，不是单题详情编辑页。
+风险:
+- data-id、音频 URL、题面文本、wav_id 都会变化。
+-->
+<div class="labelRender-item labelRender-item-selected" data-index="0" data-id="REDACTED_ITEM_ID">
+  <div class="labelRender-item-content">
+    <div class="labelRender-item-area-head">
+      <div class="labelRender-item-area-head-name">内容区</div>
+    </div>
+    <div class="labelRender-item-area-body">
+      <div class="labelRender-item-content-scrollable">
+        <div class="labelRender-item-content-wrap">
+          <div class="dt-audio-base-container">
+            <audio preload="auto" controls="" controlslist="nodownload noplaybackrate" src="REDACTED_URL">
+              <source src="REDACTED_URL" type="audio/mpeg">
+              <source src="REDACTED_URL" type="audio/mp4">
+              <source src="REDACTED_URL" type="audio/wav">
+              您的浏览器不支持音频播放功能。
+            </audio>
+            <div class="dt-audio-base-controls">
+              <div class="control-group"></div>
+              <div class="control-divider"></div>
+              <div class="control-group"></div>
+              <div class="control-divider"></div>
+              <div class="control-group"></div>
+              <div class="control-divider"></div>
+              <div class="control-group download-status-group">
+                <span class="download-indicator-container">
+                  <span>✅ 音频已加载</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="labelRender-item-content-wrap">
+          <span class="ant-v5-tag ant-v5-tag-blue ant-v5-tag-borderless labelRender-item-content-title">两个ASR文本</span>
+          <div class="dt-text-wrapper">
+            <div class="dt-text-actions"></div>
+            <div class="dt-text-container">
+              <div>asr_text1: REDACTED_TEXT&#10;asr_text2: REDACTED_TEXT</div>
+            </div>
+          </div>
+        </div>
+        <div class="labelRender-item-content-wrap">
+          <span class="ant-v5-tag ant-v5-tag-blue ant-v5-tag-borderless labelRender-item-content-title">wav_id</span>
+          <div class="dt-text-wrapper">
+            <div class="dt-text-actions"></div>
+            <div class="dt-text-container">
+              <div>REDACTED_WAV_ID</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="labelRender-item-answer">
+    <div class="labelRender-item-area-head">
+      <div class="labelRender-item-area-head-name">
+        <span>回答区</span>
+      </div>
+    </div>
+    <div class="labelRender-item-area-body">
+      <div class="labelRender-item-answer-wrap">
+        <div class="labelRender-item-answer-title">
+          <span class="labelRender-item-answer-title-required">*</span>哪个ASR更优
+        </div>
+        <div class="ant-v5-radio-group ant-v5-radio-group-outline ant-v5-radio-css-var">
+          <label class="ant-v5-radio-wrapper ant-v5-radio-css-var"><span class="ant-v5-radio ant-wave-target"><input name="REDACTED_RADIO_GROUP" class="ant-v5-radio-input" type="radio" value="第一个更好"><span class="ant-v5-radio-inner"></span></span><span class="ant-v5-radio-label">第一个更好</span></label>
+          <label class="ant-v5-radio-wrapper ant-v5-radio-css-var"><span class="ant-v5-radio ant-wave-target"><input name="REDACTED_RADIO_GROUP" class="ant-v5-radio-input" type="radio" value="第二个更好"><span class="ant-v5-radio-inner"></span></span><span class="ant-v5-radio-label">第二个更好</span></label>
+          <label class="ant-v5-radio-wrapper ant-v5-radio-css-var"><span class="ant-v5-radio ant-wave-target"><input name="REDACTED_RADIO_GROUP" class="ant-v5-radio-input" type="radio" value="都不好"><span class="ant-v5-radio-inner"></span></span><span class="ant-v5-radio-label">都不好</span></label>
+          <label class="ant-v5-radio-wrapper ant-v5-radio-wrapper-checked ant-v5-radio-css-var"><span class="ant-v5-radio ant-wave-target ant-v5-radio-checked"><input name="REDACTED_RADIO_GROUP" class="ant-v5-radio-input" type="radio" value="不确定或差不多" checked=""><span class="ant-v5-radio-inner"></span></span><span class="ant-v5-radio-label">不确定或差不多</span></label>
+          <label class="ant-v5-radio-wrapper ant-v5-radio-css-var"><span class="ant-v5-radio ant-wave-target"><input name="REDACTED_RADIO_GROUP" class="ant-v5-radio-input" type="radio" value="其他方言或语种"><span class="ant-v5-radio-inner"></span></span><span class="ant-v5-radio-label">其他方言或语种</span></label>
+        </div>
+      </div>
+      <div class="labelRender-item-answer-wrap">
+        <div class="labelRender-item-answer-title">特殊情况标注</div>
+        <div class="main-component-module__wrapper_eA_o1W__100">
+          <span class="ant-v5-input-affix-wrapper ant-v5-input-textarea-affix-wrapper ant-v5-input-textarea-show-count ant-v5-input-show-count ant-v5-input-outlined ant-v5-input-css-var">
+            <textarea type="Answer" title="填空" maxlength="20000" class="ant-v5-input"></textarea>
+            <span class="ant-v5-input-suffix"><span class="ant-v5-input-data-count"><span>REDACTED_COUNT / 20000</span></span></span>
+          </span>
+        </div>
+      </div>
+    </div>
+    <div class="labelRender-item-area-foot">
+      <div class="actions-left">
+        <button type="button" class="ant-v5-btn ant-v5-btn-link ant-v5-btn-color-primary ant-v5-btn-variant-link">
+          <span>历史标注</span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

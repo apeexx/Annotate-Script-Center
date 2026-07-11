@@ -1,0 +1,83 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>标注脚本中心</title>
+    <link rel="stylesheet" href="./options.css" />
+  </head>
+  <body>
+    <main class="page">
+      <div class="workspace-shell">
+        <aside class="workspace-sidebar">
+          <div class="workspace-brand">
+            <span class="workspace-brand-mark">
+              <img
+                id="workspace-brand-icon"
+                class="workspace-brand-icon"
+                src="../assets/brand/asc-logo.svg"
+                alt="标注脚本中心图标"
+              />
+            </span>
+            <div class="workspace-brand-copy">
+              <strong id="workspace-brand-title">标注脚本中心</strong>
+              <span id="workspace-version">版本读取中</span>
+            </div>
+          </div>
+
+          <section class="workspace-side-card workspace-side-card-dark">
+            <span class="workspace-side-label">运行概况</span>
+            <div class="workspace-side-list">
+              <div><span>发布通道</span><strong id="workspace-release-channel">public</strong></div>
+              <div><span>后端模式</span><strong id="workspace-backend-mode">服务器</strong></div>
+              <div><span>当前启用</span><strong id="workspace-enabled-count">0</strong></div>
+              <div><span>平台 / 脚本</span><strong id="workspace-library-count">0 / 0</strong></div>
+            </div>
+          </section>
+
+          <section class="workspace-side-card">
+            <span class="workspace-side-label">后端根地址</span>
+            <div class="workspace-side-form">
+              <label class="project-download-row">
+                <span>server 根地址</span>
+                <input id="home-endpoint-server-url" type="url" />
+              </label>
+              <label class="project-download-row">
+                <span>local 根地址</span>
+                <input id="home-endpoint-local-url" type="url" />
+              </label>
+              <div class="field-actions">
+                <button id="home-endpoint-server" class="secondary-button" type="button">使用服务器</button>
+                <button id="home-endpoint-local" class="secondary-button" type="button">使用本机</button>
+                <button id="home-endpoint-save" class="primary-button" type="button">保存地址</button>
+              </div>
+              <div id="home-endpoint-status" class="status-text"></div>
+            </div>
+          </section>
+        </aside>
+
+        <section class="workspace-stage">
+          <section class="hero">
+            <div class="hero-top">
+              <div>
+                <span class="hero-kicker">PUBLIC CENTER</span>
+                <h1 id="extension-name">标注脚本中心</h1>
+                <p id="hero-description">
+                  当前版本只保留公开发布通道。这里集中管理仍保留的平台脚本启停和后端地址。
+                </p>
+              </div>
+            </div>
+          </section>
+
+          <section id="script-center-view" class="platform-grid"></section>
+          <div id="options-error" class="fallback-error hidden" role="alert"></div>
+        </section>
+      </div>
+    </main>
+
+    <script src="../shared/build-meta.js"></script>
+    <script src="../shared/constants.js"></script>
+    <script src="../shared/storage.js"></script>
+    <script src="./options.js"></script>
+  </body>
+</html>

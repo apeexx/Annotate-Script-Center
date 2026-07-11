@@ -1,0 +1,130 @@
+[
+  {
+    "scenario": "第一个更好",
+    "input": {
+      "asrText1": "打开空调",
+      "asrText2": "打开空调吗"
+    },
+    "output": {
+      "answer": "first_better",
+      "answerText": "第一个更好",
+      "confidence": 0.86,
+      "reasonSummary": "第二个多出语气词，可能改变用户指令语气。",
+      "riskLevel": "medium",
+      "needManualSearch": false,
+      "shouldWarnBeforeApply": false
+    }
+  },
+  {
+    "scenario": "第二个更好",
+    "input": {
+      "asrText1": "导航到古北万象城",
+      "asrText2": "导航到古北万象城。"
+    },
+    "output": {
+      "answer": "second_better",
+      "answerText": "第二个更好",
+      "confidence": 0.68,
+      "reasonSummary": "第二个语句更完整，语义一致。",
+      "riskLevel": "low",
+      "needManualSearch": false,
+      "shouldWarnBeforeApply": false
+    }
+  },
+  {
+    "scenario": "都不好",
+    "input": {
+      "asrText1": "给我订明天北京到上海机票",
+      "asrText2": "给我定今天南京到杭州机票"
+    },
+    "output": {
+      "answer": "both_bad",
+      "answerText": "都不好",
+      "confidence": 0.88,
+      "reasonSummary": "两条关键信息冲突明显，至少一条严重失真。",
+      "riskLevel": "high",
+      "needManualSearch": false,
+      "shouldWarnBeforeApply": true
+    }
+  },
+  {
+    "scenario": "不确定或差不多",
+    "input": {
+      "asrText1": "帮我看下今天上海天气",
+      "asrText2": "帮我看一下今天上海天气"
+    },
+    "output": {
+      "answer": "uncertain_or_similar",
+      "answerText": "不确定或差不多",
+      "confidence": 0.43,
+      "reasonSummary": "语义一致，仅有轻微口语差异。",
+      "riskLevel": "low",
+      "needManualSearch": false,
+      "shouldWarnBeforeApply": true
+    }
+  },
+  {
+    "scenario": "其他方言或语种",
+    "input": {
+      "asrText1": "ng5 zung1 ji3 nei5",
+      "asrText2": "我中意你"
+    },
+    "output": {
+      "answer": "other_dialect_or_language",
+      "answerText": "其他方言或语种",
+      "confidence": 0.51,
+      "reasonSummary": "疑似方言或非标准普通话，规则覆盖不足。",
+      "riskLevel": "medium",
+      "needManualSearch": false,
+      "shouldWarnBeforeApply": true
+    }
+  },
+  {
+    "scenario": "专有名词需人工搜索",
+    "input": {
+      "asrText1": "给我导航到秦望府",
+      "asrText2": "给我导航到勤旺府"
+    },
+    "output": {
+      "answer": "uncertain_or_similar",
+      "answerText": "不确定或差不多",
+      "confidence": 0.39,
+      "reasonSummary": "疑似专有名词，缺少上下文无法确认正写。",
+      "riskLevel": "high",
+      "needManualSearch": true,
+      "shouldWarnBeforeApply": true
+    }
+  },
+  {
+    "scenario": "数字格式影响语义",
+    "input": {
+      "asrText1": "给我订明天上午十点的票",
+      "asrText2": "给我订明天上午一点的票"
+    },
+    "output": {
+      "answer": "first_better",
+      "answerText": "第一个更好",
+      "confidence": 0.83,
+      "reasonSummary": "数字差异改变具体时间，属于关键语义错误。",
+      "riskLevel": "high",
+      "needManualSearch": false,
+      "shouldWarnBeforeApply": true
+    }
+  },
+  {
+    "scenario": "标点语气词不影响语义",
+    "input": {
+      "asrText1": "播放周杰伦晴天",
+      "asrText2": "播放周杰伦《晴天》呀"
+    },
+    "output": {
+      "answer": "uncertain_or_similar",
+      "answerText": "不确定或差不多",
+      "confidence": 0.57,
+      "reasonSummary": "差异主要是语气词和标点，不影响核心意图。",
+      "riskLevel": "low",
+      "needManualSearch": false,
+      "shouldWarnBeforeApply": true
+    }
+  }
+]

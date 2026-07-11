@@ -1,0 +1,78 @@
+{
+  "provider": "aliyun-bailian",
+  "currency": "CNY",
+  "region": "中国内地 / 华北2（北京）",
+  "sourceUrl": "https://help.aliyun.com/zh/model-studio/model-pricing",
+  "modelListUrl": "https://bailian.console.aliyun.com/cn-beijing?tab=model#/model-market/all",
+  "verifiedAt": "2026-06-11T12:00:00+08:00",
+  "models": {
+    "qwen3.5-omni-plus": {
+      "family": "omni",
+      "input": {
+        "textImageVideoCnyPerMillionTokens": 7,
+        "audioCnyPerMillionTokens": 53
+      },
+      "output": {
+        "textCnyPerMillionTokens": 40,
+        "textAudioCnyPerMillionTokens": 213
+      }
+    },
+    "qwen3.5-omni-flash": {
+      "family": "omni",
+      "input": {
+        "textImageVideoCnyPerMillionTokens": 2.2,
+        "audioCnyPerMillionTokens": 18
+      },
+      "output": {
+        "textCnyPerMillionTokens": 13.3,
+        "textAudioCnyPerMillionTokens": 72
+      }
+    },
+    "qwen3.5-plus": {
+      "family": "text",
+      "tiers": [
+        {
+          "label": "0<Token≤128K",
+          "maxPromptTokens": 128000,
+          "inputCnyPerMillionTokens": 0.8,
+          "outputCnyPerMillionTokens": 4.8
+        },
+        {
+          "label": "128K<Token≤256K",
+          "maxPromptTokens": 256000,
+          "inputCnyPerMillionTokens": 2,
+          "outputCnyPerMillionTokens": 12
+        },
+        {
+          "label": "256K<Token≤1M",
+          "maxPromptTokens": 1000000,
+          "inputCnyPerMillionTokens": 4,
+          "outputCnyPerMillionTokens": 24
+        }
+      ]
+    },
+    "qwen3.5-flash": {
+      "family": "text",
+      "tiers": [
+        {
+          "label": "0<Token≤128K",
+          "maxPromptTokens": 128000,
+          "inputCnyPerMillionTokens": 0.2,
+          "outputCnyPerMillionTokens": 2
+        },
+        {
+          "label": "128K<Token≤256K",
+          "maxPromptTokens": 256000,
+          "inputCnyPerMillionTokens": 0.8,
+          "outputCnyPerMillionTokens": 8
+        },
+        {
+          "label": "256K<Token≤1M",
+          "maxPromptTokens": 1000000,
+          "inputCnyPerMillionTokens": 1.2,
+          "outputCnyPerMillionTokens": 12
+        }
+      ]
+    }
+  }
+}

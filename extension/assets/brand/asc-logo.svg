@@ -1,0 +1,44 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="64" y1="40" x2="456" y2="472" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#1677FF"/>
+      <stop offset="0.52" stop-color="#0EA5E9"/>
+      <stop offset="1" stop-color="#10B981"/>
+    </linearGradient>
+    <linearGradient id="card" x1="130" y1="112" x2="385" y2="395" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#FFFFFF"/>
+      <stop offset="1" stop-color="#EAF5FF"/>
+    </linearGradient>
+    <filter id="shadow" x="64" y="72" width="384" height="384" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="18" stdDeviation="22" flood-color="#0F172A" flood-opacity="0.22"/>
+    </filter>
+    <filter id="soft" x="96" y="94" width="330" height="330" filterUnits="userSpaceOnUse" color-interpolation-filters="sRGB">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#1677FF" flood-opacity="0.18"/>
+    </filter>
+  </defs>
+
+  <rect x="32" y="32" width="448" height="448" rx="112" fill="url(#bg)"/>
+  <circle cx="126" cy="116" r="72" fill="white" opacity="0.13"/>
+  <circle cx="404" cy="386" r="96" fill="white" opacity="0.10"/>
+  <path d="M94 372C160 330 216 356 278 314C338 274 366 198 424 160" stroke="white" stroke-opacity="0.16" stroke-width="28" stroke-linecap="round"/>
+
+  <g filter="url(#shadow)">
+    <rect x="116" y="108" width="280" height="296" rx="58" fill="url(#card)"/>
+  </g>
+
+  <g filter="url(#soft)">
+    <rect x="154" y="148" width="204" height="216" rx="34" fill="#FFFFFF"/>
+    <rect x="178" y="180" width="156" height="22" rx="11" fill="#DBEAFE"/>
+    <rect x="178" y="222" width="88" height="18" rx="9" fill="#BAE6FD"/>
+    <rect x="178" y="326" width="156" height="18" rx="9" fill="#DCFCE7"/>
+  </g>
+
+  <path d="M196 278H210C216 278 219 272 221 264L229 226C232 212 246 212 249 226L267 310C270 324 284 324 287 310L296 264C298 254 302 250 310 250H324" stroke="#1677FF" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+  <path d="M328 270L352 294L402 238" stroke="#10B981" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <path d="M170 256L146 280L170 304" stroke="#0F5BD8" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" opacity="0.92"/>
+  <path d="M342 196L366 220L342 244" stroke="#0F5BD8" stroke-width="18" stroke-linecap="round" stroke-linejoin="round" opacity="0.92"/>
+
+  <circle cx="256" cy="405" r="10" fill="white" opacity="0.55"/>
+  <circle cx="286" cy="405" r="6" fill="white" opacity="0.42"/>
+</svg>

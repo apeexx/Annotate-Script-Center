@@ -1,0 +1,16 @@
+[
+  {
+    "taskId": "TASK-DEMO-001",
+    "projectName": "闽南语示例项目",
+    "taskName": "一检示例任务",
+    "userName": "测试采集员",
+    "mobile": "13800000000",
+    "textNumber": "TEXT-0001",
+    "statusName": "质检合格",
+    "checkName": "测试质检员",
+    "effectivePassTotalTime": 3.2,
+    "audioUrl": "[url:example.com]",
+    "segmentNumber": "1",
+    "fileName": "demo-audio-001.wav"
+  }
+]

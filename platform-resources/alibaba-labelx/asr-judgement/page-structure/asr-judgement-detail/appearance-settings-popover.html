@@ -1,0 +1,133 @@
+<!--
+页面板块: appearance-settings-popover
+真实定位:
+- button: 文本“样式设置”
+- popover: .Appearance-module__panel_*
+说明:
+- 详情页右上角样式设置浮层。
+- 该浮层主要影响前端展示布局，未观察到业务 XHR/fetch 保存请求。
+-->
+<button type="button" class="ant-v5-btn ant-v5-btn-link ant-v5-btn-color-primary ant-v5-btn-variant-link Appearance-module__triggerBtn">
+  <span role="img" aria-label="setting" class="anticon anticon-setting"></span>
+  <span>样式设置</span>
+</button>
+
+<div class="ant-v5-popover ant-v5-popover-placement-bottomRight">
+  <div class="ant-v5-popover-content">
+    <div class="ant-v5-popover-inner" role="tooltip">
+      <div class="ant-v5-popover-inner-content">
+        <div class="Appearance-module__panel">
+          <div class="Appearance-module__sectionTitle">基础设置</div>
+
+          <div class="Appearance-module__row">
+            <span class="Appearance-module__label">卡片大小</span>
+            <div class="Appearance-module__sliderWrap">
+              <div class="ant-v5-slider" role="presentation">
+                <div class="ant-v5-slider-handle" tabindex="0" role="slider" aria-valuemin="1" aria-valuemax="10" aria-valuenow="1"></div>
+              </div>
+              <div class="ant-v5-input-number ant-v5-input-number-sm">
+                <input role="spinbutton" aria-valuemin="1" aria-valuemax="10" aria-valuenow="1" value="1" class="ant-v5-input-number-input" />
+              </div>
+            </div>
+          </div>
+
+          <div class="Appearance-module__row">
+            <span class="Appearance-module__label">内容占比</span>
+            <div class="Appearance-module__sliderWrap">
+              <div class="ant-v5-slider" role="presentation">
+                <div class="ant-v5-slider-handle" tabindex="0" role="slider" aria-valuemin="20" aria-valuemax="80" aria-valuenow="65"></div>
+              </div>
+              <div class="ant-v5-input-number ant-v5-input-number-sm">
+                <input role="spinbutton" aria-valuemin="20" aria-valuemax="80" aria-valuenow="65" value="65" class="ant-v5-input-number-input" />
+              </div>
+            </div>
+          </div>
+
+          <div class="Appearance-module__row">
+            <span class="Appearance-module__label">内容字体</span>
+            <div class="Appearance-module__sliderWrap">
+              <div class="ant-v5-slider" role="presentation">
+                <div class="ant-v5-slider-handle" tabindex="0" role="slider" aria-valuemin="8" aria-valuemax="24" aria-valuenow="14"></div>
+              </div>
+              <div class="ant-v5-input-number ant-v5-input-number-sm">
+                <input role="spinbutton" aria-valuemin="8" aria-valuemax="24" aria-valuenow="14" value="14" class="ant-v5-input-number-input" />
+              </div>
+            </div>
+          </div>
+
+          <div class="Appearance-module__row">
+            <span class="Appearance-module__label">标注字体</span>
+            <div class="Appearance-module__sliderWrap">
+              <div class="ant-v5-slider" role="presentation">
+                <div class="ant-v5-slider-handle" tabindex="0" role="slider" aria-valuemin="8" aria-valuemax="24" aria-valuenow="14"></div>
+              </div>
+              <div class="ant-v5-input-number ant-v5-input-number-sm">
+                <input role="spinbutton" aria-valuemin="8" aria-valuemax="24" aria-valuenow="14" value="14" class="ant-v5-input-number-input" />
+              </div>
+            </div>
+          </div>
+
+          <div class="Appearance-module__sectionTitle">布局设置</div>
+
+          <div class="Appearance-module__row">
+            <span class="Appearance-module__label">行内布局</span>
+            <div class="ant-v5-radio-group">
+              <label class="ant-v5-radio-button-wrapper ant-v5-radio-button-wrapper-checked">
+                <input type="radio" value="row" checked />
+                <span class="ant-v5-radio-button-label">横排</span>
+              </label>
+              <label class="ant-v5-radio-button-wrapper">
+                <input type="radio" value="column" />
+                <span class="ant-v5-radio-button-label">竖排</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="Appearance-module__row">
+            <span class="Appearance-module__label">内容列</span>
+            <div class="ant-v5-radio-group">
+              <label class="ant-v5-radio-button-wrapper">
+                <input type="radio" value="row" />
+                <span class="ant-v5-radio-button-label">横排</span>
+              </label>
+              <label class="ant-v5-radio-button-wrapper ant-v5-radio-button-wrapper-checked">
+                <input type="radio" value="column" checked />
+                <span class="ant-v5-radio-button-label">竖排</span>
+              </label>
+            </div>
+          </div>
+
+          <div class="Appearance-module__row">
+            <span class="Appearance-module__label">隐藏内容区</span>
+            <button type="button" role="switch" aria-checked="false" class="ant-v5-switch"></button>
+          </div>
+
+          <div class="Appearance-module__row">
+            <span class="Appearance-module__label">隐藏回答区</span>
+            <button type="button" role="switch" aria-checked="false" class="ant-v5-switch"></button>
+          </div>
+
+          <div class="Appearance-module__hotkeysSection">
+            <div class="Appearance-module__hotkeysTitle">快捷键</div>
+            <div class="Appearance-module__hotkeyRow">
+              <span class="Appearance-module__hotkeyLabel">上一题</span>
+              <kbd>W</kbd><span>或</span><kbd>shift + ↑</kbd>
+            </div>
+            <div class="Appearance-module__hotkeyRow">
+              <span class="Appearance-module__hotkeyLabel">下一题</span>
+              <kbd>S</kbd><span>或</span><kbd>shift + ↓</kbd>
+            </div>
+            <div class="Appearance-module__hotkeyRow">
+              <span class="Appearance-module__hotkeyLabel">上一页</span>
+              <kbd>Q</kbd>
+            </div>
+            <div class="Appearance-module__hotkeyRow">
+              <span class="Appearance-module__hotkeyLabel">下一页</span>
+              <kbd>E</kbd>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

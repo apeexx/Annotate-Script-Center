@@ -1,0 +1,224 @@
+:root {
+  color-scheme: light;
+  font-family: "Microsoft YaHei", "PingFang SC", Arial, sans-serif;
+  background: #f5f7fb;
+  color: #1f2937;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-width: 920px;
+  background: #f5f7fb;
+}
+
+button,
+input {
+  font: inherit;
+}
+
+.page {
+  min-height: 100vh;
+}
+
+.workspace-shell {
+  display: grid;
+  grid-template-columns: 300px 1fr;
+  min-height: 100vh;
+}
+
+.workspace-sidebar {
+  padding: 24px;
+  background: #ffffff;
+  border-right: 1px solid #d9e0ea;
+}
+
+.workspace-brand {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-bottom: 24px;
+}
+
+.workspace-brand-mark {
+  width: 44px;
+  height: 44px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  background: #eef4ff;
+}
+
+.workspace-brand-icon {
+  width: 28px;
+  height: 28px;
+}
+
+.workspace-brand-copy {
+  display: grid;
+  gap: 4px;
+}
+
+.workspace-brand-copy strong {
+  font-size: 16px;
+}
+
+.workspace-brand-copy span,
+.workspace-side-label,
+.detail-copy,
+.status-text {
+  color: #667085;
+}
+
+.workspace-side-card {
+  border: 1px solid #d9e0ea;
+  border-radius: 8px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background: #ffffff;
+}
+
+.workspace-side-card-dark {
+  background: #111827;
+  border-color: #111827;
+  color: #ffffff;
+}
+
+.workspace-side-card-dark .workspace-side-label,
+.workspace-side-card-dark span {
+  color: #cbd5e1;
+}
+
+.workspace-side-list {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.workspace-side-list div {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.workspace-side-form {
+  display: grid;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.project-download-row {
+  display: grid;
+  gap: 6px;
+  font-size: 13px;
+}
+
+.project-download-row input {
+  width: 100%;
+  min-height: 34px;
+  border: 1px solid #cfd8e3;
+  border-radius: 6px;
+  padding: 7px 9px;
+}
+
+.field-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.primary-button,
+.secondary-button,
+.danger-button {
+  border: 1px solid transparent;
+  border-radius: 6px;
+  min-height: 34px;
+  padding: 7px 12px;
+  cursor: pointer;
+}
+
+.primary-button {
+  background: #2563eb;
+  color: #ffffff;
+}
+
+.secondary-button {
+  background: #ffffff;
+  border-color: #cfd8e3;
+  color: #1f2937;
+}
+
+.danger-button {
+  background: #fff1f2;
+  border-color: #fecdd3;
+  color: #be123c;
+}
+
+.workspace-stage {
+  padding: 28px;
+}
+
+.hero {
+  margin-bottom: 24px;
+}
+
+.hero-kicker {
+  display: inline-block;
+  margin-bottom: 8px;
+  color: #2563eb;
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0;
+}
+
+.hero h1 {
+  margin: 0 0 8px;
+  font-size: 30px;
+  line-height: 1.2;
+}
+
+.hero p {
+  margin: 0;
+  color: #667085;
+}
+
+.platform-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+  gap: 16px;
+}
+
+.platform-card,
+.detail-panel {
+  background: #ffffff;
+  border: 1px solid #d9e0ea;
+  border-radius: 8px;
+  padding: 16px;
+}
+
+.platform-card h2 {
+  margin: 0 0 8px;
+  font-size: 18px;
+}
+
+.detail-copy {
+  margin: 0 0 12px;
+  line-height: 1.6;
+}
+
+.fallback-error {
+  margin-top: 16px;
+  padding: 12px;
+  border: 1px solid #fecdd3;
+  border-radius: 8px;
+  color: #be123c;
+  background: #fff1f2;
+}
+
+.hidden {
+  display: none !important;
+}

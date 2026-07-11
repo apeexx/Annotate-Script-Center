@@ -1,0 +1,32 @@
+<!--
+页面板块: app-shell
+真实定位:
+- #root
+- main#mainContentWrapper
+用途:
+- 标注首页的主应用骨架。只保留关键容器层级，不保存顶部账号等敏感信息。
+-->
+<div id="root">
+  <div class="ant-v5-layout dict-layout">
+    <div class="header-component-container">
+      <div>智能标注</div>
+      <ul class="ant-v5-menu ant-v5-menu-root ant-v5-menu-horizontal" role="menu">
+        <li role="menuitem">标注中心</li>
+        <li role="menuitem">帮助文档</li>
+        <li role="menuitem">Chatbot</li>
+      </ul>
+      <button type="button" class="ant-v5-btn">填写问卷</button>
+      <span>REDACTED_USER</span>
+    </div>
+    <div class="ant-v5-layout ant-v5-layout-has-sider layout-frame-container layout-with-header">
+      <div class="left-menu-container">
+        <!-- see side-menu.html -->
+      </div>
+      <main class="ant-v5-layout-content main-content-wrapper" id="mainContentWrapper">
+        <div class="label-center-container">
+          <!-- see home-root.html -->
+        </div>
+      </main>
+    </div>
+  </div>
+</div>

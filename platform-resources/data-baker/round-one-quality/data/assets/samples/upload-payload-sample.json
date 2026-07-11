@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "source": "extension/sites/data-baker/round-one-quality/group-export",
+  "project": "data-baker/round-one-quality",
+  "exportedAt": "2026-05-28T12:00:00.000Z",
+  "fileName": "data-baker-task-TASK-DEMO-001-all-20260528-120000.csv",
+  "csvText": "任务ID,项目名称,团队名称,文本编号,质检人_P,有效合格时长_S\nTASK-DEMO-001,闽南语示例项目,示例团队,TXT-001,示例质检员,3.20\n",
+  "rawRecords": [
+    {
+      "taskId": "TASK-DEMO-001",
+      "textNumber": "TXT-001",
+      "audioUrl": "[url:example.com]",
+      "checkName": "示例质检员"
+    }
+  ],
+  "rowCount": 1,
+  "taskId": "TASK-DEMO-001",
+  "route": {
+    "hash": "#/group/detail?taskId=TASK-DEMO-001",
+    "pathname": "/group/detail"
+  },
+  "summary": {
+    "projectName": "闽南语示例项目",
+    "taskName": "一检质检任务示例",
+    "teamName": "示例团队",
+    "collectCount": 1
+  }
+}

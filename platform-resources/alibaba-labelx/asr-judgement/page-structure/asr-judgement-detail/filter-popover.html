@@ -1,0 +1,79 @@
+<!--
+页面板块: filter-popover
+真实定位:
+- 顶部工具栏文本“筛选”
+说明:
+- 筛选面板以浮层形式挂载。
+- 点击“确定”会触发 data / summary / board 重新请求。
+-->
+<div class="labelRender-toolbox-filter">
+  <span>筛选</span>
+</div>
+
+<div class="ant-v5-popover ant-v5-popover-placement-bottomRight">
+  <div class="ant-v5-popover-content">
+    <div class="ant-v5-popover-inner">
+      <div class="ant-v5-popover-inner-content">
+        <div class="labelRender-toolbox-filter-panel">
+          <div>筛选条件</div>
+
+          <div class="labelRender-toolbox-filter-row">
+            <span>按内容区数据：</span>
+            <input type="text" placeholder="请输入内容关键词" class="ant-v5-input" />
+          </div>
+
+          <div class="labelRender-toolbox-filter-row">
+            <span>按任务状态：</span>
+            <div class="ant-v5-select labelRender-toolbox-filter-select">
+              <div class="ant-v5-select-selector">
+                <input type="search" role="combobox" aria-expanded="false" />
+                <span class="ant-v5-select-selection-item">全部</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="labelRender-toolbox-filter-row">
+            <span>按回答区数据(仅支持选择题)：</span>
+          </div>
+
+          <div class="labelRender-toolbox-filter-row">
+            <span>条件关系：</span>
+            <label class="ant-v5-radio-wrapper ant-v5-radio-wrapper-checked">
+              <input type="radio" value="AND" checked />
+              <span>且(AND)</span>
+            </label>
+            <label class="ant-v5-radio-wrapper">
+              <input type="radio" value="OR" />
+              <span>或(OR)</span>
+            </label>
+          </div>
+
+          <div class="labelRender-toolbox-filter-add">新增筛选条件</div>
+
+          <div class="labelRender-toolbox-filter-actions">
+            <button type="button" class="ant-v5-btn ant-v5-btn-default ant-v5-btn-sm">
+              <span>重 置</span>
+            </button>
+            <button type="button" class="ant-v5-btn ant-v5-btn-primary ant-v5-btn-sm">
+              <span>确 定</span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="ant-v5-select-dropdown">
+  <div role="listbox">
+    <div role="option" class="ant-v5-select-item ant-v5-select-item-option ant-v5-select-item-option-selected">
+      <div class="ant-v5-select-item-option-content">全部</div>
+    </div>
+    <div role="option" class="ant-v5-select-item ant-v5-select-item-option">
+      <div class="ant-v5-select-item-option-content">已完成</div>
+    </div>
+    <div role="option" class="ant-v5-select-item ant-v5-select-item-option">
+      <div class="ant-v5-select-item-option-content">未完成</div>
+    </div>
+  </div>
+</div>

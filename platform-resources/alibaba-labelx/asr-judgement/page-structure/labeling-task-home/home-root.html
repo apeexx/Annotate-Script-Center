@@ -1,0 +1,28 @@
+<!--
+页面板块: home-root
+真实定位:
+- main#mainContentWrapper > .label-center-container
+用途:
+- 首页主容器的板块顺序。两个任务区之间没有额外语义 section，主要靠标题文本和相邻 DOM 区分。
+-->
+<div class="label-center-container">
+  <div class="label-center-task-header">我的任务</div>
+  <div class="ant-v5-divider ant-v5-divider-horizontal" role="separator"></div>
+  <div class="my-task-list">
+    <!-- see my-tasks-section.html -->
+  </div>
+  <ul class="ant-v5-pagination label-center-pagination">
+    <!-- my tasks pagination -->
+  </ul>
+  <div class="label-center-task-header">可领取的任务</div>
+  <div class="ant-v5-divider ant-v5-divider-horizontal" role="separator"></div>
+  <div class="label-center-filter">
+    <!-- available task filter -->
+  </div>
+  <div class="all-task-list-container">
+    <!-- see available-tasks-section.html -->
+  </div>
+  <ul class="ant-v5-pagination label-center-pagination">
+    <!-- available tasks pagination -->
+  </ul>
+</div>

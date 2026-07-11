@@ -1,0 +1,36 @@
+<!--
+页面板块: common-top-nav-avatar-dropdown
+真实定位:
+- 顶部导航最右侧 avatar
+说明:
+- 该结构为 LabelX 顶部导航共享区域。
+- 菜单中包含用户展示名、所属组织和退出登录入口，文档中必须脱敏。
+- 头像 hover 后才会创建并显示 dropdown；统计上传脚本读取第一个 menuitem 作为当前人员展示名。
+风险:
+- 不应在脚本初始化时点击“退出登录”。
+- 用户名、组织名、菜单 id、埋点属性都会变化。
+-->
+<div class="ant-v5-dropdown-trigger NavAvatar-module__userInfoWrapper_zvz0cq__100 avatar">
+  <span class="ant-v5-avatar ant-v5-avatar-circle">
+    <span class="ant-v5-avatar-string"></span>
+  </span>
+</div>
+
+<div class="ant-v5-dropdown NavAvatar-module__dropdown_zvz0cq__100 ant-v5-dropdown-placement-bottomRight">
+  <ul class="ant-v5-dropdown-menu ant-v5-dropdown-menu-root ant-v5-dropdown-menu-vertical" role="menu" tabindex="0">
+    <li class="ant-v5-dropdown-menu-item NavAvatar-module__userAvatar_zvz0cq__100" role="menuitem" tabindex="-1">
+      <span class="ant-v5-avatar ant-v5-avatar-lg ant-v5-avatar-circle ant-v5-dropdown-menu-item-icon">
+        <span class="ant-v5-avatar-string"></span>
+      </span>
+      <span class="ant-v5-dropdown-menu-title-content">&lt;REDACTED_USER_DISPLAY_NAME&gt;</span>
+    </li>
+    <li class="ant-v5-dropdown-menu-item" role="menuitem" tabindex="-1">
+      <span role="img" class="anticon ant-v5-dropdown-menu-item-icon"></span>
+      <span class="ant-v5-dropdown-menu-title-content">&lt;REDACTED_COMPANY_OR_ORG&gt;</span>
+    </li>
+    <li class="ant-v5-dropdown-menu-item" role="menuitem" tabindex="-1">
+      <span role="img" class="anticon ant-v5-dropdown-menu-item-icon"></span>
+      <span class="ant-v5-dropdown-menu-title-content">退出登录</span>
+    </li>
+  </ul>
+</div>

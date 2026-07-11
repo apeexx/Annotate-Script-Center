@@ -1,0 +1,347 @@
+{
+  "manifest_version": 3,
+  "name": "标注脚本中心",
+  "description": "多平台标注脚本中心与当前页面脚本状态入口。",
+  "version": "0.4.0",
+  "update_url": "https://script.xiangtianzhen.store/downloads/annotation-script-center-update.xml",
+  "permissions": [
+    "storage",
+    "tabs"
+  ],
+  "host_permissions": [
+    "http://*/*",
+    "https://*/*",
+    "https://labelx.alibaba-inc.com/*",
+    "https://script.xiangtianzhen.store/*",
+    "https://datafactory.data-baker.com/*",
+    "https://work.magicdatatech.com/*",
+    "https://mark.aishelltech.com/*",
+    "https://markapi.aishelltech.com/*",
+    "http://abao.fortidyndns.com:30473/*",
+    "http://47.108.254.138:3101/*",
+    "http://127.0.0.1:3101/*",
+    "http://127.0.0.1:3333/*"
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "options_page": "options/options.html",
+  "icons": {
+    "16": "assets/icons/icon-16.png",
+    "32": "assets/icons/icon-32.png",
+    "48": "assets/icons/icon-48.png",
+    "128": "assets/icons/icon-128.png"
+  },
+  "action": {
+    "default_title": "标注脚本中心",
+    "default_popup": "popup/popup.html",
+    "default_icon": {
+      "16": "assets/icons/icon-16.png",
+      "32": "assets/icons/icon-32.png",
+      "48": "assets/icons/icon-48.png",
+      "128": "assets/icons/icon-128.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "http://abao.fortidyndns.com:30473/*"
+      ],
+      "js": [
+        "sites/abaka-ai/task-page/page-world/network-structure-observer.js"
+      ],
+      "all_frames": false,
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "http://abao.fortidyndns.com:30473/*"
+      ],
+      "js": [
+        "shared/build-meta.js",
+        "shared/constants.js",
+        "shared/storage.js",
+        "shared/ai-usage-meta.js",
+        "shared/ai-job-client.js",
+        "sites/abaka-ai/task-page/toast.js",
+        "sites/abaka-ai/task-page/pricing.js",
+        "sites/abaka-ai/task-page/data-collector.js",
+        "sites/abaka-ai/task-page/ai-client.js",
+        "sites/abaka-ai/task-page/ai-panel.js",
+        "sites/abaka-ai/task-page/dom-actions.js",
+        "sites/abaka-ai/task-page/shortcuts.js",
+        "sites/abaka-ai/task-page/content.js"
+      ],
+      "all_frames": false,
+      "run_at": "document_idle",
+      "world": "ISOLATED"
+    },
+    {
+      "matches": [
+        "https://datafactory.data-baker.com/*"
+      ],
+      "js": [
+        "sites/data-baker/round-one-quality/page-world/network-observer.js"
+      ],
+      "all_frames": false,
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://labelx.alibaba-inc.com/*"
+      ],
+      "js": [
+        "sites/alibaba-labelx/asr-judgement/page-world/network-protocol.js",
+        "sites/alibaba-labelx/asr-judgement/page-world/network-config.js",
+        "sites/alibaba-labelx/asr-judgement/page-world/network-url-rewriter.js",
+        "sites/alibaba-labelx/asr-judgement/page-world/network-summary.js",
+        "sites/alibaba-labelx/asr-judgement/page-world/network-observer.js"
+      ],
+      "all_frames": false,
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://labelx.alibaba-inc.com/*"
+      ],
+      "js": [
+        "shared/build-meta.js",
+        "shared/constants.js",
+        "shared/storage.js",
+        "shared/ai-usage-meta.js",
+        "shared/ai-job-client.js",
+        "shared/ai-cost-display.js",
+        "shared/progress-indicator.js",
+        "shared/statistics-supplier.js",
+        "sites/alibaba-labelx/shared/audio-controller-core.js",
+        "sites/alibaba-labelx/shared/submit-actions.js",
+        "sites/alibaba-labelx/asr-judgement/page-detector.js",
+        "sites/alibaba-labelx/asr-judgement/audio-volume-controller.js",
+        "sites/alibaba-labelx/asr-judgement/audio-rate-controller.js",
+        "sites/alibaba-labelx/asr-judgement/audio-playback-controller.js",
+        "sites/alibaba-labelx/asr-judgement/audio-controller.js",
+        "sites/alibaba-labelx/asr-judgement/judgement-page-size.js",
+        "sites/alibaba-labelx/asr-judgement/judgement-duration-summary.js",
+        "sites/alibaba-labelx/asr-judgement/judgement-virtual-window.js",
+        "sites/alibaba-labelx/asr-judgement/judgement-asr-diff-view.js",
+        "sites/alibaba-labelx/asr-judgement/judgement-thunder-question.js",
+        "sites/alibaba-labelx/asr-judgement/judgement-compact-card.js",
+        "sites/alibaba-labelx/asr-judgement/judgement-ai-suggestion.js",
+        "sites/alibaba-labelx/asr-judgement/asr-judgement-server.js",
+        "sites/alibaba-labelx/asr-judgement/judgement-auto-advance.js",
+        "sites/alibaba-labelx/asr-judgement/judgement-actions.js",
+        "sites/alibaba-labelx/asr-judgement/judgement-toast.js",
+        "sites/alibaba-labelx/asr-judgement/judgement-shortcuts.js",
+        "sites/alibaba-labelx/asr-judgement/judgement-toolbar.js",
+        "sites/alibaba-labelx/asr-judgement/content.js",
+        "sites/alibaba-labelx/asr-transcription/runtime-config.js",
+        "sites/alibaba-labelx/asr-transcription/text-utils.js",
+        "sites/alibaba-labelx/asr-transcription/active-item.js",
+        "sites/alibaba-labelx/asr-transcription/ai-suggestion-client.js",
+        "sites/alibaba-labelx/asr-transcription/ai-suggestion-collector.js",
+        "sites/alibaba-labelx/asr-transcription/ai-suggestion-panel.js",
+        "sites/alibaba-labelx/asr-transcription/item-actions.js",
+        "sites/alibaba-labelx/asr-transcription/audio-controller.js",
+        "sites/alibaba-labelx/asr-transcription/toolbar.js",
+        "sites/alibaba-labelx/asr-transcription/transcription-stats-client.js",
+        "sites/alibaba-labelx/asr-transcription/shortcut-bus.js",
+        "sites/alibaba-labelx/asr-transcription/content.js"
+      ],
+      "all_frames": false,
+      "run_at": "document_start",
+      "world": "ISOLATED"
+    },
+    {
+      "matches": [
+        "https://datafactory.data-baker.com/*"
+      ],
+      "js": [
+        "shared/build-meta.js",
+        "shared/constants.js",
+        "shared/storage.js",
+        "shared/ai-usage-meta.js",
+        "shared/concurrent-ai-request-stream.js",
+        "shared/ai-job-client.js",
+        "shared/lexicon-toast.js",
+        "shared/lexicon-display.js",
+        "shared/ai-cost-display.js",
+        "sites/data-baker/round-one-quality/data-api.js",
+        "sites/data-baker/round-one-quality/ai-recommendation.js",
+        "sites/data-baker/round-one-quality/ui-panel.js",
+        "sites/data-baker/round-one-quality/page-size-controller.js",
+        "sites/data-baker/round-one-quality/shortcuts.js",
+        "sites/data-baker/round-one-quality/group-export.js",
+        "sites/data-baker/round-one-quality/content.js"
+      ],
+      "all_frames": false,
+      "run_at": "document_start",
+      "world": "ISOLATED"
+    },
+    {
+      "matches": [
+        "https://work.magicdatatech.com/*"
+      ],
+      "js": [
+        "sites/magic-data/shared/page-world/network-observer.js"
+      ],
+      "all_frames": false,
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://work.magicdatatech.com/*"
+      ],
+      "js": [
+        "shared/build-meta.js",
+        "shared/constants.js",
+        "shared/storage.js",
+        "shared/ai-usage-meta.js",
+        "shared/ai-job-client.js",
+        "shared/lexicon-toast.js",
+        "shared/lexicon-display.js",
+        "shared/ai-cost-display.js",
+        "sites/magic-data/shared/page-detector.js",
+        "sites/magic-data/shared/data-collector.js",
+        "sites/magic-data/shared/ai-review-client.js",
+        "sites/magic-data/shared/shortcuts-runtime.js",
+        "sites/magic-data/shared/assistant-panel-core.js",
+        "sites/magic-data/hakka-helper/shortcuts-runtime.js",
+        "sites/magic-data/hakka-helper/assistant-panel.js",
+        "sites/magic-data/hakka-helper/content.js",
+        "sites/magic-data/minnan-helper/ai-review-client.js",
+        "sites/magic-data/minnan-helper/shortcuts-runtime.js",
+        "sites/magic-data/minnan-helper/assistant-panel.js",
+        "sites/magic-data/minnan-helper/content.js"
+      ],
+      "all_frames": false,
+      "run_at": "document_start",
+      "world": "ISOLATED"
+    },
+    {
+      "matches": [
+        "https://mark.aishelltech.com/*"
+      ],
+      "js": [
+        "shared/build-meta.js",
+        "shared/constants.js",
+        "shared/storage.js",
+        "shared/ai-error-display.js",
+        "shared/concurrent-ai-request-stream.js",
+        "shared/ai-job-client.js",
+        "shared/lexicon-toast.js",
+        "shared/lexicon-display.js",
+        "shared/ai-cost-display.js",
+        "sites/aishell-tech/minnan-helper/data-api.js",
+        "sites/aishell-tech/minnan-helper/ai-recommendation.js",
+        "sites/aishell-tech/minnan-helper/batch-window.js",
+        "sites/aishell-tech/minnan-helper/diagnostics.js",
+        "sites/aishell-tech/minnan-helper/ui-panel.js",
+        "sites/aishell-tech/minnan-helper/shortcuts.js",
+        "sites/aishell-tech/minnan-helper/content.js"
+      ],
+      "all_frames": false,
+      "run_at": "document_start",
+      "world": "ISOLATED"
+    },
+    {
+      "matches": [
+        "https://mark.aishelltech.com/*"
+      ],
+      "js": [
+        "shared/build-meta.js",
+        "shared/constants.js",
+        "shared/storage.js",
+        "shared/ai-error-display.js",
+        "shared/concurrent-ai-request-stream.js",
+        "shared/ai-job-client.js",
+        "shared/lexicon-toast.js",
+        "sites/aishell-tech/vietnamese-helper/data-api.js",
+        "sites/aishell-tech/vietnamese-helper/ai-recommendation.js",
+        "sites/aishell-tech/vietnamese-helper/batch-window.js",
+        "sites/aishell-tech/vietnamese-helper/diagnostics.js",
+        "sites/aishell-tech/vietnamese-helper/ui-panel.js",
+        "sites/aishell-tech/vietnamese-helper/shortcuts.js",
+        "sites/aishell-tech/vietnamese-helper/content.js"
+      ],
+      "all_frames": false,
+      "run_at": "document_start",
+      "world": "ISOLATED"
+    },
+    {
+      "matches": [
+        "https://mark.aishelltech.com/*"
+      ],
+      "js": [
+        "shared/build-meta.js",
+        "shared/constants.js",
+        "shared/storage.js",
+        "shared/ai-error-display.js",
+        "shared/concurrent-ai-request-stream.js",
+        "shared/ai-job-client.js",
+        "shared/lexicon-toast.js",
+        "sites/aishell-tech/thai-helper/data-api.js",
+        "sites/aishell-tech/thai-helper/ai-recommendation.js",
+        "sites/aishell-tech/thai-helper/batch-window.js",
+        "sites/aishell-tech/thai-helper/diagnostics.js",
+        "sites/aishell-tech/thai-helper/ui-panel.js",
+        "sites/aishell-tech/thai-helper/shortcuts.js",
+        "sites/aishell-tech/thai-helper/content.js"
+      ],
+      "all_frames": false,
+      "run_at": "document_start",
+      "world": "ISOLATED"
+    },
+    {
+      "matches": [
+        "https://mark.aishelltech.com/*"
+      ],
+      "js": [
+        "shared/build-meta.js",
+        "shared/constants.js",
+        "shared/storage.js",
+        "sites/aishell-tech/cn-en-short-drama/data-api.js",
+        "sites/aishell-tech/cn-en-short-drama/ui-panel.js",
+        "sites/aishell-tech/cn-en-short-drama/content.js"
+      ],
+      "all_frames": false,
+      "run_at": "document_start",
+      "world": "ISOLATED"
+    },
+    {
+      "matches": [
+        "http://*/*"
+      ],
+      "js": [
+        "shared/constants.js",
+        "shared/storage.js",
+        "sites/haitian-utrans/audio-download-helper/content.js"
+      ],
+      "all_frames": false,
+      "run_at": "document_idle",
+      "world": "ISOLATED"
+    }
+  ],
+  "web_accessible_resources": [
+    {
+      "resources": [
+        "sites/alibaba-labelx/asr-judgement/data/thunder-question-bank.csv"
+      ],
+      "matches": [
+        "https://labelx.alibaba-inc.com/*"
+      ],
+      "use_dynamic_url": true
+    },
+    {
+      "resources": [
+        "sites/haitian-utrans/audio-download-helper/bridge.js"
+      ],
+      "matches": [
+        "http://*/*"
+      ]
+    }
+  ]
+}
