@@ -7,3 +7,4 @@
 - CRX 打包在既有 `annotation-script-center.pem` 缺失时会直接中止，不再生成新私钥，避免扩展 ID 变化。
 - 正式 CRX 打包、上传与自动更新发布仍待找回原签名私钥后执行。
 - 修复 Windows 临时目录与发布目录跨盘时的 CRX 移动兼容：仅在 `EXDEV` 下复制成功后清理本次临时 CRX，其他移动错误保持失败；新增回归测试。
+- 已复用既有签名私钥生成 v0.4.1 public CRX、public ZIP 与自动更新三件套；扩展 ID 保持 `megaonhojlkfhkdbhfapeknjokhgmkad`，未生成 beta 产物。
