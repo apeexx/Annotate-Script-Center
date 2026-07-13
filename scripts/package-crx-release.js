@@ -131,6 +131,18 @@ function safeUnlink(filePath) {
   }
 }
 
+function moveFileSync(sourcePath, destinationPath) {
+  try {
+    fs.renameSync(sourcePath, destinationPath);
+  } catch (error) {
+    if (!error || error.code !== "EXDEV") {
+      throw error;
+    }
+    fs.copyFileSync(sourcePath, destinationPath);
+    fs.unlinkSync(sourcePath);
+  }
+}
+
 function escapeSingleQuotes(value) {
   return String(value || "").replace(/'/g, "''");
 }
@@ -470,7 +482,7 @@ function packageReleaseProfile(options) {
     if (crxFilename) {
       const crxPackResult = ensureCrxAndKey(browserExe, preparedBuild.extensionDir);
       safeUnlink(crxOutputPath);
-      fs.renameSync(crxPackResult.tempCrxPath, crxOutputPath);
+      moveFileSync(crxPackResult.tempCrxPath, crxOutputPath);
       ensureFileExists(KEY_PATH, "CRX 私钥文件");
       generatedNewKey = crxPackResult.generatedNewKey;
       extensionId = computeExtensionIdFromPrivateKeyPem(KEY_PATH);

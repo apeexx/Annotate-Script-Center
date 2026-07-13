@@ -43,7 +43,7 @@ function loadReleaseInternals(repoRoot) {
   };
 
   vm.runInNewContext(
-    `${source.slice(0, mainInvocationIndex)}\nmodule.exports = { ensureCrxAndKey };\n`,
+    `${source.slice(0, mainInvocationIndex)}\nmodule.exports = {\n  ensureCrxAndKey,\n  moveFileSync: typeof moveFileSync === "function" ? moveFileSync : null\n};\n`,
     sandbox,
     { filename: sandbox.__filename }
   );
@@ -66,6 +66,41 @@ test("CRX packaging refuses a missing signing key before it invokes browser pack
     );
     assert.equal(fs.existsSync(path.join(repoRoot, "config", "secrets")), false);
   } finally {
+    fs.rmSync(repoRoot, { recursive: true, force: true });
+  }
+});
+
+test("CRX move falls back to copy when a cross-volume rename reports EXDEV", function () {
+  const repoRoot = fs.mkdtempSync(path.join(os.tmpdir(), "asc-release-move-test-"));
+  const sourcePath = path.join(repoRoot, "source.crx");
+  const destinationPath = path.join(repoRoot, "dist", "release.crx");
+  fs.mkdirSync(path.dirname(destinationPath), { recursive: true });
+  fs.writeFileSync(sourcePath, "crx-content", "utf8");
+
+  const { moveFileSync } = loadReleaseInternals(repoRoot);
+  assert.equal(typeof moveFileSync, "function");
+
+  const originalRenameSync = fs.renameSync;
+  const originalCopyFileSync = fs.copyFileSync;
+  let copyCalls = 0;
+  fs.renameSync = function renameSyncAsCrossVolumeMove() {
+    const error = new Error("cross-volume rename");
+    error.code = "EXDEV";
+    throw error;
+  };
+  fs.copyFileSync = function trackedCopyFileSync() {
+    copyCalls += 1;
+    return originalCopyFileSync.apply(this, arguments);
+  };
+
+  try {
+    moveFileSync(sourcePath, destinationPath);
+    assert.equal(copyCalls, 1);
+    assert.equal(fs.existsSync(sourcePath), false);
+    assert.equal(fs.readFileSync(destinationPath, "utf8"), "crx-content");
+  } finally {
+    fs.renameSync = originalRenameSync;
+    fs.copyFileSync = originalCopyFileSync;
     fs.rmSync(repoRoot, { recursive: true, force: true });
   }
 });
