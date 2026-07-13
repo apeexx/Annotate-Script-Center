@@ -19,65 +19,1246 @@
                 alt="标注脚本中心图标"
               />
             </span>
-            <div class="workspace-brand-copy">
-              <strong id="workspace-brand-title">标注脚本中心</strong>
-              <span id="workspace-version">版本读取中</span>
-            </div>
+          <div class="workspace-brand-copy">
+            <strong id="workspace-brand-title">标注脚本中心</strong>
+            <span id="workspace-version">版本读取中</span>
           </div>
+        </div>
+
+          <nav class="workspace-nav" aria-label="功能导航">
+            <button id="workspace-nav-center" class="workspace-nav-button active" type="button">
+              功能面板
+            </button>
+            <button id="workspace-nav-downloads" class="workspace-nav-button" type="button">
+              脚本下载中心
+            </button>
+            <button id="workspace-nav-admin" class="workspace-nav-button" type="button">
+              系统管理
+            </button>
+          </nav>
+
+          <section class="workspace-side-card">
+            <span class="workspace-side-label">当前视图</span>
+            <strong id="workspace-view-name">功能面板</strong>
+            <p id="workspace-view-note" class="workspace-side-copy">
+              默认展示平台与脚本状态，只保留启停和详情入口。
+            </p>
+          </section>
+
+          <section class="workspace-side-card workspace-side-card-muted">
+            <span class="workspace-side-label">AI 调用使用人</span>
+            <strong id="workspace-ai-usage-operator-title">全局 AI 调用身份</strong>
+            <p class="workspace-side-copy">
+              这里统一保存当前扩展使用 AI 时的调用人姓名。点击按钮后才会写入本地缓存。
+            </p>
+            <div class="workspace-side-form">
+              <input
+                id="workspace-ai-usage-operator-input"
+                type="text"
+                maxlength="40"
+                placeholder="填写真实姓名"
+              />
+              <div class="field-actions">
+                <button id="workspace-ai-usage-operator-save" class="primary-button" type="button">
+                  保存使用人
+                </button>
+              </div>
+              <div id="workspace-ai-usage-operator-status" class="status-text"></div>
+            </div>
+          </section>
 
           <section class="workspace-side-card workspace-side-card-dark">
             <span class="workspace-side-label">运行概况</span>
             <div class="workspace-side-list">
-              <div><span>发布通道</span><strong id="workspace-release-channel">public</strong></div>
+              <div><span>当前版本</span><strong id="workspace-version-compact">读取中</strong></div>
               <div><span>后端模式</span><strong id="workspace-backend-mode">服务器</strong></div>
-              <div><span>当前启用</span><strong id="workspace-enabled-count">0</strong></div>
+              <div><span>AI 调用使用人</span><strong id="workspace-ai-usage-operator">未设置</strong></div>
+              <div><span>当前生效</span><strong id="workspace-enabled-count">0</strong></div>
               <div><span>平台 / 脚本</span><strong id="workspace-library-count">0 / 0</strong></div>
-            </div>
-          </section>
-
-          <section class="workspace-side-card">
-            <span class="workspace-side-label">后端根地址</span>
-            <div class="workspace-side-form">
-              <label class="project-download-row">
-                <span>server 根地址</span>
-                <input id="home-endpoint-server-url" type="url" />
-              </label>
-              <label class="project-download-row">
-                <span>local 根地址</span>
-                <input id="home-endpoint-local-url" type="url" />
-              </label>
-              <div class="field-actions">
-                <button id="home-endpoint-server" class="secondary-button" type="button">使用服务器</button>
-                <button id="home-endpoint-local" class="secondary-button" type="button">使用本机</button>
-                <button id="home-endpoint-save" class="primary-button" type="button">保存地址</button>
-              </div>
-              <div id="home-endpoint-status" class="status-text"></div>
             </div>
           </section>
         </aside>
 
         <section class="workspace-stage">
-          <section class="hero">
-            <div class="hero-top">
+      <section class="hero">
+        <div class="hero-top">
+          <div>
+            <span id="hero-kicker" class="hero-kicker">FUNCTION PANEL</span>
+            <h1 id="extension-name">标注脚本中心</h1>
+            <p id="hero-description">
+              功能面板只保留启停与详情入口；后端设置、数据导出和系统仪表盘统一进入系统管理工作台。
+            </p>
+          </div>
+          <div class="hero-badges">
+            <button
+              id="stage-label"
+              class="badge stage"
+              type="button"
+              title="进入系统管理"
+              aria-label="进入系统管理"
+            >
+              系统管理
+            </button>
+          </div>
+        </div>
+        <div class="home-endpoint-card" id="home-endpoint-card">
+          <strong id="home-endpoint-title">后端根地址</strong>
+          <div id="home-endpoint-toggle" class="segmented-control hidden" role="group" aria-label="后端接口地址">
+            <button id="home-endpoint-server" class="segmented-button" type="button">服务器</button>
+            <button id="home-endpoint-local" class="segmented-button" type="button">本机</button>
+          </div>
+          <span>该设置统一控制所有脚本的后端请求和下载入口：前端只保存三套根地址，再从当前模式派生 `/api/...` 与 `/downloads/...`。</span>
+          <div class="field-actions">
+            <button id="home-endpoint-expand-toggle" class="ghost-button" type="button" aria-expanded="false">展开根地址配置</button>
+          </div>
+          <div id="home-endpoint-config-panel" class="home-endpoint-config-panel hidden">
+          <label class="project-download-row">
+            <span>server 根地址</span>
+            <input
+              id="home-endpoint-server-url"
+              type="url"
+              placeholder="https://script.example.com"
+            />
+          </label>
+          <label class="project-download-row">
+            <span>local 根地址</span>
+            <input
+              id="home-endpoint-local-url"
+              type="url"
+              placeholder="http://127.0.0.1:3333"
+            />
+          </label>
+          <div class="field-actions">
+            <button id="home-endpoint-save" class="primary-button" type="button">保存后端根地址</button>
+          </div>
+          </div>
+          <div id="home-endpoint-status" class="status-text"></div>
+        </div>
+        <div id="project-data-download-panel" class="home-endpoint-card hidden">
+          <strong>项目数据下载</strong>
+          <div class="project-download-row">
+            <span>获取人姓名</span>
+            <input id="project-download-operator" type="text" maxlength="60" placeholder="请输入获取人姓名" />
+          </div>
+          <div class="project-download-row">
+            <span>数据类型</span>
+            <select id="project-download-dataset">
+              <option value="">请选择数据类型</option>
+            </select>
+          </div>
+          <div id="project-download-supplier-row" class="project-download-row hidden">
+            <span>供应商</span>
+            <select id="project-download-supplier">
+              <option value="">请选择供应商</option>
+            </select>
+          </div>
+          <div class="field-actions">
+            <button id="project-download-export" class="primary-button" type="button">导出</button>
+          </div>
+          <div id="project-download-status" class="status-text"></div>
+        </div>
+        <div id="ai-call-log-download-panel" class="home-endpoint-card hidden">
+          <strong>AI 请求记录</strong>
+          <div class="project-download-row">
+            <span>获取人姓名</span>
+            <input id="ai-call-log-operator" type="text" maxlength="60" placeholder="请输入获取人姓名" />
+          </div>
+          <div class="project-download-row">
+            <span>脚本类型</span>
+            <select id="ai-call-log-dataset">
+              <option value="">请选择脚本类型</option>
+            </select>
+          </div>
+          <div class="detail-grid two">
+            <div class="project-download-row">
+              <span>开始日期</span>
+              <input id="ai-call-log-date-from" type="date" />
+            </div>
+            <div class="project-download-row">
+              <span>结束日期</span>
+              <input id="ai-call-log-date-to" type="date" />
+            </div>
+          </div>
+          <div class="field-actions">
+            <button id="ai-call-log-export" class="primary-button" type="button">导出记录</button>
+          </div>
+          <div id="ai-call-log-status" class="status-text"></div>
+        </div>
+      </section>
+
+      <section id="script-center-view" class="platform-grid"></section>
+
+      <section id="download-center-view" class="detail-shell hidden">
+        <section class="detail-panel download-center-shell">
+          <div class="detail-top download-center-top">
+            <div class="detail-title">
+              <h2>脚本下载中心</h2>
+              <p class="detail-copy">
+                这里集中分发扩展版本。默认展示最新版，历史版本可通过下拉框切换。
+              </p>
+            </div>
+          </div>
+          <div id="public-download-summary" class="admin-summary-grid"></div>
+          <section id="public-script-release-panel" class="admin-surface-card"></section>
+        </section>
+      </section>
+
+      <section id="script-detail-view" class="detail-shell hidden">
+        <div class="detail-top">
+          <div class="detail-title">
+            <button id="back-to-center" class="ghost-button" type="button">返回功能面板</button>
+            <h2 id="detail-script-name">脚本详情</h2>
+            <p id="detail-script-description" class="detail-copy"></p>
+          </div>
+          <div class="detail-meta">
+            <span id="detail-script-status" class="pill pending">读取中</span>
+            <span id="detail-platform-pill" class="pill info">平台</span>
+          </div>
+        </div>
+
+        <section id="detail-actions-panel" class="detail-panel detail-actions-panel">
+          <div class="detail-actions">
+            <button id="detail-toggle-button" class="primary-button hidden" type="button">启用脚本</button>
+            <button id="detail-enable-button" class="primary-button" type="button">启用脚本</button>
+            <button id="detail-disable-button" class="danger-button" type="button">关闭脚本</button>
+            <button id="save-bytedance-aidp-settings" class="secondary-button hidden" type="button">
+              保存设置
+            </button>
+          </div>
+          <p id="detail-script-note" class="detail-note"></p>
+        </section>
+
+        <div class="detail-workbench">
+          <section id="detail-transcription-panel" class="detail-panel detail-panel-base hidden">
+            <div class="detail-section-head">
               <div>
-                <span class="hero-kicker">PUBLIC CENTER</span>
-                <h1 id="extension-name">标注脚本中心</h1>
-                <p id="hero-description">
-                  当前版本只保留公开发布通道。这里集中管理仍保留的平台脚本启停和后端地址。
-                </p>
+                <strong>基础设置</strong>
+                <span>保留转写脚本的常用音频行为和页面辅助能力。</span>
               </div>
+            </div>
+            <div class="detail-grid two">
+              <label class="field-card">
+                <strong>自动播放</strong>
+                <span>进入当前题时尝试自动播放当前音频。</span>
+                <span class="field-toggle">
+                  <input id="transcription-auto-play" type="checkbox" />
+                  <span>启用自动播放</span>
+                </span>
+              </label>
+
+              <label class="field-card">
+                <strong>默认音量 (0~1000%)</strong>
+                <span>重置音量和新音频默认使用此值。</span>
+                <input id="transcription-volume" type="number" min="0" max="1000" step="10" />
+              </label>
+            </div>
+
+            <div class="detail-grid two">
+              <label class="field-card">
+                <strong>默认倍速</strong>
+                <span>新音频和重置倍速时使用该值。</span>
+                <input id="transcription-playback-rate" type="number" min="0.25" max="5" step="0.05" />
+              </label>
+
+              <label class="field-card">
+                <strong>重置倍速</strong>
+                <span>点击“重置倍速”时使用该值。</span>
+                <input id="transcription-reset-rate" type="number" min="0.25" max="5" step="0.05" />
+              </label>
+            </div>
+
+            <div class="detail-grid two">
+              <label class="field-card">
+                <strong>倍速步进</strong>
+                <span>用于“提高倍速 / 降低倍速”。</span>
+                <select id="transcription-rate-step" data-options-custom-select="true">
+                  <option value="0.1">0.1</option>
+                  <option value="0.25">0.25</option>
+                  <option value="0.5">0.5</option>
+                  <option value="1">1</option>
+                </select>
+              </label>
+
+              <label class="field-card">
+                <strong>前进 / 后退步长</strong>
+                <span>用于当前音频前进、后退。</span>
+                <select id="transcription-seek-step" data-options-custom-select="true">
+                  <option value="0.5">0.5 秒</option>
+                  <option value="1">1 秒</option>
+                  <option value="2">2 秒</option>
+                  <option value="3">3 秒</option>
+                  <option value="5">5 秒</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="detail-grid two">
+              <label class="field-card field-toggle">
+                <input id="transcription-default-valid" type="checkbox" />
+                <span>默认有效行为（仅影响当前题动作）</span>
+              </label>
+
+              <label class="field-card field-toggle">
+                <input id="transcription-fill-on-valid" type="checkbox" />
+                <span>标有效时自动填入当前题文本</span>
+              </label>
+
+              <label class="field-card field-toggle">
+                <input id="transcription-clear-on-invalid" type="checkbox" />
+                <span>标无效时清空当前题文本</span>
+              </label>
+            </div>
+
+            <div class="field-actions">
+              <button id="save-transcription-settings" class="primary-button" type="button">
+                保存转写设置
+              </button>
+            </div>
+            <div id="transcription-status" class="status-text"></div>
+          </section>
+
+          <section id="detail-judgement-panel" class="detail-panel detail-panel-base hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong>基础设置</strong>
+                <span>管理音频判别的播放、页面密度和差异展示规则。</span>
+              </div>
+            </div>
+            <div class="detail-grid two">
+              <label class="field-card">
+                <strong>默认音量 (0~1000%)</strong>
+                <span>新加载音频默认使用该音量；快捷键只临时调整当前音频，重置音量回到这里的默认值。</span>
+                <input id="judgement-volume" type="number" min="0" max="1000" step="50" />
+              </label>
+
+              <label class="field-card">
+                <strong>默认倍速</strong>
+                <span>新加载音频默认使用该倍速；快捷键只临时调整当前音频，重置倍速回到这里的默认值。</span>
+                <input id="judgement-reset-rate" type="number" min="0.25" max="5" step="0.05" list="judgement-rate-options" />
+                <datalist id="judgement-rate-options">
+                  <option value="0.5"></option>
+                  <option value="0.75"></option>
+                  <option value="1"></option>
+                  <option value="1.25"></option>
+                  <option value="1.5"></option>
+                  <option value="2"></option>
+                  <option value="2.5"></option>
+                  <option value="3"></option>
+                </datalist>
+              </label>
+            </div>
+
+            <div class="detail-grid two">
+              <label class="field-card">
+                <strong>倍速步进</strong>
+                <span>用于“提高倍速 / 降低倍速”快捷键，只影响当前音频。</span>
+                <select id="judgement-rate-step" data-options-custom-select="true">
+                  <option value="0.1">0.1</option>
+                  <option value="0.25">0.25</option>
+                  <option value="0.5">0.5</option>
+                  <option value="1">1</option>
+                </select>
+              </label>
+
+              <label class="field-card">
+                <strong>前进 / 后退步长</strong>
+                <span>用于当前音频的快进和快退快捷键，默认 0.5 秒。</span>
+                <select id="judgement-seek-step" data-options-custom-select="true">
+                  <option value="0.1">0.1 秒</option>
+                  <option value="0.25">0.25 秒</option>
+                  <option value="0.5">0.5 秒</option>
+                  <option value="1">1 秒</option>
+                </select>
+              </label>
+
+              <label class="field-card">
+                <strong>默认每页条数</strong>
+                <span>进入快判详情页后自动尝试切换每页条数；400 条/页会通过请求改写加载全量题卡。</span>
+                <select id="judgement-items-per-page" data-options-custom-select="true">
+                  <option value="1 条/页">1 条/页</option>
+                  <option value="2 条/页">2 条/页</option>
+                  <option value="3 条/页">3 条/页</option>
+                  <option value="4 条/页">4 条/页</option>
+                  <option value="5 条/页">5 条/页</option>
+                  <option value="10 条/页">10 条/页</option>
+                  <option value="20 条/页">20 条/页</option>
+                  <option value="30 条/页">30 条/页</option>
+                  <option value="40 条/页">40 条/页</option>
+                  <option value="50 条/页">50 条/页</option>
+                  <option value="400 条/页">400 条/页</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="field-card">
+              <strong>自动播放音频</strong>
+              <span>切换到当前条目时自动尝试播放。</span>
+              <label class="field-toggle">
+                <input id="judgement-auto-play" type="checkbox" />
+                <span>启用自动播放</span>
+              </label>
+            </div>
+
+            <div class="field-card">
+              <strong>ASR 对齐差异视图</strong>
+              <span>将两个 ASR 文本改成对齐显示，并高亮缺字、多字、替换和标点差异。</span>
+              <label class="field-toggle">
+                <input id="judgement-asr-diff-view" type="checkbox" />
+                <span>启用 ASR 差异高亮</span>
+              </label>
+              <div class="color-grid">
+                <label class="color-field">
+                  <span>替换 / 不同字</span>
+                  <input id="judgement-diff-change-bg" type="color" />
+                </label>
+                <label class="color-field">
+                  <span>缺字 / 多字</span>
+                  <input id="judgement-diff-gap-bg" type="color" />
+                </label>
+                <label class="color-field">
+                  <span>标点 / 空格</span>
+                  <input id="judgement-diff-punctuation-bg" type="color" />
+                </label>
+              </div>
+            </div>
+
+            <div class="field-card">
+              <strong>轻量题卡摘要</strong>
+              <span>在每个题卡内显示两个 ASR 文本和当前判别状态；配合 LabelX 隐藏内容区 / 回答区与卡片大小设置使用。</span>
+              <label class="field-toggle">
+                <input id="judgement-compact-card" type="checkbox" />
+                <span>启用轻量题卡摘要</span>
+              </label>
+            </div>
+
+            <div class="field-card">
+              <strong>雷题判断</strong>
+              <span>命中雷题库时，在轻量题卡摘要和特殊情况标注区域显示标准答案；当前选择不一致时显示严重提示。</span>
+              <label class="field-toggle">
+                <input id="judgement-thunder-question" type="checkbox" />
+                <span>启用雷题判断</span>
+              </label>
+            </div>
+
+            <div class="field-card">
+              <strong>选择后辅助流转</strong>
+              <span>通过 1~5 快捷键或快判工具栏选择判别结果后，自动跳转到当前页下一题。</span>
+              <label class="field-toggle">
+                <input id="judgement-auto-advance" type="checkbox" />
+                <span>选择后自动下一题</span>
+              </label>
+            </div>
+
+            <div class="field-card">
+              <strong>AI 半自动参考建议</strong>
+              <span>AI 半自动参考建议为默认能力：只在你手动点击“AI 分析当前题”按钮或快捷键后触发，不会自动采用、保存、提交、领取或流转。</span>
+              <span>AI 建议后端地址由脚本中心首页顶部的“后端接口地址”统一控制。</span>
+            </div>
+
+            <div class="field-card">
+              <strong>统计数据上传</strong>
+              <span>统计上传为脚本默认能力，已强制启用；定时上传按脚本能力强制启用，不在此处配置。</span>
+              <span>上传接口地址由脚本中心首页顶部的“后端接口地址”统一控制。</span>
+            </div>
+
+            <div class="field-actions">
+              <button id="save-judgement-settings" class="primary-button" type="button">保存语音判别设置</button>
+            </div>
+            <div id="judgement-status" class="status-text"></div>
+          </section>
+
+          <section id="detail-lightwheel-panel" class="detail-panel detail-panel-base hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong>基础设置</strong>
+                <span>当前阶段先保留查看态脚本的统一入口和后续迁移说明。</span>
+              </div>
+            </div>
+            <div class="detail-grid">
+              <div class="field-card">
+                <strong>运行态迁移状态</strong>
+                <span>
+                  该脚本目前只纳入脚本中心与 URL 检测，旧版参考文件位于
+                  <code>legacy-reference/Lightwheel 查看态面板.js</code>。
+                </span>
+              </div>
+              <div class="field-card">
+                <strong>当前预留设置</strong>
+                <span>当前先保留脚本启停入口。后续迁移时，再把 access-key、分页、拖拽尺寸、上下条跳转等设置接入扩展版。</span>
+              </div>
+            </div>
+            <div id="lightwheel-status" class="status-text"></div>
+          </section>
+
+          <section id="detail-data-baker-round-one-quality-panel" class="detail-panel detail-panel-base hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong>基础设置</strong>
+                <span>只保留分页、批量填入与导出上传等业务动作，AI 参数统一放在 AI 设置区。</span>
+              </div>
+            </div>
+            <div class="detail-grid two">
+              <label class="field-card">
+                <strong>自动每页条数</strong>
+                <span>用于减少翻页次数。脚本只尝试设置页面分页，不自动提交任何任务。</span>
+                <span class="field-toggle">
+                  <input id="data-baker-auto-page-size-enabled" type="checkbox" />
+                  进入标贝易采一检详情页后，自动设置每页条数
+                </span>
+              </label>
+
+              <label class="field-card">
+                <strong>默认每页条数</strong>
+                <span>默认 50 条/页；可按标贝易采页面原生选项调整。</span>
+                <select id="data-baker-default-page-size" data-options-custom-select="true">
+                  <option value="5条/页">5条/页</option>
+                  <option value="10条/页">10条/页</option>
+                  <option value="20条/页">20条/页</option>
+                  <option value="50条/页">50条/页</option>
+                  <option value="100条/页">100条/页</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="field-card">
+              <strong>调度策略（固定）</strong>
+              <span>当前页合格项会先按并发数发起 AI 请求；结果返回即进入缓冲区。</span>
+              <span>填入流程不会等待全部请求完成，而是按 AI 返回顺序从队列取结果并串行填入。</span>
+            </div>
+
+            <div class="field-card">
+              <strong>导出数据上传（默认能力）</strong>
+              <span>
+                标贝易采 `group/detail` 页面导出 CSV 时，会在本地下载的同时自动上传到后端保存。
+              </span>
+              <span>
+                上传与下载地址由脚本中心首页顶部“后端接口地址”统一控制，不在此处单独配置。
+              </span>
+            </div>
+
+            <div class="field-actions">
+              <button id="save-data-baker-settings" class="primary-button" type="button">保存标贝易采设置</button>
+            </div>
+            <div id="data-baker-status" class="status-text"></div>
+          </section>
+
+          <section id="detail-data-baker-cvpc-liuzhou-panel" class="detail-panel detail-panel-base hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong>基础设置</strong>
+                <span>当前只开放“建议生成 + 人工确认”链路，真实画段写入契约仍在补采。</span>
+              </div>
+            </div>
+            <div class="detail-grid two">
+              <label class="field-card">
+                <strong>启用画段建议</strong>
+                <span>只生成当前音频的分段建议，不自动画段，不自动保存。</span>
+                <span class="field-toggle">
+                  <input id="data-baker-cvpc-segment-preview-enabled" type="checkbox" />
+                  在 `/app/editor/asr/` 显示画段建议入口
+                </span>
+              </label>
+
+              <label class="field-card">
+                <strong>生成后自动应用当前建议</strong>
+                <span>默认开启。只在你手动点击“生成画段建议”后触发；成功后会沿用现有刷新逻辑。</span>
+                <span class="field-toggle">
+                  <input id="data-baker-cvpc-segment-preview-auto-apply-enabled" type="checkbox" />
+                  生成建议后立即尝试应用当前建议
+                </span>
+              </label>
+
+              <label class="field-card">
+                <strong>识别完成后自动填入</strong>
+                <span>默认开启。只作用于当前段识别；成功后会自动整套填入标注文本与普通话顺滑，单独语气词会自动切成 Invalid + &lt;Meaningless&gt;。</span>
+                <span class="field-toggle">
+                  <input id="data-baker-cvpc-ai-recommend-auto-fill-enabled" type="checkbox" />
+                  当前段识别成功后立即自动填入
+                </span>
+              </label>
+
+              <label class="field-card">
+                <strong>标签与有效性不一致时直接修正</strong>
+                <span>默认开启。当前段写入 AI 推荐时，如果标签要求的 Valid / Invalid 与页面当前选择不一致，会先自动切换再写入。</span>
+                <span class="field-toggle">
+                  <input id="data-baker-cvpc-recommendation-validity-auto-correct-enabled" type="checkbox" />
+                  写入前自动修正 Valid / Invalid
+                </span>
+              </label>
+
+              <div class="field-card">
+                <strong>AI 设置说明</strong>
+                <span>当前段 AI 推荐的开关、超时、听音模型和文本修正模型已移动到右侧共享 `AI 设置` 面板。</span>
+                <span>这里继续只保留分段建议、提示屏蔽和当前边界说明。</span>
+              </div>
+            </div>
+
+            <div class="detail-grid two">
+              <label class="field-card">
+                <strong>静音阈值</strong>
+                <span>默认按 dB；也可切换成平台常见的 % / Val。连续 0.4 秒低于该阈值视为静音。</span>
+                <label class="project-download-row">
+                  <span>单位</span>
+                  <select id="data-baker-cvpc-segment-silence-threshold-unit" data-options-custom-select="true">
+                    <option value="db">dB</option>
+                    <option value="ratio">%</option>
+                    <option value="value">Val</option>
+                  </select>
+                </label>
+                <label class="project-download-row">
+                  <span>阈值</span>
+                  <input
+                    id="data-baker-cvpc-segment-silence-threshold-dbfs"
+                    type="number"
+                    min="-80"
+                    max="-5"
+                    step="1"
+                  />
+                </label>
+                <span id="data-baker-cvpc-segment-silence-threshold-help">
+                  当前按 dB 输入；保存时统一换算成内部 dB 阈值。
+                </span>
+              </label>
+
+              <label class="field-card">
+                <strong>前后补偿时长</strong>
+                <span>默认 0.2 秒，范围 0 ~ 1.5 秒。命中静音后，语音段前后都会按该时长扩展。</span>
+                <label class="project-download-row">
+                  <span>补偿秒数</span>
+                  <input
+                    id="data-baker-cvpc-segment-context-padding-ms"
+                    type="number"
+                    min="0"
+                    max="1.5"
+                    step="0.1"
+                  />
+                </label>
+              </label>
+
+              <label class="field-card">
+                <strong>屏蔽“不能打开新的Tab页”提示</strong>
+                <span>只移除文案为“您正在编辑该作业,不能打开新的Tab页”的高层提示，不处理其他 `.tips` 提示。</span>
+                <span class="field-toggle">
+                  <input id="data-baker-cvpc-block-new-tab-tip" type="checkbox" />
+                  在 `/app/editor/asr/` 自动屏蔽该提示模块
+                </span>
+              </label>
+
+              <label class="field-card">
+                <strong>屏蔽“系统进入暂停状态”提示</strong>
+                <span>只移除文案为“系统进入暂停状态”的高层提示，不处理其他 `.tips` 提示。</span>
+                <span class="field-toggle">
+                  <input id="data-baker-cvpc-block-pause-state-tip" type="checkbox" />
+                  在 `/app/editor/asr/` 自动屏蔽该提示模块
+                </span>
+              </label>
+            </div>
+
+            <div class="detail-grid two">
+              <div class="field-card">
+                <strong>写入契约状态</strong>
+                <span id="data-baker-cvpc-contract-mode">
+                  仅允许 DOM 守卫下的显式写入；真实画段写入契约仍待补采。
+                </span>
+              </div>
+            </div>
+
+            <div class="field-card">
+              <strong>当前边界</strong>
+              <span>当前页只处理当前音频 / 当前作业，不跨整包遍历，不自动保存，不自动提交，不自动切下一条。</span>
+              <span>全局 Invalid 不做自动判定；画段应用只有在页面存在安全写入桥时才会执行。</span>
+            </div>
+
+            <div class="field-actions">
+              <button id="save-data-baker-cvpc-settings" class="primary-button" type="button">
+                保存 CVPC 柳州话设置
+              </button>
+            </div>
+            <div id="data-baker-cvpc-status" class="status-text"></div>
+          </section>
+
+          <section id="detail-bytedance-aidp-suzhou-panel" class="detail-panel detail-panel-base hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong class="field-title-row">
+                  <span>基础设置</span>
+                  <span
+                    class="inline-help-dot"
+                    tabindex="0"
+                    data-help-text="当前支持分段建议、波形控件、快捷键和平台 AI 显隐。"
+                    >?</span
+                  >
+                </strong>
+              </div>
+            </div>
+            <div class="detail-grid two">
+              <label class="field-card">
+                <strong class="field-title-row">
+                  <span>隐藏平台AI功能</span>
+                  <span
+                    class="inline-help-dot"
+                    tabindex="0"
+                    data-help-text="勾选后会在 mark-v3 详情页隐藏已确认的平台 AI 原生板块，不影响题目列表、波形区、保留/丢弃和分段表格。当前只处理已确认的平台 AI 洞察卡片和右下角浮动入口；页面重渲染后会继续按开关补做显隐。"
+                    >?</span
+                  >
+                </strong>
+                <span class="field-toggle switch-field">
+                  <input
+                    id="bytedance-aidp-platform-ai-enabled"
+                    type="checkbox"
+                    data-on-text="开启"
+                    data-off-text="关闭"
+                  />
+                  <span class="switch-slider" aria-hidden="true"></span>
+                  <span class="switch-text">开启</span>
+                </span>
+              </label>
+              <label class="field-card">
+                <strong class="field-title-row">
+                  <span>画段后自动应用建议</span>
+                  <span
+                    class="inline-help-dot"
+                    tabindex="0"
+                    data-help-text="默认开启。仅在你手动点击“生成分段建议”后，立即把当前建议写回平台暂存答案；应用分段建议写回时会一起补齐空语言种类并带上目标方言。"
+                    >?</span
+                  >
+                </strong>
+                <span class="field-toggle switch-field">
+                  <input
+                    id="bytedance-aidp-segment-preview-auto-apply-enabled"
+                    type="checkbox"
+                    data-on-text="开启"
+                    data-off-text="关闭"
+                  />
+                  <span class="switch-slider" aria-hidden="true"></span>
+                  <span class="switch-text">开启</span>
+                </span>
+              </label>
+            </div>
+
+            <div class="detail-grid two">
+              <label id="bytedance-aidp-ai-enabled-field" class="field-card">
+                <strong class="field-title-row">
+                  <span>启用 AI 功能</span>
+                  <span
+                    class="inline-help-dot"
+                    tabindex="0"
+                    data-help-text="关闭后会同时隐藏右侧 AI 设置面板，并禁用单段识别、批量识别和普通话翻译相关 AI 能力；已保存的 AI 参数会继续保留，后续重新开启时直接沿用。"
+                    >?</span
+                  >
+                </strong>
+                <span class="field-toggle switch-field">
+                  <input
+                    id="bytedance-aidp-ai-enabled"
+                    type="checkbox"
+                    data-on-text="开启"
+                    data-off-text="关闭"
+                  />
+                  <span class="switch-slider" aria-hidden="true"></span>
+                  <span class="switch-text">开启</span>
+                </span>
+              </label>
+              <label class="field-card">
+                <strong class="field-title-row">
+                  <span>连续相接自动合并</span>
+                  <span
+                    class="inline-help-dot"
+                    tabindex="0"
+                    data-help-text="默认开启。若相邻建议段首尾实际相接，或只差极小显示误差，会自动并回一整段。"
+                    >?</span
+                  >
+                </strong>
+                <span class="field-toggle switch-field">
+                  <input
+                    id="bytedance-aidp-merge-contiguous-suggested-segments-enabled"
+                    type="checkbox"
+                    data-on-text="开启"
+                    data-off-text="关闭"
+                  />
+                  <span class="switch-slider" aria-hidden="true"></span>
+                  <span class="switch-text">开启</span>
+                </span>
+              </label>
+            </div>
+
+            <div class="detail-grid two">
+              <label class="field-card">
+                <strong class="field-title-row">
+                  <span>默认播放倍数</span>
+                  <span
+                    class="inline-help-dot"
+                    tabindex="0"
+                    data-help-text="详情页进入和波形区重渲染后，只会对齐到平台系统自带倍速选项。"
+                    >?</span
+                  >
+                </strong>
+                <select
+                  id="bytedance-aidp-default-playback-rate"
+                  data-options-custom-select="true"
+                  data-options-placeholder="请选择默认播放倍数"
+                >
+                  <option value="0.5">0.50倍速</option>
+                  <option value="0.75">0.75倍速</option>
+                  <option value="1">1.00倍速</option>
+                  <option value="1.25">1.25倍速</option>
+                  <option value="1.5">1.50倍速</option>
+                  <option value="1.75">1.75倍速</option>
+                  <option value="2">2.00倍速</option>
+                </select>
+              </label>
+
+              <label class="field-card">
+                <strong class="field-title-row">
+                  <span>固定缩放倍数</span>
+                  <span
+                    class="inline-help-dot"
+                    tabindex="0"
+                    data-help-text="详情页进入和波形区重渲染后，自动回填到平台缩放控件；只允许整数 `1~10`。"
+                    >?</span
+                  >
+                </strong>
+                <select
+                  id="bytedance-aidp-fixed-wave-zoom"
+                  data-options-custom-select="true"
+                  data-options-placeholder="请选择固定缩放倍数"
+                >
+                  <option value="1">1</option>
+                  <option value="2">2</option>
+                  <option value="3">3</option>
+                  <option value="4">4</option>
+                  <option value="5">5</option>
+                  <option value="6">6</option>
+                  <option value="7">7</option>
+                  <option value="8">8</option>
+                  <option value="9">9</option>
+                  <option value="10">10</option>
+                </select>
+              </label>
+            </div>
+
+            <div class="detail-grid two">
+              <label class="field-card">
+                <strong class="field-title-row">
+                  <span>前后静音时长</span>
+                  <span
+                    class="inline-help-dot"
+                    tabindex="0"
+                    data-help-text="用于画段建议的前后静音补偿。默认 `0.3s`，可配置范围 `0s ~ 0.5s`。截取区间开头和结尾的无人声留白都不能超过 `500ms`。"
+                    >?</span
+                  >
+                </strong>
+                <input
+                  id="bytedance-aidp-segment-context-padding-seconds"
+                  type="number"
+                  min="0"
+                  max="0.5"
+                  step="0.1"
+                />
+              </label>
+
+              <label class="field-card">
+                <strong class="field-title-row">
+                  <span>静音阈值</span>
+                  <span
+                    class="inline-help-dot"
+                    tabindex="0"
+                    data-help-text="仅按 dBFS 数字配置分段静音阈值。默认 `-31 dBFS`，范围 `-80 ~ -5`。"
+                    >?</span
+                  >
+                </strong>
+                <input
+                  id="bytedance-aidp-segment-silence-threshold-dbfs"
+                  type="number"
+                  min="-80"
+                  max="-5"
+                  step="1"
+                />
+              </label>
+            </div>
+
+            <div id="bytedance-aidp-status" class="status-text"></div>
+          </section>
+
+          <section id="detail-aishell-tech-minnan-helper-panel" class="detail-panel detail-panel-base hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong>基础设置</strong>
+                <span>控制希尔贝壳批量保存节奏和当前分包处理边界。</span>
+              </div>
+            </div>
+            <div class="field-card">
+              <strong>希尔贝壳闽南语助手</strong>
+              <span>当前仅在 `https://mark.aishelltech.com/mytask/mark?...` 生效。</span>
+              <span>当前条支持 AI 推荐、复制、填入并保存；批量模式支持并发预取 AI 结果，再按条目标识串行回填并调用平台原生保存接口。</span>
+            </div>
+
+            <div class="field-card">
+              <strong>批量保存策略（固定）</strong>
+              <span>只处理当前分包，从当前选中条开始，自动跳过已完成条目。</span>
+              <span>AI 请求可并发预取，但页面填入与保存严格串行；每条保存后等待页面切到下一条再继续。</span>
+            </div>
+
+            <div class="field-card">
+              <strong>平台边界</strong>
+              <span>仅在用户点击单条或批量入口后执行保存，不自动提交任务，不跨分包，不触发 `.check-area`。</span>
+              <span>后端地址仍由首页顶部“后端接口地址”统一控制；当前页不单独配置接口地址。</span>
+            </div>
+
+            <div class="field-actions">
+              <button id="save-aishell-tech-settings" class="primary-button" type="button">
+                保存希尔贝壳设置
+              </button>
+            </div>
+            <div id="aishell-tech-status" class="status-text"></div>
+          </section>
+
+          <section id="detail-aishell-tech-vietnamese-helper-panel" class="detail-panel detail-panel-base hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong>基础设置</strong>
+                <span>控制希尔贝壳批量保存节奏，以及文本和语速双字段的回填边界。</span>
+              </div>
+            </div>
+            <div class="field-card">
+              <strong>希尔贝壳越南语助手</strong>
+              <span>当前仅在 `https://mark.aishelltech.com/mytask/mark?...` 生效。</span>
+              <span>当前条支持 AI 识别越南语文本与语速建议；批量模式支持并发预取 AI 结果，再按条目标识串行回填 `text + speed` 并调用平台原生保存接口。</span>
+            </div>
+
+            <div class="field-card">
+              <strong>批量保存策略（固定）</strong>
+              <span>只处理当前分包，从当前选中条开始；可按入口选择“全部AI批量识别”或“未完成的AI批量识别”。</span>
+              <span>AI 请求可并发预取，但页面填入与保存严格串行；每条保存后等待页面切到下一条再继续。</span>
+            </div>
+
+            <div class="field-card">
+              <strong>平台边界</strong>
+              <span>仅在用户点击单条或批量入口后执行保存，不自动提交任务，不跨分包，不触发 `.check-area`。</span>
+              <span>保存请求固定走平台真实 `SaveShortMark`，其中 `mark` 会写入 `{"text":"...","speed":"..."}`；后端地址仍由首页统一控制。</span>
+            </div>
+
+            <div class="field-actions">
+              <button id="save-aishell-tech-vietnamese-settings" class="primary-button" type="button">
+                保存希尔贝壳设置
+              </button>
+            </div>
+            <div id="aishell-tech-vietnamese-status" class="status-text"></div>
+          </section>
+
+          <section id="detail-aishell-tech-thai-helper-panel" class="detail-panel detail-panel-base hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong>基础设置</strong>
+                <span>控制希尔贝壳批量保存节奏，以及文本和语速双字段的回填边界。</span>
+              </div>
+            </div>
+            <div class="field-card">
+              <strong>希尔贝壳泰语助手</strong>
+              <span>当前仅在 `https://mark.aishelltech.com/mytask/mark?...` 生效。</span>
+              <span>当前条支持 AI 识别泰语文本与语速建议，批量模式会并发预取 AI 结果，再按条目标识串行回填 `text + speed` 并调用平台原生保存接口。</span>
+            </div>
+
+            <div class="field-card">
+              <strong>批量保存策略（固定）</strong>
+              <span>只处理当前分包，从当前选中条开始；可按入口选择“全部AI批量识别”或“未完成的AI批量识别”。</span>
+              <span>AI 请求可并发预取，但页面填入与保存严格串行；每条保存后等待页面切到下一条再继续。</span>
+            </div>
+
+            <div class="field-card">
+              <strong>平台边界</strong>
+              <span>仅在用户点击单条或批量入口后执行保存，不自动提交任务，不跨分包，不触发 `.check-area`。</span>
+              <span>保存请求固定走平台真实 `SaveShortMark`，其中 `mark` 会写入 `{\"text\":\"...\",\"speed\":\"...\"}`。</span>
+            </div>
+
+            <div class="field-actions">
+              <button id="save-aishell-tech-thai-settings" class="primary-button" type="button">
+                保存希尔贝壳设置
+              </button>
+            </div>
+            <div id="aishell-tech-thai-status" class="status-text"></div>
+          </section>
+
+          <section id="detail-aishell-tech-cn-en-short-drama-panel" class="detail-panel detail-panel-base hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong>基础设置</strong>
+                <span>第一版只接入当前媒体信息面板，不提供 AI、自动保存或自动提交能力。</span>
+              </div>
+            </div>
+            <div class="field-card">
+              <strong>中英短剧脚本</strong>
+              <span>当前仅在 `https://mark.aishelltech.com/mytask/mark?...` 生效。</span>
+              <span>启用后会在页面右侧标注表单区域顶部显示只读 `当前媒体信息` 面板。</span>
+              <span>当前版本无额外设置项。</span>
+            </div>
+
+            <div class="field-card">
+              <strong>当前媒体信息面板</strong>
+              <span>面板会展示 `题目 / 模板 / 总时长 / 分段数 / 视频 / 音频`。</span>
+              <span>当页面或接口里没有稳定视频地址时，`视频` 行会显示 `暂无视频`。</span>
             </div>
           </section>
 
-          <section id="script-center-view" class="platform-grid"></section>
-          <div id="options-error" class="fallback-error hidden" role="alert"></div>
+          <section id="detail-magic-data-annotator-panel" class="detail-panel detail-panel-base hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong>基础设置</strong>
+                <span>当前页仅保留业务侧说明与保存入口，AI 质检参数放入 AI 设置区。</span>
+              </div>
+            </div>
+            <div class="field-card">
+              <strong>AI 质检助手</strong>
+              <span>AI 质检模型、Prompt 和生成参数统一放在右侧的“AI 设置”工作区中。</span>
+              <span>当前页只保留业务设置和快捷键设置。</span>
+            </div>
+
+            <div class="field-actions">
+              <button id="save-magic-data-settings" class="primary-button" type="button">保存 Magic Data 设置</button>
+            </div>
+            <div id="magic-data-status" class="status-text"></div>
+          </section>
+
+          <section id="detail-abaka-ai-task-page-panel" class="detail-panel detail-panel-base hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong>基础设置</strong>
+                <span>保留 Task21 的页面动作与自动选择规则，AI 调试参数单独放到右侧 AI 设置。</span>
+              </div>
+            </div>
+            <div class="field-card">
+              <strong>Task21助手</strong>
+              <span>快捷键仅用于点击页面真实选项/按钮，不直接调用平台接口。</span>
+              <span>仅在 Task21 `/items` 且检测到 `same_font` 字段时触发。</span>
+            </div>
+
+            <div class="field-card">
+              <label class="field-toggle">
+                <input id="abaka-auto-select-specify-on-same-font-true" type="checkbox" />
+                <span>same_font=true 后自动选择 image_b_texts_removed=specify 与 other_changes=specify</span>
+              </label>
+            </div>
+
+            <div class="field-actions">
+              <button id="save-abaka-settings" class="primary-button" type="button">保存 Task21助手设置</button>
+            </div>
+            <div id="abaka-status" class="status-text"></div>
+          </section>
+
+          <section id="detail-haitian-utrans-audio-download-panel" class="detail-panel detail-panel-base hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong>基础设置</strong>
+                <span>当前只控制 uTrans 任务详情页是否显示悬浮下载按钮。</span>
+              </div>
+            </div>
+            <div class="detail-grid single">
+              <label class="field-card">
+                <strong>开启悬浮窗下载功能</strong>
+                <span>开启后，在 uTrans 任务详情页显示“下载当前音频”悬浮窗；关闭后不显示。</span>
+                <span class="field-toggle">
+                  <input id="haitian-utrans-audio-download-enabled" type="checkbox" />
+                  开启悬浮窗下载功能
+                </span>
+              </label>
+            </div>
+
+            <div class="field-actions">
+              <button id="save-haitian-utrans-settings" class="primary-button" type="button">保存 uTrans 音频下载设置</button>
+            </div>
+            <div id="haitian-utrans-status" class="status-text"></div>
+          </section>
+
+          <section id="detail-shared-asr-ai-panel" class="detail-panel detail-ai-panel hidden"></section>
+
+          <section id="detail-abaka-ai-panel" class="detail-panel detail-ai-panel hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong>AI 设置</strong>
+                <span>调试视觉、OCR 与推理模型组合，仅用于当前 Task21 辅助分析。</span>
+              </div>
+            </div>
+            <div class="field-card">
+              <strong>AI 调试说明</strong>
+              <span>AI 调试参数当前默认常显，仅用于调试和模型对比，不自动写入页面、不自动保存。</span>
+              <span id="abaka-ai-advanced-tip" class="status-text"></span>
+            </div>
+
+            <div id="abaka-ai-settings-advanced" class="field-card hidden">
+              <strong>AI 调试</strong>
+              <span>默认使用双模型方案：qwen3.6-plus（视觉） + qwen3.6-plus（推理）。</span>
+              <span>单模型方案默认：qwen3.6-plus；可用于快速对比。</span>
+              <span>qwen3.6-flash 速度更快、成本更低；qwen3-vl-plus 适合高精度定位。</span>
+              <span>qwen-vl-max / qwen-vl-plus 属于 Qwen2.5-VL 兼容备选，不作为默认。</span>
+              <span>OCR 专用模型待官方文档进一步核对，默认关闭且不预置默认 OCR 模型。</span>
+              <span>thinking 已在当前仓库全局固定关闭，避免 Omni 思考模式拖慢请求。</span>
+              <span>API Key 只从后端环境变量读取，前端不保存。</span>
+              <span>AI 只提供建议，不自动写入、不保存、不提交。</span>
+
+              <label class="field-card">
+                <strong>分析方案</strong>
+                <select id="abaka-ai-analysis-mode" data-options-custom-select="true"></select>
+              </label>
+
+              <label class="field-card">
+                <strong>视觉模型（阶段一）</strong>
+                <select id="abaka-ai-vision-model" data-options-custom-select="true"></select>
+              </label>
+
+              <label class="field-toggle">
+                <input id="abaka-ai-ocr-enabled" type="checkbox" />
+                <span>启用 OCR 辅助阶段（默认关闭）</span>
+              </label>
+
+              <label class="field-card">
+                <strong>OCR 模型（可选）</strong>
+                <select id="abaka-ai-ocr-model" data-options-custom-select="true"></select>
+              </label>
+
+              <label class="field-card">
+                <strong>推理模型（阶段二）</strong>
+                <select id="abaka-ai-reasoning-model" data-options-custom-select="true"></select>
+              </label>
+
+              <label class="field-card">
+                <strong>单模型（single_model）</strong>
+                <select id="abaka-ai-single-model" data-options-custom-select="true"></select>
+              </label>
+
+              <label class="field-toggle">
+                <input id="abaka-ai-enable-thinking" type="checkbox" />
+                <span>thinking 已全局固定关闭</span>
+              </label>
+
+              <label class="field-card">
+                <strong>请求超时（毫秒）</strong>
+                <input id="abaka-ai-timeout" type="number" min="1000" max="300000" step="1000" />
+              </label>
+
+              <span id="abaka-ai-mock-tip" class="status-text"></span>
+            </div>
+          </section>
+
+          <section id="detail-transcription-shortcuts-panel" class="detail-panel detail-shortcut-panel hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong>快捷键</strong>
+                <span>只支持当前保留功能动作；普通输入不会被普通字符快捷键打断。</span>
+              </div>
+            </div>
+            <div id="transcription-shortcut-grid" class="shortcut-grid"></div>
+            <div id="transcription-recording-status" class="shortcut-recording hidden"></div>
+          </section>
+
+          <section id="detail-judgement-shortcuts-panel" class="detail-panel detail-shortcut-panel hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong>快捷键</strong>
+                <span>默认 1~5 选择“哪个ASR更优”，播放控制与 AI 分析都集中在这里管理。</span>
+              </div>
+            </div>
+            <div class="field-card">
+              <span>“提交任务 / 提交任务并结束”快捷键仅触发页面系统按钮；若出现二次确认弹窗，请手动确认。</span>
+            </div>
+            <div id="judgement-shortcut-grid" class="shortcut-grid"></div>
+            <div id="judgement-recording-status" class="shortcut-recording hidden"></div>
+          </section>
+
+          <section id="detail-data-baker-shortcuts-panel" class="detail-panel detail-shortcut-panel hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong>快捷键</strong>
+                <span>默认全部未设置。点击“录制”后按键盘组合，按 Esc 取消录制；快捷键不会在输入框聚焦时触发。</span>
+              </div>
+            </div>
+            <div id="data-baker-shortcut-grid" class="shortcut-grid"></div>
+            <div id="data-baker-recording-status" class="shortcut-recording hidden"></div>
+          </section>
+
+          <section id="detail-aishell-tech-shortcuts-panel" class="detail-panel detail-shortcut-panel hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong>快捷键</strong>
+                <span>默认全部未设置。点击“录制”后按键盘组合键，按 Esc 取消录制。</span>
+              </div>
+            </div>
+            <div id="aishell-tech-shortcut-grid" class="shortcut-grid"></div>
+            <div id="aishell-tech-recording-status" class="shortcut-recording hidden"></div>
+          </section>
+
+          <section id="detail-data-baker-cvpc-shortcuts-panel" class="detail-panel detail-shortcut-panel hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong>快捷键</strong>
+                <span>默认全部未设置。点击“录制”后按键盘组合，按 Esc 取消录制；快捷键不会在输入框聚焦时触发。</span>
+              </div>
+            </div>
+            <div id="data-baker-cvpc-shortcut-grid" class="shortcut-grid"></div>
+            <div id="data-baker-cvpc-recording-status" class="shortcut-recording hidden"></div>
+          </section>
+
+          <section id="detail-bytedance-aidp-shortcuts-panel" class="detail-panel detail-shortcut-panel hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong class="field-title-row">
+                  <span>快捷键</span>
+                  <span
+                    class="inline-help-dot"
+                    tabindex="0"
+                    data-help-text="默认全部未设置；录制时按 Esc 取消，输入框聚焦时不会触发。"
+                    >?</span
+                  >
+                </strong>
+              </div>
+            </div>
+            <div id="bytedance-aidp-shortcut-grid" class="shortcut-grid"></div>
+            <div id="bytedance-aidp-recording-status" class="shortcut-recording hidden"></div>
+          </section>
+
+          <section id="detail-magic-data-shortcuts-panel" class="detail-panel detail-shortcut-panel hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong>快捷键</strong>
+                <span>默认全部未设置。点击“录制”后输入组合键，Esc 取消录制。</span>
+              </div>
+            </div>
+            <div id="magic-data-shortcut-grid" class="shortcut-grid"></div>
+            <div id="magic-data-recording-status" class="shortcut-recording hidden"></div>
+          </section>
+
+          <section id="detail-abaka-shortcuts-panel" class="detail-panel detail-shortcut-panel hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong>快捷键</strong>
+                <span>默认全部未设置。点击“录制”后按键盘组合或鼠标按键，Esc 取消录制。</span>
+              </div>
+            </div>
+            <div id="abaka-ai-shortcut-grid" class="shortcut-grid"></div>
+            <div id="abaka-ai-recording-status" class="shortcut-recording hidden"></div>
+            <div class="field-actions">
+              <button id="abaka-reset-shortcuts" class="secondary-button" type="button">清空快捷键</button>
+            </div>
+          </section>
+        </div>
+        <div id="detail-status" class="status-text"></div>
+      </section>
+
+      <div id="options-error" class="fallback-error hidden" role="alert"></div>
         </section>
       </div>
     </main>
 
+    <div id="detail-select-layer" class="hidden" aria-hidden="true"></div>
+
     <script src="../shared/build-meta.js"></script>
     <script src="../shared/constants.js"></script>
     <script src="../shared/storage.js"></script>
+    <script src="../shared/ai-usage-meta.js"></script>
+    <script src="./options-route-state.js"></script>
+    <script src="./options-workbench-state.js"></script>
+    <script src="./options-project-download-supplier.js"></script>
+    <script src="./options-shared-asr-ai-panel.js"></script>
+    <script src="./options-shared-shortcut-panel.js"></script>
+    <script src="./options-shared-select.js"></script>
     <script src="./options.js"></script>
   </body>
 </html>
