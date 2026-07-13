@@ -116,13 +116,13 @@
   - 排除快判：`labelModel=vote`，或任务名包含 `ASR更优结果判断/ASR更优/更优结果判断/更优判断`。
   - 采集转写：`labelModel=single`，或任务名包含 `中文普通话asr任务/中文普通话asr/asr任务/普通话asr`，或 `size=50`（且未命中快判排除）。
 - 上传接口由全局后端模式拼接：
-  - `server`：`https://script.xiangtianzhen.store/api/alibaba-labelx/asr-transcription/statistics/upload`
+  - `server`：`https://script.aisiyunling.com/api/alibaba-labelx/asr-transcription/statistics/upload`
   - `local`：`http://127.0.0.1:3333/api/alibaba-labelx/asr-transcription/statistics/upload`
 - 供应商列表接口由全局后端模式拼接：
-  - `server`：`https://script.xiangtianzhen.store/api/alibaba-labelx/asr-transcription/statistics/suppliers`
+  - `server`：`https://script.aisiyunling.com/api/alibaba-labelx/asr-transcription/statistics/suppliers`
   - `local`：`http://127.0.0.1:3333/api/alibaba-labelx/asr-transcription/statistics/suppliers`
 - 下载接口由全局后端模式拼接，默认下载总表（不要求 `supplier`）：
-  - `server`：`https://script.xiangtianzhen.store/api/alibaba-labelx/asr-transcription/statistics/download`
+  - `server`：`https://script.aisiyunling.com/api/alibaba-labelx/asr-transcription/statistics/download`
   - `local`：`http://127.0.0.1:3333/api/alibaba-labelx/asr-transcription/statistics/download`
 - CSV 基础列为：`任务名称,任务ID,标注子任务ID,审核子任务ID,分包ID,题数,有效时长(秒),标注员,审核员,标注领取时间,标注提交时间,审核领取时间,审核提交时间,标注是否完成,审核是否完成`。
 - 供应商列动态输出：

@@ -15,7 +15,7 @@
     const defaults = constants.DEFAULT_BACKEND_BASE_URLS || {};
     const stored = settings?.meta?.backendBaseUrls || {};
     return {
-      server: String(stored.server || defaults.server || "https://script.xiangtianzhen.store").replace(/\/+$/, ""),
+      server: String(stored.server || defaults.server || "https://script.aisiyunling.com").replace(/\/+$/, ""),
       local: String(stored.local || defaults.local || "http://127.0.0.1:3333").replace(/\/+$/, ""),
     };
   }

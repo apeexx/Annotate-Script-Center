@@ -91,13 +91,13 @@
   - 快判排除：`labelModel=vote` 或任务名命中 `ASR更优结果判断/ASR更优/更优结果判断/更优判断`（典型 `size=400`）。
   - 转写采集：`labelModel=single` 或任务名命中 `中文普通话asr任务/中文普通话asr/asr任务/普通话asr`（典型 `size=50`）。
 - 上传接口：
-  - `https://script.xiangtianzhen.store/api/alibaba-labelx/asr-transcription/statistics/upload`
+  - `https://script.aisiyunling.com/api/alibaba-labelx/asr-transcription/statistics/upload`
   - `http://127.0.0.1:3333/api/alibaba-labelx/asr-transcription/statistics/upload`
 - 供应商列表接口：
-  - `https://script.xiangtianzhen.store/api/alibaba-labelx/asr-transcription/statistics/suppliers`
+  - `https://script.aisiyunling.com/api/alibaba-labelx/asr-transcription/statistics/suppliers`
   - `http://127.0.0.1:3333/api/alibaba-labelx/asr-transcription/statistics/suppliers`
 - 下载接口（默认总表，不要求 `supplier`）：
-  - `https://script.xiangtianzhen.store/api/alibaba-labelx/asr-transcription/statistics/download`
+  - `https://script.aisiyunling.com/api/alibaba-labelx/asr-transcription/statistics/download`
   - `http://127.0.0.1:3333/api/alibaba-labelx/asr-transcription/statistics/download`
 - 默认定时上传：`10:00`、`16:00`；定时上传在真正 POST 前增加随机延迟 `0~300` 秒（`100ms` 步进），手动上传不延迟。
 - 后端目录：`platform-resources/alibaba-labelx/asr-transcription/backend/`。

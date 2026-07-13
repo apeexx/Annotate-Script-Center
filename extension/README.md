@@ -1,6 +1,6 @@
 # 扩展运行时代码
 
-`extension/` 是浏览器扩展开发模式加载目录。当前只保留 public 版本能力，脚本中心展示公开脚本和统一后端地址配置。
+`extension/` 是浏览器扩展开发模式加载目录。当前只保留 public 版本能力，脚本中心展示公开脚本和统一后端地址配置。新安装扩展默认使用 `https://script.aisiyunling.com`；已保存的旧域名设置保持不变，`script.xiangtianzhen.store` 继续兼容。
 
 ## 加载方式
 

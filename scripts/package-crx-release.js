@@ -20,7 +20,7 @@ const SOURCE_EXTENSION_DIR = path.join(REPO_ROOT, "extension");
 const MANIFEST_PATH = path.join(SOURCE_EXTENSION_DIR, "manifest.json");
 const DIST_DIR = path.join(REPO_ROOT, "dist");
 const KEY_PATH = path.join(REPO_ROOT, "config", "secrets", `${APP_NAME}.pem`);
-const DEFAULT_DOWNLOAD_BASE_URL = "https://script.xiangtianzhen.store/downloads/";
+const DEFAULT_DOWNLOAD_BASE_URL = "https://script.aisiyunling.com/downloads/";
 const UPDATE_XML_FILENAME = `${APP_NAME}-update.xml`;
 const DEFAULT_UPDATE_XML_URL = `${DEFAULT_DOWNLOAD_BASE_URL}${UPDATE_XML_FILENAME}`;
 const CRX_LATEST_FILENAME = `${APP_NAME}-crx-latest.json`;
@@ -199,25 +199,18 @@ function ensureCrxAndKey(browserExe, extensionDir) {
   safeUnlink(tempCrxPath);
   safeUnlink(tempPemPath);
 
-  const keyExists = fs.existsSync(KEY_PATH);
-  if (keyExists) {
-    runPackExtension(browserExe, extensionDir, KEY_PATH);
-    ensureFileExists(tempCrxPath, "浏览器打包输出 extension.crx");
-    if (fs.existsSync(tempPemPath)) {
-      safeUnlink(tempPemPath);
-    }
-    return { tempCrxPath, generatedNewKey: false };
+  if (!fs.existsSync(KEY_PATH)) {
+    throw new Error(
+      `未找到既有 CRX 签名私钥：${KEY_PATH}。为保持扩展 ID 不变，已拒绝生成新私钥；请恢复原 annotation-script-center.pem 后重试。`
+    );
   }
 
-  fs.mkdirSync(path.dirname(KEY_PATH), { recursive: true });
-  runPackExtension(browserExe, extensionDir, null);
+  runPackExtension(browserExe, extensionDir, KEY_PATH);
   ensureFileExists(tempCrxPath, "浏览器打包输出 extension.crx");
-  ensureFileExists(tempPemPath, "浏览器打包输出 extension.pem");
-  if (fs.existsSync(KEY_PATH)) {
-    throw new Error(`检测到密钥文件已存在，已中止覆盖：${KEY_PATH}`);
+  if (fs.existsSync(tempPemPath)) {
+    safeUnlink(tempPemPath);
   }
-  fs.renameSync(tempPemPath, KEY_PATH);
-  return { tempCrxPath, generatedNewKey: true };
+  return { tempCrxPath, generatedNewKey: false };
 }
 
 function nibbleToIdChar(nibble) {
@@ -612,11 +605,6 @@ function main() {
     console.log("企业自动更新预留文件：");
     console.log(`1. ${publicResult.updateXmlPath}`);
     console.log(`2. ${publicResult.crxLatestPath}`);
-  }
-  if (results.some(function (result) { return result.generatedNewKey; })) {
-    console.log(
-      `首次生成私钥：${KEY_PATH}。请离线备份该 pem；丢失会导致 extension ID 变化并需要重配企业策略。`
-    );
   }
 }
 

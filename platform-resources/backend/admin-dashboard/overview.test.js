@@ -51,7 +51,7 @@ test("admin dashboard overview returns pool occupancy and runtime log summary pa
       },
     },
     downloads: {
-      scriptCenterUrl: "https://script.xiangtianzhen.store/downloads/",
+      scriptCenterUrl: "https://script.aisiyunling.com/downloads/",
       projectDataDatasets: [
         { id: "asr-judgement-statistics", label: "ASR 快判统计数据" },
       ],
@@ -125,6 +125,10 @@ test("admin dashboard overview preserves task store capacity snapshot", function
 });
 
 test("admin dashboard overview normalizes scriptCenterUrl", function () {
+  assert.equal(
+    resolveScriptDownloadCenterUrl({}),
+    "https://script.aisiyunling.com/downloads/"
+  );
   assert.equal(
     resolveScriptDownloadCenterUrl({ scriptCenterUrl: "http://47.109.197.170/downloads" }),
     "http://47.109.197.170/downloads/"

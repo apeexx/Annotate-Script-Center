@@ -74,10 +74,10 @@ test("Aishell storage defaults use the three-stage phase config", async function
     assert.equal(script.aiRecommendCompareAdoptionThreshold, 0.75);
     assert.equal(
       script.aiRecommendEndpoint,
-      "https://script.xiangtianzhen.store/api/aishell-tech/minnan-helper/ai/recommend"
+      "https://script.aisiyunling.com/api/aishell-tech/minnan-helper/ai/recommend"
     );
     assert.deepEqual(settings.meta.backendBaseUrls, {
-      server: "https://script.xiangtianzhen.store",
+      server: "https://script.aisiyunling.com",
       local: "http://127.0.0.1:3333",
     });
     assert.equal(script.aiRecommendConvertPrompt, "");
@@ -96,6 +96,62 @@ test("Aishell storage defaults use the three-stage phase config", async function
     assert.equal(
       Object.prototype.hasOwnProperty.call(script, "aiRecommendCandidateModel"),
       false
+    );
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test("Aishell storage preserves a saved legacy server address", async function () {
+  const harness = loadStorageApi({
+    meta: {
+      backendBaseUrls: {
+        server: "https://script.xiangtianzhen.store",
+        local: "http://127.0.0.1:3333",
+      },
+    },
+  });
+
+  try {
+    const settings = await harness.storage.getSettings();
+    const script = settings.platforms.aishellTech.scripts.minnanHelper;
+
+    assert.deepEqual(settings.meta.backendBaseUrls, {
+      server: "https://script.xiangtianzhen.store",
+      local: "http://127.0.0.1:3333",
+    });
+    assert.equal(
+      script.aiRecommendEndpoint,
+      "https://script.xiangtianzhen.store/api/aishell-tech/minnan-helper/ai/recommend"
+    );
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test("Aishell storage keeps a legacy server endpoint when stored base URLs are absent", async function () {
+  const harness = loadStorageApi({
+    platforms: {
+      aishellTech: {
+        scripts: {
+          minnanHelper: {
+            id: "aishellTechMinnanAssistant",
+            aiRecommendEndpoint:
+              "https://script.xiangtianzhen.store/api/aishell-tech/minnan-helper/ai/recommend",
+          },
+        },
+      },
+    },
+  });
+
+  try {
+    const settings = await harness.storage.getSettings();
+    const script = settings.platforms.aishellTech.scripts.minnanHelper;
+
+    assert.equal(settings.meta.backendBaseUrls.server, "https://script.xiangtianzhen.store");
+    assert.equal(
+      script.aiRecommendEndpoint,
+      "https://script.xiangtianzhen.store/api/aishell-tech/minnan-helper/ai/recommend"
     );
   } finally {
     harness.cleanup();
@@ -138,7 +194,7 @@ test("Aishell storage ignores legacy AI fields and resets to new defaults", asyn
     assert.equal(script.aiRecommendCompareAdoptionThreshold, 0.75);
     assert.equal(
       script.aiRecommendEndpoint,
-      "https://script.xiangtianzhen.store/api/aishell-tech/minnan-helper/ai/recommend"
+      "https://script.aisiyunling.com/api/aishell-tech/minnan-helper/ai/recommend"
     );
     assert.equal(script.aiRecommendConvertPrompt, "");
     assert.equal(script.aiRecommendCompareQwenPrompt, "");
@@ -309,7 +365,7 @@ test("Aishell storage defaults expose active script and Vietnamese helper config
     assert.equal(vietnameseScript.aiRecommendEnabled, false);
     assert.equal(vietnameseScript.aiRecommendSingleModel, "qwen3.5-omni-flash");
     assert.equal(vietnameseScript.aiRecommendSinglePrompt, "");
-    assert.equal(vietnameseScript.aiRecommendEndpoint, "https://script.xiangtianzhen.store/api/aishell-tech/vietnamese-helper/ai/recommend");
+    assert.equal(vietnameseScript.aiRecommendEndpoint, "https://script.aisiyunling.com/api/aishell-tech/vietnamese-helper/ai/recommend");
   } finally {
     harness.cleanup();
   }
@@ -329,7 +385,7 @@ test("Aishell storage defaults expose Thai helper config", async function () {
     assert.equal(thaiScript.aiRecommendSinglePrompt, "");
     assert.equal(
       thaiScript.aiRecommendEndpoint,
-      "https://script.xiangtianzhen.store/api/aishell-tech/thai-helper/ai/recommend"
+      "https://script.aisiyunling.com/api/aishell-tech/thai-helper/ai/recommend"
     );
   } finally {
     harness.cleanup();

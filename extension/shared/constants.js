@@ -86,7 +86,7 @@
     RELEASE_CHANNEL_PUBLIC
   );
   const DEFAULT_BACKEND_BASE_URLS = Object.freeze({
-    server: normalizeBackendBaseUrl("https://script.xiangtianzhen.store"),
+    server: normalizeBackendBaseUrl("https://script.aisiyunling.com"),
     local: normalizeBackendBaseUrl("http://127.0.0.1:3333"),
   });
   const BACKEND_ENDPOINTS = DEFAULT_BACKEND_BASE_URLS;

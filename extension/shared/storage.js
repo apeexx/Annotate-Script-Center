@@ -44,7 +44,7 @@
                 enabled: true,
                 aiRecommendEnabled: true,
                 aiRecommendEndpoint:
-                  "https://script.xiangtianzhen.store/api/data-baker/round-one-quality/ai/recommend",
+                  "https://script.aisiyunling.com/api/data-baker/round-one-quality/ai/recommend",
                 aiRecommendRequestTimeoutMs: DEFAULT_AI_REQUEST_TIMEOUT_MS,
                 aiRecommendPipelineMode: "two_stage",
                 aiQualifiedAutofillConcurrency: 5,
@@ -66,7 +66,7 @@
                 enabled: true,
                 aiRecommendEnabled: true,
                 aiRecommendEndpoint:
-                  "https://script.xiangtianzhen.store/api/aishell-tech/minnan-helper/ai/recommend",
+                  "https://script.aisiyunling.com/api/aishell-tech/minnan-helper/ai/recommend",
                 aiRecommendRequestTimeoutMs: DEFAULT_AI_REQUEST_TIMEOUT_MS,
                 shortcuts: {},
               },
@@ -114,7 +114,7 @@
           schemaVersion: 26,
           backendEndpointMode: "server",
           backendBaseUrls: {
-            server: "https://script.xiangtianzhen.store",
+            server: "https://script.aisiyunling.com",
             local: "http://127.0.0.1:3333",
           },
           aiUsageOperatorName: "",
@@ -142,21 +142,21 @@
       HAITIAN_UTRANS_PLATFORM_ID: "haitianUtrans",
       HAITIAN_UTRANS_AUDIO_DOWNLOAD_HELPER_SCRIPT_ID: "haitianUtransAudioDownloadHelper",
       DATABAKER_AI_RECOMMEND_SERVER_ENDPOINT:
-        "https://script.xiangtianzhen.store/api/data-baker/round-one-quality/ai/recommend",
+        "https://script.aisiyunling.com/api/data-baker/round-one-quality/ai/recommend",
       DATABAKER_AI_RECOMMEND_LOCAL_ENDPOINT:
         "http://127.0.0.1:3333/api/data-baker/round-one-quality/ai/recommend",
       AISHELL_TECH_AI_RECOMMEND_SERVER_ENDPOINT:
-        "https://script.xiangtianzhen.store/api/aishell-tech/minnan-helper/ai/recommend",
+        "https://script.aisiyunling.com/api/aishell-tech/minnan-helper/ai/recommend",
       AISHELL_TECH_AI_RECOMMEND_LOCAL_ENDPOINT:
         "http://127.0.0.1:3333/api/aishell-tech/minnan-helper/ai/recommend",
       TRANSCRIPTION_STATS_SERVER_ENDPOINT:
-        "https://script.xiangtianzhen.store/api/alibaba-labelx/asr-transcription/statistics/upload",
+        "https://script.aisiyunling.com/api/alibaba-labelx/asr-transcription/statistics/upload",
       TRANSCRIPTION_STATS_LOCAL_ENDPOINT:
         "http://127.0.0.1:3333/api/alibaba-labelx/asr-transcription/statistics/upload",
       BACKEND_ENDPOINT_MODE_SERVER: "server",
       BACKEND_ENDPOINT_MODE_LOCAL: "local",
       DEFAULT_BACKEND_BASE_URLS: {
-        server: "https://script.xiangtianzhen.store",
+        server: "https://script.aisiyunling.com",
         local: "http://127.0.0.1:3333",
       },
       DATABAKER_PAGE_SIZE_OPTIONS: ["5?/?", "10?/?", "20?/?", "50?/?", "100?/?"],
@@ -388,7 +388,7 @@
     const defaultBaseUrls =
       defaults?.meta?.backendBaseUrls ||
       constants.DEFAULT_BACKEND_BASE_URLS || {
-        server: "https://script.xiangtianzhen.store",
+        server: "https://script.aisiyunling.com",
         local: "http://127.0.0.1:3333",
       };
     const storedBaseUrls =
@@ -401,15 +401,49 @@
     };
   }
 
+  function getLegacyServerBaseUrl(input) {
+    const candidates = [
+      input?.platforms?.alibabaLabelx?.scriptCenter?.projects?.transcription?.asrConfig?.statsUploadEndpoint,
+      input?.platforms?.alibabaLabelx?.scriptCenter?.projects?.judgement?.asrConfig?.statsUploadEndpoint,
+      input?.platforms?.alibabaLabelx?.scriptCenter?.projects?.judgement?.asrConfig?.aiSuggestionEndpoint,
+      input?.platforms?.dataBaker?.scripts?.roundOneQuality?.aiRecommendEndpoint,
+      input?.platforms?.aishellTech?.scripts?.minnanHelper?.aiRecommendEndpoint,
+      input?.platforms?.aishellTech?.scripts?.vietnameseHelper?.aiRecommendEndpoint,
+      input?.platforms?.aishellTech?.scripts?.thaiHelper?.aiRecommendEndpoint,
+      input?.asr?.statsUploadEndpoint,
+      input?.asr?.aiSuggestionEndpoint,
+    ];
+
+    for (const candidate of candidates) {
+      if (inferBackendModeFromEndpoint(candidate) !== "server") {
+        continue;
+      }
+      try {
+        return normalizeBackendBaseUrl(new URL(String(candidate).trim()).origin, "");
+      } catch (error) {
+        // 忽略无法解析的旧 endpoint，继续使用后续候选或新版默认地址。
+      }
+    }
+    return "";
+  }
+
   function ensureGlobalBackendBaseUrls(settings, input, defaults) {
     settings.meta = deepMerge(defaults?.meta || {}, settings.meta || {});
+    const inputBaseUrls =
+      input?.meta?.backendBaseUrls && typeof input.meta.backendBaseUrls === "object"
+        ? input.meta.backendBaseUrls
+        : {};
+    const baseUrls = Object.assign({}, settings.meta.backendBaseUrls || {}, inputBaseUrls);
+    if (!normalizeBackendBaseUrl(inputBaseUrls.server, "")) {
+      const legacyServerBaseUrl = getLegacyServerBaseUrl(input);
+      if (legacyServerBaseUrl) {
+        baseUrls.server = legacyServerBaseUrl;
+      }
+    }
     settings.meta.backendBaseUrls = getBackendBaseUrlsFromSettingsLocal(
       {
         meta: Object.assign({}, settings.meta || {}, {
-          backendBaseUrls:
-            input?.meta?.backendBaseUrls && typeof input.meta.backendBaseUrls === "object"
-              ? input.meta.backendBaseUrls
-              : settings.meta.backendBaseUrls,
+          backendBaseUrls: baseUrls,
         }),
       },
       defaults
@@ -1054,7 +1088,7 @@
     const constants = getConstants();
     const serverEndpoint =
       constants.DATABAKER_AI_RECOMMEND_SERVER_ENDPOINT ||
-      "https://script.xiangtianzhen.store/api/data-baker/round-one-quality/ai/recommend";
+      "https://script.aisiyunling.com/api/data-baker/round-one-quality/ai/recommend";
     const localEndpoint =
       constants.DATABAKER_AI_RECOMMEND_LOCAL_ENDPOINT ||
       "http://127.0.0.1:3333/api/data-baker/round-one-quality/ai/recommend";
@@ -1078,7 +1112,7 @@
     const constants = getConstants();
     const serverEndpoint =
       constants.AISHELL_TECH_AI_RECOMMEND_SERVER_ENDPOINT ||
-      "https://script.xiangtianzhen.store/api/aishell-tech/minnan-helper/ai/recommend";
+      "https://script.aisiyunling.com/api/aishell-tech/minnan-helper/ai/recommend";
     const localEndpoint =
       constants.AISHELL_TECH_AI_RECOMMEND_LOCAL_ENDPOINT ||
       "http://127.0.0.1:3333/api/aishell-tech/minnan-helper/ai/recommend";
@@ -1102,7 +1136,7 @@
     const constants = getConstants();
     const serverEndpoint =
       constants.AISHELL_TECH_VIETNAMESE_AI_RECOMMEND_SERVER_ENDPOINT ||
-      "https://script.xiangtianzhen.store/api/aishell-tech/vietnamese-helper/ai/recommend";
+      "https://script.aisiyunling.com/api/aishell-tech/vietnamese-helper/ai/recommend";
     const localEndpoint =
       constants.AISHELL_TECH_VIETNAMESE_AI_RECOMMEND_LOCAL_ENDPOINT ||
       "http://127.0.0.1:3333/api/aishell-tech/vietnamese-helper/ai/recommend";
@@ -1126,7 +1160,7 @@
     const constants = getConstants();
     const serverEndpoint =
       constants.AISHELL_TECH_THAI_AI_RECOMMEND_SERVER_ENDPOINT ||
-      "https://script.xiangtianzhen.store/api/aishell-tech/thai-helper/ai/recommend";
+      "https://script.aisiyunling.com/api/aishell-tech/thai-helper/ai/recommend";
     const localEndpoint =
       constants.AISHELL_TECH_THAI_AI_RECOMMEND_LOCAL_ENDPOINT ||
       "http://127.0.0.1:3333/api/aishell-tech/thai-helper/ai/recommend";
@@ -1753,7 +1787,7 @@
       result.aiRecommendEndpoint,
       defaultConfig.aiRecommendEndpoint ||
         constants.AISHELL_TECH_AI_RECOMMEND_SERVER_ENDPOINT ||
-        "https://script.xiangtianzhen.store/api/aishell-tech/minnan-helper/ai/recommend"
+        "https://script.aisiyunling.com/api/aishell-tech/minnan-helper/ai/recommend"
     );
     result.aiRecommendRequestTimeoutMs = normalizeDataBakerTimeout(
       result.aiRecommendRequestTimeoutMs,
@@ -1879,7 +1913,7 @@
       result.aiRecommendEndpoint,
       defaultConfig.aiRecommendEndpoint ||
         constants.AISHELL_TECH_VIETNAMESE_AI_RECOMMEND_SERVER_ENDPOINT ||
-        "https://script.xiangtianzhen.store/api/aishell-tech/vietnamese-helper/ai/recommend"
+        "https://script.aisiyunling.com/api/aishell-tech/vietnamese-helper/ai/recommend"
     );
     result.aiRecommendRequestTimeoutMs = normalizeDataBakerTimeout(
       result.aiRecommendRequestTimeoutMs,
@@ -1998,7 +2032,7 @@
       result.aiRecommendEndpoint,
       defaultConfig.aiRecommendEndpoint ||
         constants.AISHELL_TECH_THAI_AI_RECOMMEND_SERVER_ENDPOINT ||
-        "https://script.xiangtianzhen.store/api/aishell-tech/thai-helper/ai/recommend"
+        "https://script.aisiyunling.com/api/aishell-tech/thai-helper/ai/recommend"
     );
     result.aiRecommendRequestTimeoutMs = normalizeDataBakerTimeout(
       result.aiRecommendRequestTimeoutMs,
@@ -2131,7 +2165,7 @@
             aiRecommendEnabled: true,
             aiRecommendEndpoint:
               constants.DATABAKER_AI_RECOMMEND_SERVER_ENDPOINT ||
-              "https://script.xiangtianzhen.store/api/data-baker/round-one-quality/ai/recommend",
+              "https://script.aisiyunling.com/api/data-baker/round-one-quality/ai/recommend",
             aiRecommendRequestTimeoutMs: DEFAULT_AI_REQUEST_TIMEOUT_MS,
             aiRecommendPipelineMode: "two_stage",
                 aiQualifiedAutofillConcurrency: 5,
@@ -2210,7 +2244,7 @@
             aiRecommendEnabled: true,
             aiRecommendEndpoint:
               constants.AISHELL_TECH_AI_RECOMMEND_SERVER_ENDPOINT ||
-              "https://script.xiangtianzhen.store/api/aishell-tech/minnan-helper/ai/recommend",
+              "https://script.aisiyunling.com/api/aishell-tech/minnan-helper/ai/recommend",
             aiRecommendRequestTimeoutMs: DEFAULT_AI_REQUEST_TIMEOUT_MS,
             aiQualifiedAutofillConcurrency: 5,
             aiRecommendConvertModel: "qwen3.5-plus",
@@ -2263,7 +2297,7 @@
             aiRecommendEnabled: false,
             aiRecommendEndpoint:
               constants.AISHELL_TECH_VIETNAMESE_AI_RECOMMEND_SERVER_ENDPOINT ||
-              "https://script.xiangtianzhen.store/api/aishell-tech/vietnamese-helper/ai/recommend",
+              "https://script.aisiyunling.com/api/aishell-tech/vietnamese-helper/ai/recommend",
             aiRecommendRequestTimeoutMs: DEFAULT_AI_REQUEST_TIMEOUT_MS,
             aiQualifiedAutofillConcurrency: 5,
             aiRecommendSingleModel: "qwen3.5-omni-flash",
@@ -2291,7 +2325,7 @@
             aiRecommendEnabled: false,
             aiRecommendEndpoint:
               constants.AISHELL_TECH_THAI_AI_RECOMMEND_SERVER_ENDPOINT ||
-              "https://script.xiangtianzhen.store/api/aishell-tech/thai-helper/ai/recommend",
+              "https://script.aisiyunling.com/api/aishell-tech/thai-helper/ai/recommend",
             aiRecommendRequestTimeoutMs: DEFAULT_AI_REQUEST_TIMEOUT_MS,
             aiQualifiedAutofillConcurrency: 5,
             aiRecommendSingleModel: "qwen3.5-omni-flash",
@@ -3195,7 +3229,7 @@
       const constants = getConstants();
       const serverEndpoint =
         constants.TRANSCRIPTION_STATS_SERVER_ENDPOINT ||
-        "https://script.xiangtianzhen.store/api/alibaba-labelx/asr-transcription/statistics/upload";
+        "https://script.aisiyunling.com/api/alibaba-labelx/asr-transcription/statistics/upload";
       const localEndpoint =
         constants.TRANSCRIPTION_STATS_LOCAL_ENDPOINT ||
         "http://127.0.0.1:3333/api/alibaba-labelx/asr-transcription/statistics/upload";

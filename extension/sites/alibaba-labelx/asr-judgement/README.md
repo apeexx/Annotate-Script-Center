@@ -25,7 +25,7 @@
 
 - `aiSuggestionEnabled` 保留为历史兼容字段，但 normalize 与运行时都强制为 `true`，不再提供前端启用/关闭开关。
 - AI 建议地址不再由脚本详情页单独配置；统一使用 options 首页顶部“后端接口地址”拼接：
-  - `server`：`https://script.xiangtianzhen.store/api/alibaba-labelx/asr-judgement/ai/suggest`
+  - `server`：`https://script.aisiyunling.com/api/alibaba-labelx/asr-judgement/ai/suggest`
   - `local`：`http://127.0.0.1:3333/api/alibaba-labelx/asr-judgement/ai/suggest`
 - 请求超时字段：`aiSuggestionRequestTimeoutMs`，默认 `60000`。
 - 快判 options 新增 AI 字段：
@@ -176,7 +176,7 @@
 - 快判统计上传与定时上传为脚本默认能力，运行时强制启用；options 不再提供统计开关、上传地址下拉、时间配置 URL 或手动上传按钮。
 - 不再支持进入快判详情页自动上传，避免仅打开页面就产生统计写入。
 - 上传接口地址由全局后端模式拼接：
-  - `server`：`https://script.xiangtianzhen.store/api/alibaba-labelx/asr-judgement/statistics/upload`
+  - `server`：`https://script.aisiyunling.com/api/alibaba-labelx/asr-judgement/statistics/upload`
   - `local`：`http://127.0.0.1:3333/api/alibaba-labelx/asr-judgement/statistics/upload`
 - 历史保存的 `statsUploadEndpoint/aiSuggestionEndpoint` 仅用于兼容迁移全局模式，不再作为运行时主配置。
 - 定时上传默认时间固定写在代码中，为 `10:00`、`16:00`；到点后会增加随机延迟，避免大量客户端同时请求服务器。options 不再配置本地默认时间和随机延迟。

@@ -6,7 +6,7 @@ const { listAiCallLogDatasets } = require("../ai-call-log-download/routes");
 const { listProjectDataDownloadDatasets } = require("../project-data-download/routes");
 const { summarizeRuntimeLogs } = require("../runtime-log-store");
 
-const FALLBACK_SCRIPT_DOWNLOAD_CENTER_URL = "https://script.xiangtianzhen.store/downloads/";
+const FALLBACK_SCRIPT_DOWNLOAD_CENTER_URL = "https://script.aisiyunling.com/downloads/";
 
 function normalizeText(value) {
   return String(value || "").trim();

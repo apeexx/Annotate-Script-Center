@@ -41,7 +41,7 @@ extension/sites/data-baker/round-one-quality/
   - 唯一键仅以“文本编号”为主（任务ID不参与唯一键）。
   - 相同文本编号再次上传会更新旧行。
   - 不同任务可共存，前提是文本编号不同。
-- 默认推荐接口走服务器：`https://script.xiangtianzhen.store/api/data-baker/round-one-quality/ai/recommend`。
+- 默认推荐接口走服务器：`https://script.aisiyunling.com/api/data-baker/round-one-quality/ai/recommend`。
 - 本机接口 `http://127.0.0.1:3333/api/data-baker/round-one-quality/ai/recommend` 仅用于开发调试。
 - 扩展前端不保存 API Key，`DASHSCOPE_API_KEY` 仍由后端通过 `config/env/ai.env` 或系统环境变量读取。
 - 该平台导出的 `latest.csv` 已纳入统一“项目数据下载”聚合接口数据集，可按供应商规则筛选下载（若 CSV 存在多供应商）。
@@ -146,7 +146,7 @@ node platform-resources\backend\server.js
 
 扩展默认请求服务器完整路径：
 
-- `POST https://script.xiangtianzhen.store/api/data-baker/round-one-quality/ai/recommend`
+- `POST https://script.aisiyunling.com/api/data-baker/round-one-quality/ai/recommend`
 
 导出默认走前端拦截链路：扩展不直接 `fetch /cms/tbAudioUserTask/queryByCondition`，而是触发页面原生分页查询并拦截响应。背景是平台可能对扩展直接请求返回 `code=51000`。当前流程会先展开分页大小下拉并选择 `100条/页`，再逐页导出全量数据；CSV 带 UTF-8 BOM，不依赖本地后端和账号密码配置，且已移除“采集ID”列。若下拉未能自动展开，可手动切到 `100条/页` 后重试。
 

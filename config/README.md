@@ -16,7 +16,7 @@
 ```json
 {
   "channel": "public",
-  "downloadBaseUrl": "https://script.xiangtianzhen.store/downloads/"
+  "downloadBaseUrl": "https://script.aisiyunling.com/downloads/"
 }
 ```
 
@@ -25,6 +25,8 @@
 ```powershell
 node scripts/package-crx-release.js
 ```
+
+打包必须复用既有的 `config/secrets/annotation-script-center.pem`。缺失时脚本会中止，绝不自动生成新私钥。
 
 默认产物：
 

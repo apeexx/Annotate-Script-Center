@@ -2,8 +2,8 @@
   "manifest_version": 3,
   "name": "标注脚本中心",
   "description": "多平台标注脚本中心与当前页面脚本状态入口。",
-  "version": "0.4.0",
-  "update_url": "https://script.xiangtianzhen.store/downloads/annotation-script-center-update.xml",
+  "version": "0.4.1",
+  "update_url": "https://script.aisiyunling.com/downloads/annotation-script-center-update.xml",
   "permissions": [
     "storage",
     "tabs"
@@ -13,6 +13,7 @@
     "https://*/*",
     "https://labelx.alibaba-inc.com/*",
     "https://script.xiangtianzhen.store/*",
+    "https://script.aisiyunling.com/*",
     "https://datafactory.data-baker.com/*",
     "https://work.magicdatatech.com/*",
     "https://mark.aishelltech.com/*",

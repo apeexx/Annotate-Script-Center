@@ -17,7 +17,7 @@ test("parseDirectoryIndex merges crx and zip files by version", function () {
     '<a href="annotation-script-center-v0.4.0.zip">annotation-script-center-v0.4.0.zip</a>',
     '<a href="annotation-script-center-v0.3.7.crx">annotation-script-center-v0.3.7.crx</a>',
   ].join("\n");
-  const items = parseDirectoryIndex(html, "https://script.xiangtianzhen.store/downloads/");
+  const items = parseDirectoryIndex(html, "https://script.aisiyunling.com/downloads/");
   assert.equal(items.length, 2);
   assert.equal(items[0].version, "0.4.0");
   assert.match(items[0].crxUrl, /v0\.4\.0\.crx$/);
@@ -103,5 +103,6 @@ test("resolveDownloadBaseUrl prefers explicit option and normalizes trailing sla
     buildDefaultLatestJsonUrl("http://47.109.197.170/downloads/"),
     "http://47.109.197.170/downloads/annotation-script-center-crx-latest.json"
   );
-  assert.equal(resolveDownloadBaseUrl({}), FALLBACK_DOWNLOAD_BASE_URL);
+  assert.equal(resolveDownloadBaseUrl({}), "https://script.aisiyunling.com/downloads/");
+  assert.equal(FALLBACK_DOWNLOAD_BASE_URL, "https://script.aisiyunling.com/downloads/");
 });

@@ -9,6 +9,8 @@
 - 统一后端入口：`platform-resources/backend/server.js`
 - 当前扩展版本以 `extension/manifest.json` 为准
 - 当前只保留 `public` 发布通道
+- 新安装扩展的 public 默认服务地址：`https://script.aisiyunling.com`
+- 已保存的 `script.xiangtianzhen.store` 后端设置不会被强制改写，旧域名继续作为兼容入口
 
 ## 快速开始
 
@@ -41,7 +43,7 @@ http://127.0.0.1:3333
 - 当前仓库没有根级 `package.json`，不是 `npm install / npm run` 型项目。
 - 本地至少需要 Node.js、Chrome 或 Edge，以及可加载扩展开发模式的桌面环境。
 - 服务端部署可按需准备 PM2、`config/env/backend.env` 与 `config/env/ai.env`。
-- 正式 CRX 打包需要 `config/secrets/annotation-script-center.pem` 与 `config/package-crx-release.json`。
+- 正式 CRX 打包需要既有的 `config/secrets/annotation-script-center.pem` 与 `config/package-crx-release.json`；私钥缺失时脚本会中止，绝不自动生成新私钥。
 
 ## 打包与发布
 

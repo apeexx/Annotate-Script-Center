@@ -103,7 +103,7 @@ round-one-quality/
 - Prompt 与参数按 override 保存：字段清空或恢复默认时不保存 override，请求时由后端默认值生效；只有与默认不同的值才随请求透传。
 - 不支持参数前端不显示，后端二次白名单过滤；`response_format` 不对前端开放。
 - 后端接口地址由 options 首页顶部“后端接口地址”统一控制：
-  - `server`：`https://script.xiangtianzhen.store/api/data-baker/round-one-quality/ai/recommend`
+  - `server`：`https://script.aisiyunling.com/api/data-baker/round-one-quality/ai/recommend`
   - `local`：`http://127.0.0.1:3333/api/data-baker/round-one-quality/ai/recommend`
 - 在“ASR 语音 AI 设置”中配置前端请求超时时间，页面以秒展示，默认 `60` 秒；扩展内部仍按毫秒存储到 `aiRecommendRequestTimeoutMs`。
 - 启用 / 关闭自动每页条数，默认启用，默认目标为 `50条/页`，可选 `5条/页`、`10条/页`、`20条/页`、`50条/页`、`100条/页`。
@@ -176,11 +176,11 @@ node platform-resources\backend\server.js
 
 扩展默认请求服务器接口：
 
-- `POST https://script.xiangtianzhen.store/api/data-baker/round-one-quality/ai/recommend`
-- `POST https://script.xiangtianzhen.store/api/data-baker/round-one-quality/ai/recommend/jobs`（历史兼容 / 调试）
-- `GET https://script.xiangtianzhen.store/api/data-baker/round-one-quality/ai/recommend/jobs/:jobId`（历史兼容 / 调试）
-- `POST https://script.xiangtianzhen.store/api/data-baker/round-one-quality/export/upload`
-- `GET https://script.xiangtianzhen.store/api/data-baker/round-one-quality/export/download`
+- `POST https://script.aisiyunling.com/api/data-baker/round-one-quality/ai/recommend`
+- `POST https://script.aisiyunling.com/api/data-baker/round-one-quality/ai/recommend/jobs`（历史兼容 / 调试）
+- `GET https://script.aisiyunling.com/api/data-baker/round-one-quality/ai/recommend/jobs/:jobId`（历史兼容 / 调试）
+- `POST https://script.aisiyunling.com/api/data-baker/round-one-quality/export/upload`
+- `GET https://script.aisiyunling.com/api/data-baker/round-one-quality/export/download`
 
 任务总表导出不再由 content script 直接 `fetch /cms/tbAudioUserTask/queryByCondition`。原因是平台可能对扩展直接请求返回 `code=51000`。当前方案改为触发页面原生分页查询并拦截响应：先展开 Element UI 分页大小下拉并选择 `100条/页`，再逐页触发并合并导出；导出后会自动上传到统一后端保存。CSV 已移除“采集ID”列与“原始JSON”列，保留 UTF-8 BOM；原始记录改为脱敏后单独上传保存。
 

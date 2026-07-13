@@ -24,6 +24,7 @@ http://127.0.0.1:3333
 - Aishell Tech 闽南语、越南语、泰语助手。
 - Abaka AI Task21。
 - 管理会话、管理面板、下载中心、项目数据下载、AI 调用记录下载。
+- 公开下载中心默认地址：`https://script.aisiyunling.com/downloads/`。
 
 ## 安全边界
 

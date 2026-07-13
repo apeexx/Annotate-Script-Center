@@ -1,7 +1,7 @@
 "use strict";
 
 const APP_NAME = "annotation-script-center";
-const FALLBACK_DOWNLOAD_BASE_URL = "https://script.xiangtianzhen.store/downloads/";
+const FALLBACK_DOWNLOAD_BASE_URL = "https://script.aisiyunling.com/downloads/";
 const VERSION_FILE_PATTERN = /^annotation-script-center-v([0-9A-Za-z.-]+)\.(crx|zip)$/i;
 
 function normalizeText(value) {
