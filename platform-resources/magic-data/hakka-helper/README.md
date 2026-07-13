@@ -13,7 +13,7 @@
 - `backend/ai-*.js`：客家话助手 AI 能力实现（模型调用、Prompt、词表、日志、成本估算）。
 - `backend/lexicon/hakka-lexicon.json`：客家话业务词表运行时主文件。
 - `backend/lexicon/hakka-lexicon.csv`：客家话词表参考源。
-- `backend/lexicon/客家话-正字表.xlsx`：词表原始来源文件（可选）。
+- `backend/lexicon/客家话-正字表.xlsx`：词表原始来源文件（当前为 7 月版；运行时采集“正字”和“补充正字”工作表，“疑问”表不导入）。
 - `backend/tools/convert-hakka-lexicon.js`：词表转换脚本。
 - `backend/lexicon/hakka-lexicon.json` 当前已作为运行时主词表接入，继续复用统一 `business-lexicon` schema 校验。
 - 运行时缺少 `hakka-lexicon.json` 但本地 `hakka-lexicon.csv` 仍存在时，页面会在右下角弹出一次“没有字词对应表”提示，停留约 1 秒后自动消失；复核链路继续按无词表模式返回，不回退成 CSV 主读取。

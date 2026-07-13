@@ -14,6 +14,17 @@ test("Magic Data Hakka runtime lexicon JSON loads as ready", function () {
   assert.ok(state.rows.length > 0);
 });
 
+test("Magic Data Hakka runtime lexicon includes the July supplementary orthography", function () {
+  lexiconModule.__test__?.resetLexiconStateCache?.();
+  const state = lexiconModule.getLexiconState();
+  const entry = state.entries.find(function (item) {
+    return item.normalized === "细满仔";
+  });
+
+  assert.equal(entry?.mandarin, "小孩子");
+  assert.equal(entry?.attributes?.pinyin, "se3man4zai3");
+});
+
 test("Magic Data Hakka exact rewrite prefers lexicon rules over fallback mappings", function () {
   const helper = lexiconModule.__test__?.applyFinalSuggestionRewrite;
   assert.equal(typeof helper, "function");
