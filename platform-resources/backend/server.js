@@ -83,6 +83,16 @@ server.listen(config.port, config.host, function () {
       "/api/aishell-tech/minnan-helper/ai/recommend"
   );
   console.info(
+    "[Platform Resources][backend] Aishell Tech Cantonese AI health: " +
+      baseUrl +
+      "/api/aishell-tech/cantonese-helper/ai/recommend/health"
+  );
+  console.info(
+    "[Platform Resources][backend] Aishell Tech Cantonese AI recommend: " +
+      baseUrl +
+      "/api/aishell-tech/cantonese-helper/ai/recommend"
+  );
+  console.info(
     "[Platform Resources][backend] DataBaker export upload: " +
       baseUrl +
       "/api/data-baker/round-one-quality/export/upload"

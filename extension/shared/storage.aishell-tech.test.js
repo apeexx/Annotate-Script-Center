@@ -494,3 +494,90 @@ test("Aishell storage migrates legacy single-script config to Minnan activeScrip
     harness.cleanup();
   }
 });
+
+test("Aishell storage defaults expose disabled Cantonese helper config", async function () {
+  const harness = loadStorageApi({});
+
+  try {
+    const settings = await harness.storage.getSettings();
+    const cantoneseScript = settings.platforms.aishellTech.scripts.cantoneseHelper;
+
+    assert.equal(cantoneseScript.id, "aishellTechCantoneseAssistant");
+    assert.equal(cantoneseScript.enabled, false);
+    assert.equal(cantoneseScript.aiRecommendEnabled, false);
+    assert.equal(cantoneseScript.aiRecommendSingleModel, "qwen3.5-omni-flash");
+    assert.equal(cantoneseScript.aiRecommendSinglePrompt, "");
+    assert.equal(
+      cantoneseScript.aiRecommendEndpoint,
+      "https://script.aisiyunling.com/api/aishell-tech/cantonese-helper/ai/recommend"
+    );
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test("Aishell storage enables Cantonese helper as the active mutually exclusive script", async function () {
+  const harness = loadStorageApi({});
+
+  try {
+    const settings = await harness.storage.setScriptEnabled("aishellTechCantoneseAssistant", true);
+    const scripts = settings.platforms.aishellTech.scripts;
+
+    assert.equal(settings.platforms.aishellTech.activeScriptId, "aishellTechCantoneseAssistant");
+    assert.equal(scripts.minnanHelper.enabled, false);
+    assert.equal(scripts.vietnameseHelper.enabled, false);
+    assert.equal(scripts.thaiHelper.enabled, false);
+    assert.equal(scripts.cnEnShortDrama.enabled, false);
+    assert.equal(scripts.cantoneseHelper.enabled, true);
+    assert.equal(scripts.cantoneseHelper.aiRecommendEnabled, true);
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test("Aishell storage derives the Cantonese endpoint from the saved global backend base URL", async function () {
+  const harness = loadStorageApi({
+    meta: {
+      backendBaseUrls: {
+        server: "https://example.test",
+        local: "http://127.0.0.1:3333",
+      },
+    },
+  });
+
+  try {
+    const settings = await harness.storage.getSettings();
+    assert.equal(
+      settings.platforms.aishellTech.scripts.cantoneseHelper.aiRecommendEndpoint,
+      "https://example.test/api/aishell-tech/cantonese-helper/ai/recommend"
+    );
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test("Aishell storage keeps the Cantonese model, timeout, and thinking mode fixed", async function () {
+  const harness = loadStorageApi({
+    platforms: {
+      aishellTech: {
+        scripts: {
+          cantoneseHelper: {
+            id: "aishellTechCantoneseAssistant",
+            aiRecommendSingleModel: "qwen3.5-omni-plus",
+            aiRecommendRequestTimeoutMs: 90000,
+            aiRecommendEnableThinking: true,
+          },
+        },
+      },
+    },
+  });
+
+  try {
+    const script = (await harness.storage.getSettings()).platforms.aishellTech.scripts.cantoneseHelper;
+    assert.equal(script.aiRecommendSingleModel, "qwen3.5-omni-flash");
+    assert.equal(script.aiRecommendRequestTimeoutMs, 60000);
+    assert.equal(script.aiRecommendEnableThinking, false);
+  } finally {
+    harness.cleanup();
+  }
+});
