@@ -6,6 +6,10 @@ const test = require("node:test");
 
 const constantsModulePath = path.resolve(__dirname, "constants.js");
 const storageModulePath = path.resolve(__dirname, "storage.js");
+const cantoneseAiServicePath = path.resolve(
+  __dirname,
+  "../../platform-resources/aishell-tech/cantonese-helper/backend/ai-service.js"
+);
 
 function loadStorageApi(initialSettings) {
   delete require.cache[constantsModulePath];
@@ -392,6 +396,63 @@ test("Aishell storage defaults expose Thai helper config", async function () {
   }
 });
 
+test("Aishell storage defaults expose Cantonese helper config and restore its default prompt", async function () {
+  const harness = loadStorageApi({
+    platforms: {
+      aishellTech: {
+        scripts: {
+          cantoneseHelper: {
+            id: "aishellTechCantoneseAssistant",
+            aiRecommendSinglePrompt: "   ",
+          },
+        },
+      },
+    },
+  });
+
+  try {
+    const settings = await harness.storage.getSettings();
+    const script = settings.platforms.aishellTech.scripts.cantoneseHelper;
+
+    assert.equal(script.id, "aishellTechCantoneseAssistant");
+    assert.equal(script.enabled, false);
+    assert.equal(script.aiRecommendEnabled, false);
+    assert.equal(script.aiRecommendRequestTimeoutMs, 60000);
+    assert.equal(script.aiRecommendSingleModel, "qwen3.5-omni-plus");
+    assert.equal(script.aiRecommendSinglePrompt, harness.constants.AISHELL_TECH_CANTONESE_DEFAULT_SINGLE_PROMPT);
+    assert.equal(
+      script.aiRecommendEndpoint,
+      "https://script.aisiyunling.com/api/aishell-tech/cantonese-helper/ai/recommend"
+    );
+    assert.deepEqual(script.shortcuts, {
+      aiRecommendCurrentItem: null,
+      autoFillQualifiedItem: null,
+      copyRecommendedText: null,
+      fillRecommendedText: null,
+      ignoreAiResult: null,
+    });
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test("Aishell Cantonese default prompt stays byte-for-byte aligned with the backend contract", function () {
+  delete require.cache[constantsModulePath];
+  delete require.cache[cantoneseAiServicePath];
+  delete globalThis.ASREdgeConstants;
+
+  try {
+    const constants = require(constantsModulePath);
+    const { DEFAULT_OMNI_PROMPT } = require(cantoneseAiServicePath);
+
+    assert.equal(constants.AISHELL_TECH_CANTONESE_DEFAULT_SINGLE_PROMPT, DEFAULT_OMNI_PROMPT);
+  } finally {
+    delete require.cache[constantsModulePath];
+    delete require.cache[cantoneseAiServicePath];
+    delete globalThis.ASREdgeConstants;
+  }
+});
+
 test("Aishell storage defaults expose cn-en short drama config", async function () {
   const harness = loadStorageApi({});
 
@@ -447,6 +508,24 @@ test("Aishell storage enables Thai helper as the active mutually exclusive scrip
   }
 });
 
+test("Aishell storage enables Cantonese helper as the active mutually exclusive script", async function () {
+  const harness = loadStorageApi({});
+
+  try {
+    const settings = await harness.storage.setScriptEnabled("aishellTechCantoneseAssistant", true);
+
+    assert.equal(settings.platforms.aishellTech.activeScriptId, "aishellTechCantoneseAssistant");
+    assert.equal(settings.platforms.aishellTech.scripts.minnanHelper.enabled, false);
+    assert.equal(settings.platforms.aishellTech.scripts.vietnameseHelper.enabled, false);
+    assert.equal(settings.platforms.aishellTech.scripts.thaiHelper.enabled, false);
+    assert.equal(settings.platforms.aishellTech.scripts.cnEnShortDrama.enabled, false);
+    assert.equal(settings.platforms.aishellTech.scripts.cantoneseHelper.enabled, true);
+    assert.equal(settings.platforms.aishellTech.scripts.cantoneseHelper.aiRecommendEnabled, true);
+  } finally {
+    harness.cleanup();
+  }
+});
+
 test("Aishell storage enables cn-en short drama as the active mutually exclusive script", async function () {
   const harness = loadStorageApi({});
 
@@ -490,6 +569,62 @@ test("Aishell storage migrates legacy single-script config to Minnan activeScrip
     assert.equal(settings.platforms.aishellTech.scripts.vietnameseHelper.id, "aishellTechVietnameseAssistant");
     assert.equal(settings.platforms.aishellTech.scripts.vietnameseHelper.enabled, false);
     assert.equal(settings.platforms.aishellTech.scripts.vietnameseHelper.aiRecommendEnabled, false);
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test("Aishell migration makes Minnan the sole enabled helper when old settings name it active", async function () {
+  const harness = loadStorageApi({
+    platforms: {
+      aishellTech: {
+        activeScriptId: "aishellTechMinnanAssistant",
+        scripts: {
+          minnanHelper: { enabled: true, aiRecommendEnabled: true },
+          vietnameseHelper: { enabled: true, aiRecommendEnabled: true },
+          thaiHelper: { enabled: true, aiRecommendEnabled: true },
+          cantoneseHelper: { enabled: true, aiRecommendEnabled: true },
+          cnEnShortDrama: { enabled: true },
+        },
+      },
+    },
+  });
+
+  try {
+    const scripts = (await harness.storage.getSettings()).platforms.aishellTech.scripts;
+    assert.equal(scripts.minnanHelper.enabled, true);
+    assert.equal(scripts.vietnameseHelper.enabled, false);
+    assert.equal(scripts.thaiHelper.enabled, false);
+    assert.equal(scripts.cantoneseHelper.enabled, false);
+    assert.equal(scripts.cnEnShortDrama.enabled, false);
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test("Aishell migration makes Vietnamese the sole enabled helper when old settings name it active", async function () {
+  const harness = loadStorageApi({
+    platforms: {
+      aishellTech: {
+        activeScriptId: "aishellTechVietnameseAssistant",
+        scripts: {
+          minnanHelper: { enabled: true, aiRecommendEnabled: true },
+          vietnameseHelper: { enabled: true, aiRecommendEnabled: true },
+          thaiHelper: { enabled: true, aiRecommendEnabled: true },
+          cantoneseHelper: { enabled: true, aiRecommendEnabled: true },
+          cnEnShortDrama: { enabled: true },
+        },
+      },
+    },
+  });
+
+  try {
+    const scripts = (await harness.storage.getSettings()).platforms.aishellTech.scripts;
+    assert.equal(scripts.minnanHelper.enabled, false);
+    assert.equal(scripts.vietnameseHelper.enabled, true);
+    assert.equal(scripts.thaiHelper.enabled, false);
+    assert.equal(scripts.cantoneseHelper.enabled, false);
+    assert.equal(scripts.cnEnShortDrama.enabled, false);
   } finally {
     harness.cleanup();
   }

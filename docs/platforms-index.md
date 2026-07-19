@@ -26,6 +26,7 @@
 - 运行时代码：`extension/sites/aishell-tech/`
 - 平台资料：`platform-resources/aishell-tech/README.md`
 - 闽南语资料：`platform-resources/aishell-tech/minnan-helper/README.md`
+- 粤语资料：`platform-resources/aishell-tech/cantonese-helper/README.md`
 - 越南语资料：`platform-resources/aishell-tech/vietnamese-helper/README.md`
 - 泰语资料：`platform-resources/aishell-tech/thai-helper/README.md`
 - 中英短剧资料：`platform-resources/aishell-tech/cn-en-short-drama/README.md`

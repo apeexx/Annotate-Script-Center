@@ -11,6 +11,9 @@ const { registerRoutes: registerMagicDataMinnanRoutes } = require("../magic-data
 const { registerRoutes: registerAbakaTask21AiRoutes } = require("../abaka-ai/task21/backend");
 const { registerRoutes: registerAishellTechMinnanRoutes } = require("../aishell-tech/minnan-helper/backend");
 const {
+  registerRoutes: registerAishellTechCantoneseRoutes,
+} = require("../aishell-tech/cantonese-helper/backend");
+const {
   registerRoutes: registerAishellTechVietnameseRoutes,
 } = require("../aishell-tech/vietnamese-helper/backend");
 const {
@@ -63,6 +66,7 @@ function registerProjectRoutes(router, options) {
   registerMagicDataMinnanRoutes(router, config.magicDataMinnanHelper || {});
   registerAbakaTask21AiRoutes(router, config.abakaTask21Ai || {});
   registerAishellTechMinnanRoutes(router, config.aishellTechMinnanHelper || {});
+  registerAishellTechCantoneseRoutes(router, config.aishellTechCantoneseHelper || {});
   registerAishellTechVietnameseRoutes(router, config.aishellTechVietnameseHelper || {});
   registerAishellTechThaiRoutes(router, config.aishellTechThaiHelper || {});
   registerAdminSessionRoutes(router, config.adminSession || {});

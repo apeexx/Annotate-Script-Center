@@ -304,6 +304,31 @@
         "shared/build-meta.js",
         "shared/constants.js",
         "shared/storage.js",
+        "shared/ai-batch-summary.js",
+        "shared/ai-error-display.js",
+        "shared/concurrent-ai-request-stream.js",
+        "shared/ai-job-client.js",
+        "shared/lexicon-toast.js",
+        "sites/aishell-tech/cantonese-helper/data-api.js",
+        "sites/aishell-tech/cantonese-helper/ai-recommendation.js",
+        "sites/aishell-tech/cantonese-helper/batch-window.js",
+        "sites/aishell-tech/cantonese-helper/diagnostics.js",
+        "sites/aishell-tech/cantonese-helper/ui-panel.js",
+        "sites/aishell-tech/cantonese-helper/shortcuts.js",
+        "sites/aishell-tech/cantonese-helper/content.js"
+      ],
+      "all_frames": false,
+      "run_at": "document_start",
+      "world": "ISOLATED"
+    },
+    {
+      "matches": [
+        "https://mark.aishelltech.com/*"
+      ],
+      "js": [
+        "shared/build-meta.js",
+        "shared/constants.js",
+        "shared/storage.js",
         "sites/aishell-tech/cn-en-short-drama/data-api.js",
         "sites/aishell-tech/cn-en-short-drama/ui-panel.js",
         "sites/aishell-tech/cn-en-short-drama/content.js"

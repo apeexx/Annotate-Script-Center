@@ -62,6 +62,7 @@
   const AISHELL_TECH_MINNAN_SCRIPT_ID = "aishellTechMinnanAssistant";
   const AISHELL_TECH_VIETNAMESE_SCRIPT_ID = "aishellTechVietnameseAssistant";
   const AISHELL_TECH_THAI_SCRIPT_ID = "aishellTechThaiAssistant";
+  const AISHELL_TECH_CANTONESE_SCRIPT_ID = "aishellTechCantoneseAssistant";
   const AISHELL_TECH_CN_EN_SHORT_DRAMA_SCRIPT_ID = "aishellTechCnEnShortDrama";
   const BACKEND_ENDPOINT_MODE_SERVER = "server";
   const BACKEND_ENDPOINT_MODE_LOCAL = "local";
@@ -103,6 +104,8 @@
     "/api/aishell-tech/vietnamese-helper/ai/recommend";
   const AISHELL_TECH_THAI_AI_RECOMMEND_PATH =
     "/api/aishell-tech/thai-helper/ai/recommend";
+  const AISHELL_TECH_CANTONESE_AI_RECOMMEND_PATH =
+    "/api/aishell-tech/cantonese-helper/ai/recommend";
   const TRANSCRIPTION_STATS_UPLOAD_PATH = "/api/alibaba-labelx/asr-transcription/statistics/upload";
   const TRANSCRIPTION_STATS_DOWNLOAD_PATH =
     "/api/alibaba-labelx/asr-transcription/statistics/download";
@@ -152,6 +155,10 @@
     BACKEND_ENDPOINTS.server + AISHELL_TECH_THAI_AI_RECOMMEND_PATH;
   const AISHELL_TECH_THAI_AI_RECOMMEND_LOCAL_ENDPOINT =
     BACKEND_ENDPOINTS.local + AISHELL_TECH_THAI_AI_RECOMMEND_PATH;
+  const AISHELL_TECH_CANTONESE_AI_RECOMMEND_SERVER_ENDPOINT =
+    BACKEND_ENDPOINTS.server + AISHELL_TECH_CANTONESE_AI_RECOMMEND_PATH;
+  const AISHELL_TECH_CANTONESE_AI_RECOMMEND_LOCAL_ENDPOINT =
+    BACKEND_ENDPOINTS.local + AISHELL_TECH_CANTONESE_AI_RECOMMEND_PATH;
   const DATABAKER_PAGE_SIZE_OPTIONS = ["5条/页", "10条/页", "20条/页", "50条/页", "100条/页"];
   const DATABAKER_AI_PIPELINE_MODE_OPTIONS = [
     { value: "two_stage", label: "双模型：听音模型 + 比较模型" },
@@ -311,7 +318,18 @@
       return clone(item);
     }
   );
+  const AISHELL_TECH_CANTONESE_SHORTCUT_ACTIONS = AISHELL_TECH_VIETNAMESE_SHORTCUT_ACTIONS.map(
+    function (item) {
+      return clone(item);
+    }
+  );
   const AISHELL_TECH_CN_EN_SHORT_DRAMA_SHORTCUT_ACTIONS = [];
+  const AISHELL_TECH_CANTONESE_DEFAULT_SINGLE_PROMPT = [
+    "你是繁體粵語口語音頻識別助手。只寫出當前音頻中實際聽到的文本原文。",
+    "只輸出當前音頻的最終轉寫文本；不得輸出 JSON、欄位名、Markdown、解釋或多餘文字。",
+    "最終轉寫必須保留實際聽到的繁體粵語口語；不要翻譯成普通話，不要潤色、補寫、刪減、改數字、規整標點或轉換繁簡。",
+    "純靜音或完全聽不清時，直接輸出空字符串。",
+  ].join("\n");
   const DATABAKER_AI_OMNI_MODEL_VALUES = DATABAKER_AI_OMNI_MODEL_OPTIONS.map(function (item) {
     return String(item?.value || "").trim();
   }).filter(Boolean);
@@ -1374,6 +1392,16 @@
       matchUrl:
         "https://mark.aishelltech.com/mytask/mark?taskId=...&packageId=...",
     },
+    aishellTechCantoneseAssistant: {
+      id: AISHELL_TECH_CANTONESE_SCRIPT_ID,
+      platformId: AISHELL_TECH_PLATFORM_ID,
+      label: "粤语助手",
+      shortLabel: "粤语助手",
+      description: "识别繁体粤语口语文本的希尔贝壳助手。",
+      host: AISHELL_TECH_PLATFORM.host,
+      matchUrl:
+        "https://mark.aishelltech.com/mytask/mark?taskId=...&packageId=...",
+    },
     aishellTechCnEnShortDrama: {
       id: AISHELL_TECH_CN_EN_SHORT_DRAMA_SCRIPT_ID,
       platformId: AISHELL_TECH_PLATFORM_ID,
@@ -1793,6 +1821,7 @@
     const minnanShortcuts = createEmptyShortcutMap(AISHELL_TECH_MINNAN_SHORTCUT_ACTIONS);
     const vietnameseShortcuts = createEmptyShortcutMap(AISHELL_TECH_VIETNAMESE_SHORTCUT_ACTIONS);
     const thaiShortcuts = createEmptyShortcutMap(AISHELL_TECH_THAI_SHORTCUT_ACTIONS);
+    const cantoneseShortcuts = createEmptyShortcutMap(AISHELL_TECH_CANTONESE_SHORTCUT_ACTIONS);
     const cnEnShortDramaShortcuts = createEmptyShortcutMap(
       AISHELL_TECH_CN_EN_SHORT_DRAMA_SHORTCUT_ACTIONS
     );
@@ -1883,6 +1912,26 @@
           aiRecommendStopSequences: "",
           aiRecommendEnableThinking: false,
           shortcuts: thaiShortcuts,
+        },
+        cantoneseHelper: {
+          id: AISHELL_TECH_CANTONESE_SCRIPT_ID,
+          enabled: false,
+          aiRecommendEnabled: false,
+          aiRecommendEndpoint: AISHELL_TECH_CANTONESE_AI_RECOMMEND_SERVER_ENDPOINT,
+          aiRecommendRequestTimeoutMs: DEFAULT_AI_REQUEST_TIMEOUT_MS,
+          aiQualifiedAutofillConcurrency: 5,
+          aiRecommendSingleModel: "qwen3.5-omni-plus",
+          aiRecommendSinglePrompt: AISHELL_TECH_CANTONESE_DEFAULT_SINGLE_PROMPT,
+          aiRecommendTemperature: "",
+          aiRecommendTopP: "",
+          aiRecommendMaxTokens: "",
+          aiRecommendMaxCompletionTokens: "",
+          aiRecommendPresencePenalty: "",
+          aiRecommendFrequencyPenalty: "",
+          aiRecommendSeed: "",
+          aiRecommendStopSequences: "",
+          aiRecommendEnableThinking: false,
+          shortcuts: cantoneseShortcuts,
         },
         cnEnShortDrama: {
           id: AISHELL_TECH_CN_EN_SHORT_DRAMA_SCRIPT_ID,
@@ -2089,6 +2138,8 @@
           ? "vietnameseHelper"
           : scriptId === AISHELL_TECH_THAI_SCRIPT_ID
             ? "thaiHelper"
+            : scriptId === AISHELL_TECH_CANTONESE_SCRIPT_ID
+              ? "cantoneseHelper"
             : scriptId === AISHELL_TECH_CN_EN_SHORT_DRAMA_SCRIPT_ID
               ? "cnEnShortDrama"
               : "minnanHelper";
@@ -2184,6 +2235,7 @@
     AISHELL_TECH_MINNAN_SCRIPT_ID: AISHELL_TECH_MINNAN_SCRIPT_ID,
     AISHELL_TECH_VIETNAMESE_SCRIPT_ID: AISHELL_TECH_VIETNAMESE_SCRIPT_ID,
     AISHELL_TECH_THAI_SCRIPT_ID: AISHELL_TECH_THAI_SCRIPT_ID,
+    AISHELL_TECH_CANTONESE_SCRIPT_ID: AISHELL_TECH_CANTONESE_SCRIPT_ID,
     AISHELL_TECH_CN_EN_SHORT_DRAMA_SCRIPT_ID: AISHELL_TECH_CN_EN_SHORT_DRAMA_SCRIPT_ID,
     DATABAKER_AI_RECOMMEND_SERVER_ENDPOINT: DATABAKER_AI_RECOMMEND_SERVER_ENDPOINT,
     DATABAKER_AI_RECOMMEND_LOCAL_ENDPOINT: DATABAKER_AI_RECOMMEND_LOCAL_ENDPOINT,
@@ -2201,6 +2253,7 @@
     AISHELL_TECH_AI_RECOMMEND_PATH: AISHELL_TECH_AI_RECOMMEND_PATH,
     AISHELL_TECH_VIETNAMESE_AI_RECOMMEND_PATH: AISHELL_TECH_VIETNAMESE_AI_RECOMMEND_PATH,
     AISHELL_TECH_THAI_AI_RECOMMEND_PATH: AISHELL_TECH_THAI_AI_RECOMMEND_PATH,
+    AISHELL_TECH_CANTONESE_AI_RECOMMEND_PATH: AISHELL_TECH_CANTONESE_AI_RECOMMEND_PATH,
     TRANSCRIPTION_STATS_UPLOAD_PATH: TRANSCRIPTION_STATS_UPLOAD_PATH,
     TRANSCRIPTION_STATS_DOWNLOAD_PATH: TRANSCRIPTION_STATS_DOWNLOAD_PATH,
     PROJECT_DATA_DOWNLOAD_OPTIONS_PATH: PROJECT_DATA_DOWNLOAD_OPTIONS_PATH,
@@ -2230,6 +2283,10 @@
       AISHELL_TECH_THAI_AI_RECOMMEND_SERVER_ENDPOINT,
     AISHELL_TECH_THAI_AI_RECOMMEND_LOCAL_ENDPOINT:
       AISHELL_TECH_THAI_AI_RECOMMEND_LOCAL_ENDPOINT,
+    AISHELL_TECH_CANTONESE_AI_RECOMMEND_SERVER_ENDPOINT:
+      AISHELL_TECH_CANTONESE_AI_RECOMMEND_SERVER_ENDPOINT,
+    AISHELL_TECH_CANTONESE_AI_RECOMMEND_LOCAL_ENDPOINT:
+      AISHELL_TECH_CANTONESE_AI_RECOMMEND_LOCAL_ENDPOINT,
     normalizeBackendEndpointMode: normalizeBackendEndpointMode,
     normalizeBackendBaseUrl: normalizeBackendBaseUrl,
     normalizeReleaseChannel: normalizeReleaseChannel,
@@ -2263,6 +2320,9 @@
     AISHELL_TECH_MINNAN_SHORTCUT_ACTIONS: clone(AISHELL_TECH_MINNAN_SHORTCUT_ACTIONS),
     AISHELL_TECH_VIETNAMESE_SHORTCUT_ACTIONS: clone(AISHELL_TECH_VIETNAMESE_SHORTCUT_ACTIONS),
     AISHELL_TECH_THAI_SHORTCUT_ACTIONS: clone(AISHELL_TECH_THAI_SHORTCUT_ACTIONS),
+    AISHELL_TECH_CANTONESE_SHORTCUT_ACTIONS: clone(AISHELL_TECH_CANTONESE_SHORTCUT_ACTIONS),
+    AISHELL_TECH_CANTONESE_DEFAULT_SINGLE_PROMPT:
+      AISHELL_TECH_CANTONESE_DEFAULT_SINGLE_PROMPT,
     AISHELL_TECH_CN_EN_SHORT_DRAMA_SHORTCUT_ACTIONS: clone(
       AISHELL_TECH_CN_EN_SHORT_DRAMA_SHORTCUT_ACTIONS
     ),

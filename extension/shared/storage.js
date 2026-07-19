@@ -410,6 +410,7 @@
       input?.platforms?.aishellTech?.scripts?.minnanHelper?.aiRecommendEndpoint,
       input?.platforms?.aishellTech?.scripts?.vietnameseHelper?.aiRecommendEndpoint,
       input?.platforms?.aishellTech?.scripts?.thaiHelper?.aiRecommendEndpoint,
+      input?.platforms?.aishellTech?.scripts?.cantoneseHelper?.aiRecommendEndpoint,
       input?.asr?.statsUploadEndpoint,
       input?.asr?.aiSuggestionEndpoint,
     ];
@@ -1177,6 +1178,24 @@
       return serverEndpoint;
     }
 
+    return fallbackEndpoint;
+  }
+
+  function normalizeAishellTechCantoneseAiEndpoint(value, fallback) {
+    const constants = getConstants();
+    const serverEndpoint =
+      constants.AISHELL_TECH_CANTONESE_AI_RECOMMEND_SERVER_ENDPOINT ||
+      "https://script.aisiyunling.com/api/aishell-tech/cantonese-helper/ai/recommend";
+    const localEndpoint =
+      constants.AISHELL_TECH_CANTONESE_AI_RECOMMEND_LOCAL_ENDPOINT ||
+      "http://127.0.0.1:3333/api/aishell-tech/cantonese-helper/ai/recommend";
+    const fallbackEndpoint =
+      normalizeDataBakerAiEndpointUrl(fallback) === normalizeDataBakerAiEndpointUrl(localEndpoint)
+        ? localEndpoint
+        : serverEndpoint;
+    const normalized = normalizeDataBakerAiEndpointUrl(value);
+    if (normalized === normalizeDataBakerAiEndpointUrl(localEndpoint)) return localEndpoint;
+    if (normalized === normalizeDataBakerAiEndpointUrl(serverEndpoint)) return serverEndpoint;
     return fallbackEndpoint;
   }
 
@@ -2110,6 +2129,57 @@
     return result;
   }
 
+  function normalizeAishellTechCantoneseConfig(config, defaults) {
+    const source = isPlainObject(config) ? config : {};
+    const defaultConfig = isPlainObject(defaults) ? defaults : {};
+    const result = deepMerge(defaultConfig, source);
+    const constants = getConstants();
+    result.id = constants.AISHELL_TECH_CANTONESE_SCRIPT_ID || "aishellTechCantoneseAssistant";
+    result.enabled = result.enabled === true;
+    result.aiRecommendEnabled = result.aiRecommendEnabled === true;
+    result.aiRecommendEndpoint = normalizeAishellTechCantoneseAiEndpoint(
+      result.aiRecommendEndpoint,
+      defaultConfig.aiRecommendEndpoint
+    );
+    result.aiRecommendRequestTimeoutMs = normalizeDataBakerTimeout(
+      result.aiRecommendRequestTimeoutMs,
+      defaultConfig.aiRecommendRequestTimeoutMs || DEFAULT_AI_REQUEST_TIMEOUT_MS
+    );
+    result.aiRecommendSingleModel = normalizeDataBakerOmniModel(
+      result.aiRecommendSingleModel,
+      defaultConfig.aiRecommendSingleModel || "qwen3.5-omni-plus",
+      constants
+    );
+    result.aiRecommendSinglePrompt =
+      normalizeJudgementAiPrompt(result.aiRecommendSinglePrompt) ||
+      normalizeJudgementAiPrompt(defaultConfig.aiRecommendSinglePrompt) ||
+      String(constants.AISHELL_TECH_CANTONESE_DEFAULT_SINGLE_PROMPT || "");
+    result.aiQualifiedAutofillConcurrency = normalizeDataBakerConcurrency(
+      result.aiQualifiedAutofillConcurrency,
+      defaultConfig.aiQualifiedAutofillConcurrency || 5,
+      { aiRecommendPipelineMode: "omni_single", aiRecommendSingleModel: result.aiRecommendSingleModel },
+      constants
+    );
+    result.aiRecommendEnableThinking = false;
+    normalizeAishellTechStageParams(result, "aiRecommend");
+    result.shortcuts = normalizeAishellTechCantoneseShortcuts(result.shortcuts, defaultConfig.shortcuts);
+    return result;
+  }
+
+  function normalizeAishellTechCantoneseShortcuts(value, fallback) {
+    const constants = getConstants();
+    const actions = constants.AISHELL_TECH_CANTONESE_SHORTCUT_ACTIONS || [];
+    const source = isPlainObject(value) ? value : {};
+    const base = isPlainObject(fallback) ? fallback : {};
+    const result = {};
+    actions.forEach(function (action) {
+      result[action.key] = hasOwn(source, action.key)
+        ? normalizeNullableShortcut(source[action.key], base[action.key] || null)
+        : normalizeNullableShortcut(base[action.key] || null, null);
+    });
+    return result;
+  }
+
   function normalizeAishellTechCnEnShortDramaConfig(config, defaults) {
     const source = isPlainObject(config) ? config : {};
     const defaultConfig = isPlainObject(defaults) ? defaults : {};
@@ -2229,6 +2299,9 @@
       : {};
     const rawThaiHelperConfig = isPlainObject(rawPlatform.scripts?.thaiHelper)
       ? rawPlatform.scripts.thaiHelper
+      : {};
+    const rawCantoneseHelperConfig = isPlainObject(rawPlatform.scripts?.cantoneseHelper)
+      ? rawPlatform.scripts.cantoneseHelper
       : {};
     const rawCnEnShortDramaConfig = isPlainObject(rawPlatform.scripts?.cnEnShortDrama)
       ? rawPlatform.scripts.cnEnShortDrama
@@ -2360,6 +2433,8 @@
     const vietnameseId =
       constants.AISHELL_TECH_VIETNAMESE_SCRIPT_ID || "aishellTechVietnameseAssistant";
     const thaiId = constants.AISHELL_TECH_THAI_SCRIPT_ID || "aishellTechThaiAssistant";
+    const cantoneseId =
+      constants.AISHELL_TECH_CANTONESE_SCRIPT_ID || "aishellTechCantoneseAssistant";
     const cnEnShortDramaId =
       constants.AISHELL_TECH_CN_EN_SHORT_DRAMA_SCRIPT_ID || "aishellTechCnEnShortDrama";
 
@@ -2395,6 +2470,12 @@
         defaultPlatform.scripts?.thaiHelper || {},
         rawThaiHelperConfig
       );
+    settings.platforms.aishellTech.scripts.cantoneseHelper =
+      normalizeAishellTechCantoneseConfig(
+        settings.platforms.aishellTech.scripts.cantoneseHelper,
+        defaultPlatform.scripts?.cantoneseHelper || {},
+        rawCantoneseHelperConfig
+      );
     settings.platforms.aishellTech.scripts.cnEnShortDrama =
       normalizeAishellTechCnEnShortDramaConfig(
         settings.platforms.aishellTech.scripts.cnEnShortDrama,
@@ -2411,6 +2492,9 @@
     let thaiEnabled =
       settings.platforms.aishellTech.scripts.thaiHelper.enabled !== false &&
       settings.platforms.aishellTech.scripts.thaiHelper.aiRecommendEnabled !== false;
+    let cantoneseEnabled =
+      settings.platforms.aishellTech.scripts.cantoneseHelper.enabled !== false &&
+      settings.platforms.aishellTech.scripts.cantoneseHelper.aiRecommendEnabled !== false;
     let cnEnShortDramaEnabled =
       settings.platforms.aishellTech.scripts.cnEnShortDrama.enabled !== false;
     let activeScriptId = normalizeAishellTechActiveScriptId(
@@ -2423,26 +2507,31 @@
       activeScriptId = "";
     } else if (activeScriptId === thaiId && !thaiEnabled) {
       activeScriptId = "";
+    } else if (activeScriptId === cantoneseId && !cantoneseEnabled) {
+      activeScriptId = "";
     } else if (activeScriptId === cnEnShortDramaId && !cnEnShortDramaEnabled) {
       activeScriptId = "";
     }
 
     if (!activeScriptId) {
-      if (minnanEnabled && !vietnameseEnabled && !thaiEnabled && !cnEnShortDramaEnabled) {
+      if (minnanEnabled && !vietnameseEnabled && !thaiEnabled && !cantoneseEnabled && !cnEnShortDramaEnabled) {
         activeScriptId = minnanId;
-      } else if (!minnanEnabled && vietnameseEnabled && !thaiEnabled && !cnEnShortDramaEnabled) {
+      } else if (!minnanEnabled && vietnameseEnabled && !thaiEnabled && !cantoneseEnabled && !cnEnShortDramaEnabled) {
         activeScriptId = vietnameseId;
-      } else if (!minnanEnabled && !vietnameseEnabled && thaiEnabled && !cnEnShortDramaEnabled) {
+      } else if (!minnanEnabled && !vietnameseEnabled && thaiEnabled && !cantoneseEnabled && !cnEnShortDramaEnabled) {
         activeScriptId = thaiId;
+      } else if (!minnanEnabled && !vietnameseEnabled && !thaiEnabled && cantoneseEnabled && !cnEnShortDramaEnabled) {
+        activeScriptId = cantoneseId;
       } else if (!minnanEnabled && !vietnameseEnabled && !thaiEnabled && cnEnShortDramaEnabled) {
         activeScriptId = cnEnShortDramaId;
-      } else if (minnanEnabled || vietnameseEnabled || thaiEnabled || cnEnShortDramaEnabled) {
+      } else if (minnanEnabled || vietnameseEnabled || thaiEnabled || cantoneseEnabled || cnEnShortDramaEnabled) {
         activeScriptId = normalizeAishellTechActiveScriptId(defaultPlatform.activeScriptId);
         if (
           !activeScriptId ||
           (activeScriptId === minnanId && !minnanEnabled) ||
           (activeScriptId === vietnameseId && !vietnameseEnabled) ||
           (activeScriptId === thaiId && !thaiEnabled) ||
+          (activeScriptId === cantoneseId && !cantoneseEnabled) ||
           (activeScriptId === cnEnShortDramaId && !cnEnShortDramaEnabled)
         ) {
           activeScriptId = minnanEnabled
@@ -2451,7 +2540,9 @@
               ? vietnameseId
               : thaiEnabled
                 ? thaiId
-                : cnEnShortDramaEnabled
+                : cantoneseEnabled
+                  ? cantoneseId
+                  : cnEnShortDramaEnabled
                   ? cnEnShortDramaId
                   : "";
         }
@@ -2462,24 +2553,37 @@
       minnanEnabled = true;
       vietnameseEnabled = false;
       thaiEnabled = false;
+      cantoneseEnabled = false;
+      cnEnShortDramaEnabled = false;
     } else if (activeScriptId === vietnameseId) {
       minnanEnabled = false;
       vietnameseEnabled = true;
       thaiEnabled = false;
+      cantoneseEnabled = false;
+      cnEnShortDramaEnabled = false;
     } else if (activeScriptId === thaiId) {
       minnanEnabled = false;
       vietnameseEnabled = false;
       thaiEnabled = true;
+      cantoneseEnabled = false;
+      cnEnShortDramaEnabled = false;
+    } else if (activeScriptId === cantoneseId) {
+      minnanEnabled = false;
+      vietnameseEnabled = false;
+      thaiEnabled = false;
+      cantoneseEnabled = true;
       cnEnShortDramaEnabled = false;
     } else if (activeScriptId === cnEnShortDramaId) {
       minnanEnabled = false;
       vietnameseEnabled = false;
       thaiEnabled = false;
+      cantoneseEnabled = false;
       cnEnShortDramaEnabled = true;
     } else if (
       (minnanEnabled ? 1 : 0) +
         (vietnameseEnabled ? 1 : 0) +
         (thaiEnabled ? 1 : 0) +
+        (cantoneseEnabled ? 1 : 0) +
         (cnEnShortDramaEnabled ? 1 : 0) >
       1
     ) {
@@ -2487,6 +2591,7 @@
       minnanEnabled = true;
       vietnameseEnabled = false;
       thaiEnabled = false;
+      cantoneseEnabled = false;
       cnEnShortDramaEnabled = false;
     }
 
@@ -2496,6 +2601,8 @@
     settings.platforms.aishellTech.scripts.vietnameseHelper.aiRecommendEnabled = vietnameseEnabled;
     settings.platforms.aishellTech.scripts.thaiHelper.enabled = thaiEnabled;
     settings.platforms.aishellTech.scripts.thaiHelper.aiRecommendEnabled = thaiEnabled;
+    settings.platforms.aishellTech.scripts.cantoneseHelper.enabled = cantoneseEnabled;
+    settings.platforms.aishellTech.scripts.cantoneseHelper.aiRecommendEnabled = cantoneseEnabled;
     settings.platforms.aishellTech.scripts.cnEnShortDrama.enabled = cnEnShortDramaEnabled;
     settings.platforms.aishellTech.scripts.cnEnShortDrama.aiRecommendEnabled = false;
     settings.platforms.aishellTech.activeScriptId = activeScriptId || "";
@@ -2509,6 +2616,8 @@
     const vietnameseId =
       constants.AISHELL_TECH_VIETNAMESE_SCRIPT_ID || "aishellTechVietnameseAssistant";
     const thaiId = constants.AISHELL_TECH_THAI_SCRIPT_ID || "aishellTechThaiAssistant";
+    const cantoneseId =
+      constants.AISHELL_TECH_CANTONESE_SCRIPT_ID || "aishellTechCantoneseAssistant";
     const cnEnShortDramaId =
       constants.AISHELL_TECH_CN_EN_SHORT_DRAMA_SCRIPT_ID || "aishellTechCnEnShortDrama";
     const text = String(value || "").trim();
@@ -2516,6 +2625,7 @@
       text === minnanId ||
       text === vietnameseId ||
       text === thaiId ||
+      text === cantoneseId ||
       text === cnEnShortDramaId
     ) {
       return text;
@@ -3947,12 +4057,15 @@
       scriptId === constants.AISHELL_TECH_MINNAN_SCRIPT_ID ||
       scriptId === constants.AISHELL_TECH_VIETNAMESE_SCRIPT_ID ||
       scriptId === constants.AISHELL_TECH_THAI_SCRIPT_ID ||
+      scriptId === constants.AISHELL_TECH_CANTONESE_SCRIPT_ID ||
       scriptId === constants.AISHELL_TECH_CN_EN_SHORT_DRAMA_SCRIPT_ID
     ) {
       const minnanId = constants.AISHELL_TECH_MINNAN_SCRIPT_ID || "aishellTechMinnanAssistant";
       const vietnameseId =
         constants.AISHELL_TECH_VIETNAMESE_SCRIPT_ID || "aishellTechVietnameseAssistant";
       const thaiId = constants.AISHELL_TECH_THAI_SCRIPT_ID || "aishellTechThaiAssistant";
+      const cantoneseId =
+        constants.AISHELL_TECH_CANTONESE_SCRIPT_ID || "aishellTechCantoneseAssistant";
       const cnEnShortDramaId =
         constants.AISHELL_TECH_CN_EN_SHORT_DRAMA_SCRIPT_ID || "aishellTechCnEnShortDrama";
       const scriptPatch = nextEnabled
@@ -3972,6 +4085,11 @@
               enabled: scriptId === thaiId,
               aiRecommendEnabled: scriptId === thaiId,
             },
+            cantoneseHelper: {
+              id: cantoneseId,
+              enabled: scriptId === cantoneseId,
+              aiRecommendEnabled: scriptId === cantoneseId,
+            },
             cnEnShortDrama: {
               id: cnEnShortDramaId,
               enabled: scriptId === cnEnShortDramaId,
@@ -3982,6 +4100,7 @@
             minnanHelper: { id: minnanId, enabled: false, aiRecommendEnabled: false },
             vietnameseHelper: { id: vietnameseId, enabled: false, aiRecommendEnabled: false },
             thaiHelper: { id: thaiId, enabled: false, aiRecommendEnabled: false },
+            cantoneseHelper: { id: cantoneseId, enabled: false, aiRecommendEnabled: false },
             cnEnShortDrama: { id: cnEnShortDramaId, enabled: false, aiRecommendEnabled: false },
           };
 

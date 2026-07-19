@@ -42,10 +42,12 @@
 **独立脚本已接入**。当前已完成：
 
 - `extension/sites/aishell-tech/minnan-helper/` 闽南语助手运行时代码。
+- `extension/sites/aishell-tech/cantonese-helper/` 粤语助手运行时代码。
 - `extension/sites/aishell-tech/vietnamese-helper/` 越南语助手运行时代码。
 - `extension/sites/aishell-tech/thai-helper/` 泰语助手运行时代码。
 - `extension/sites/aishell-tech/cn-en-short-drama/` 中英短剧脚本运行时代码（只读当前媒体信息面板）。
 - `platform-resources/aishell-tech/minnan-helper/backend/` 闽南语助手独立 AI recommend 路由。
+- `platform-resources/aishell-tech/cantonese-helper/backend/` 粤语助手独立 AI recommend 路由。
 - `platform-resources/aishell-tech/vietnamese-helper/backend/` 越南语助手独立 AI recommend 路由。
 - `platform-resources/aishell-tech/thai-helper/backend/` 泰语助手独立 AI recommend 路由。
 - `platform-resources/aishell-tech/cn-en-short-drama/` 中英短剧脚本资料；当前已补脚本专属页面结构与 Network 参考，并已接入只读 runtime。
@@ -76,7 +78,7 @@
 - 共享短标注模板：
   - 以 `platform-resources/aishell-tech/page-structure/04-mytask-mark.md` 为准
   - Network 以 `platform-resources/aishell-tech/network/04-mytask-mark.md` 为准
-  - 现有闽南语 / 越南语 / 泰语助手继续复用
+  - 现有闽南语 / 粤语 / 越南语 / 泰语助手继续复用
 - 脚本专属整段评分模板：
   - 以 `platform-resources/aishell-tech/cn-en-short-drama/page-structure/README.md` 为准
   - Network 以 `platform-resources/aishell-tech/cn-en-short-drama/network/README.md` 为准
@@ -84,7 +86,7 @@
 
 ### 当前专属后端
 
-当前已接入三套独立后端接口：
+当前已接入四套独立后端接口：
 
 - 闽南语助手：
   - `GET /api/aishell-tech/minnan-helper/ai/recommend/health`
@@ -93,6 +95,13 @@
   - `POST /api/aishell-tech/minnan-helper/ai/recommend/jobs`
   - `GET /api/aishell-tech/minnan-helper/ai/recommend/jobs/:jobId`
   - `GET /api/aishell-tech/minnan-helper/ai/recommend/jobs/:jobId/debug`
+- 粤语助手：
+  - `GET /api/aishell-tech/cantonese-helper/ai/recommend/health`
+  - `GET /api/aishell-tech/cantonese-helper/ai/recommend/defaults`
+  - `POST /api/aishell-tech/cantonese-helper/ai/recommend`
+  - `POST /api/aishell-tech/cantonese-helper/ai/recommend/jobs`
+  - `GET /api/aishell-tech/cantonese-helper/ai/recommend/jobs/:jobId`
+  - `GET /api/aishell-tech/cantonese-helper/ai/recommend/jobs/:jobId/debug`
 - 越南语助手：
   - `GET /api/aishell-tech/vietnamese-helper/ai/recommend/health`
   - `GET /api/aishell-tech/vietnamese-helper/ai/recommend/defaults`
@@ -110,13 +119,15 @@
 
 实现边界：
 
-- Aishell 保持独立路由、独立脚本 ID；当前平台侧已从“单脚本硬编码”扩成“同平台三脚本互斥”，由 `platforms.aishellTech.activeScriptId` 控制生效脚本。
+- Aishell 保持独立路由、独立脚本 ID；同平台的闽南语、粤语、越南语、泰语与中英短剧互斥启用，由 `platforms.aishellTech.activeScriptId` 控制生效脚本。
 - 闽南语助手继续保留自己的三阶段链路与词表资料目录。
+- 粤语助手固定为单阶段 Omni 原始听写：直接传入 OSS 音频 URL，唯一业务结果为原样 `listenText`；不接词表、转换、比较、Fun-ASR 或语速字段。
 - 越南语助手固定为“单阶段 Omni 输出 `text + speed` 双字段，其中 `speed` 正式值为 `slow / normal / fast`”，不接词表、不做转换/比较双阶段。
 - 泰语助手固定为“单阶段 Omni 输出 `text + speed` 双字段，其中 `speed` 正式值为 `slow / normal / fast`”，不接词表、不做转换/比较双阶段。
 - Aishell 的 Omni 音频调用继续复用各脚本各自的 `dashscope-omni-client.js`，统一固定 `enable_thinking=false`。
 - 底层只复用公共 provider HTTP 工具，不再复用 DataBaker recommend orchestration。
 - 闽南语助手当前独立队列组固定为 `aishell_qwen_omni / aishell_fun_asr / aishell_text_compare`。
+- 粤语助手当前只使用 `aishell_qwen_omni`。
 - 越南语助手当前只使用 `aishell_qwen_omni`。
 - 泰语助手当前只使用 `aishell_qwen_omni`。
 - 当前环境变量默认优先读取 `AISHELL_AI_*`；第一阶段仍允许只读回退旧的 `DATABAKER_AI_*`。
@@ -128,6 +139,7 @@
 
 - 仅在 `https://mark.aishelltech.com/mytask/mark?...` 注入业务面板。
 - 闽南语助手当前 AI 配置固定为独立的 `转换 / 听音 / 比较` 三板块。
+- 粤语助手当前 AI 配置固定为单阶段 Omni；结果区、复制与填入均原样使用 `listenText`。单条只填入，由用户决定是否保存；用户启动批量后才串行点击页面真实保存按钮。
 - 越南语助手当前 AI 配置固定为单阶段 Omni；结果区展示 `原始文本`、`识别文本`、`当前语速` 与 `语速建议`，保存时回填 `text + speed`。
 - 泰语助手当前 AI 配置固定为单阶段 Omni；结果区展示 `识别文本` 与 `语速建议`，保存时回填 `text + speed`。
 - 中英短剧脚本当前固定为只读 `当前媒体信息` 面板：
