@@ -75,7 +75,7 @@ test("Aishell cn-en short drama detail panel exists in options html", function (
   assert.match(html, /当前版本无额外设置项/);
 });
 
-test("Aishell Cantonese exposes a dedicated single-stage settings panel", function () {
+test("Aishell Cantonese exposes a dedicated three-stage settings panel", function () {
   const script = fs.readFileSync(path.resolve(__dirname, "options.js"), "utf8");
   const html = fs.readFileSync(path.resolve(__dirname, "options.html"), "utf8");
 
@@ -86,9 +86,13 @@ test("Aishell Cantonese exposes a dedicated single-stage settings panel", functi
   assert.match(html, /detail-aishell-tech-cantonese-helper-panel/);
   assert.match(html, /希尔贝壳粤语助手/);
   assert.match(html, /save-aishell-tech-cantonese-settings/);
+  assert.match(
+    script,
+    /希尔贝壳粤语助手使用“转换候选 \+ 听音转写 \+ 比较决策”三阶段/
+  );
 });
 
-test("Aishell Cantonese settings keep the model, timeout, and thinking mode fixed", function () {
+test("Aishell Cantonese settings migrate legacy listening fields and save all three stages", function () {
   const script = fs.readFileSync(path.resolve(__dirname, "options.js"), "utf8");
   const start = script.indexOf("function getAishellTechCantoneseConfig(settings)");
   const end = script.indexOf("function getAishellTechCnEnShortDramaConfig", start);
@@ -98,8 +102,18 @@ test("Aishell Cantonese settings keep the model, timeout, and thinking mode fixe
   const saveBlock = saveStart >= 0 && saveEnd > saveStart ? script.slice(saveStart, saveEnd) : "";
 
   assert.match(configBlock, /aiRecommendRequestTimeoutMs = DEFAULT_AI_REQUEST_TIMEOUT_MS/);
-  assert.match(configBlock, /aiRecommendSingleModel = "qwen3\.5-omni-flash"/);
+  assert.match(configBlock, /aiRecommendConvertModel: "qwen3\.5-plus"/);
+  assert.match(configBlock, /aiRecommendListenModel: "qwen3\.5-omni-flash"/);
+  assert.match(configBlock, /aiRecommendCompareModel: "qwen3\.5-plus"/);
+  assert.match(configBlock, /config\.aiRecommendListenModel = current\.aiRecommendSingleModel/);
+  assert.match(configBlock, /config\.aiRecommendListenPrompt = current\.aiRecommendSinglePrompt/);
+  assert.match(configBlock, /normalizeAishellTechStageParamFields\(config, prefix\)/);
   assert.match(configBlock, /aiRecommendEnableThinking = false/);
-  assert.match(saveBlock, /const timeoutMs = DEFAULT_AI_REQUEST_TIMEOUT_MS/);
-  assert.match(saveBlock, /const singleModel = "qwen3\.5-omni-flash"/);
+  assert.match(saveBlock, /isDataBakerFunAsrListenModel\(draftConfig\.aiRecommendListenModel\)/);
+  assert.match(saveBlock, /draftConfig\.aiRecommendCompareFamily = "omni"/);
+  assert.match(saveBlock, /aiRecommendConvertModel: draftConfig\.aiRecommendConvertModel/);
+  assert.match(saveBlock, /aiRecommendListenModel: draftConfig\.aiRecommendListenModel/);
+  assert.match(saveBlock, /aiRecommendCompareModel: draftConfig\.aiRecommendCompareModel/);
+  assert.match(saveBlock, /aiRecommendPipelineMode: "three_stage_parallel"/);
+  assert.match(saveBlock, /aiRecommendSingleModel: ""/);
 });

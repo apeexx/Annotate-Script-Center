@@ -2202,26 +2202,58 @@
     return result;
   }
 
-  function normalizeAishellTechCantoneseConfig(config, defaults) {
-    const result = normalizeAishellTechThaiConfig(config, defaults);
+  function normalizeAishellTechCantoneseConfig(config, defaults, rawConfig) {
+    const source = isPlainObject(config) ? config : {};
+    const rawSource = isPlainObject(rawConfig) ? rawConfig : source;
+    const normalizedSource = Object.assign({}, source);
+
+    if (!hasAishellTechThreeStageMarkers(rawSource)) {
+      const legacyToListen = {
+        aiRecommendSingleModel: "aiRecommendListenModel",
+        aiRecommendSinglePrompt: "aiRecommendListenPrompt",
+        aiRecommendTemperature: "aiRecommendListenTemperature",
+        aiRecommendTopP: "aiRecommendListenTopP",
+        aiRecommendMaxTokens: "aiRecommendListenMaxTokens",
+        aiRecommendMaxCompletionTokens: "aiRecommendListenMaxCompletionTokens",
+        aiRecommendPresencePenalty: "aiRecommendListenPresencePenalty",
+        aiRecommendFrequencyPenalty: "aiRecommendListenFrequencyPenalty",
+        aiRecommendSeed: "aiRecommendListenSeed",
+        aiRecommendStopSequences: "aiRecommendListenStopSequences",
+      };
+      Object.keys(legacyToListen).forEach(function (legacyKey) {
+        if (hasOwn(rawSource, legacyKey)) {
+          normalizedSource[legacyToListen[legacyKey]] = rawSource[legacyKey];
+        }
+      });
+    }
+
+    const result = normalizeAishellTechMinnanConfig(normalizedSource, defaults, normalizedSource);
     const constants = getConstants();
 
     result.id =
       constants.AISHELL_TECH_CANTONESE_SCRIPT_ID ||
       "aishellTechCantoneseAssistant";
+    result.enabled = source.enabled === true;
+    result.aiRecommendEnabled = source.aiRecommendEnabled === true;
     result.aiRecommendEndpoint = normalizeAishellTechCantoneseAiEndpoint(
       result.aiRecommendEndpoint,
       defaults?.aiRecommendEndpoint ||
         constants.AISHELL_TECH_CANTONESE_AI_RECOMMEND_SERVER_ENDPOINT ||
         "https://script.aisiyunling.com/api/aishell-tech/cantonese-helper/ai/recommend"
     );
-    result.aiRecommendSingleModel = "qwen3.5-omni-flash";
     result.aiRecommendRequestTimeoutMs = DEFAULT_AI_REQUEST_TIMEOUT_MS;
+    if (result.aiRecommendListenModel === "fun-asr") {
+      result.aiRecommendCompareFamily = "omni";
+      result.aiRecommendCompareModel = "qwen3.5-omni-flash";
+    }
+    result.aiRecommendPipelineMode = "three_stage_parallel";
     result.aiRecommendEnableThinking = false;
     result.shortcuts = normalizeAishellTechCantoneseShortcuts(
       result.shortcuts,
       defaults?.shortcuts || {}
     );
+    delete result.aiRecommendSingleModel;
+    delete result.aiRecommendSinglePrompt;
 
     return result;
   }

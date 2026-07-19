@@ -257,6 +257,7 @@
         : typeof fetch === "function"
           ? fetch.bind(globalThis)
           : null;
+    const jobClient = config.jobClient || globalThis.ASREdgeAiJobClient || null;
 
     function getEndpoint() {
       try {
@@ -313,23 +314,46 @@
 
     function resolveAiStages() {
       if (config.aiStages && typeof config.aiStages === "object") {
-        const recognizeStage =
-          config.aiStages.recognize && typeof config.aiStages.recognize === "object"
-            ? config.aiStages.recognize
-            : {};
+        const convertStage = config.aiStages.convert && typeof config.aiStages.convert === "object" ? config.aiStages.convert : {};
+        const listenStage = config.aiStages.listen && typeof config.aiStages.listen === "object" ? config.aiStages.listen : {};
+        const compareStage = config.aiStages.compare && typeof config.aiStages.compare === "object" ? config.aiStages.compare : {};
         return {
-          recognize: {
-            model: normalizeText(recognizeStage.model),
-            prompt: normalizeStagePrompt(recognizeStage.prompt),
-            params: normalizeStageParams(recognizeStage.params),
+          convert: {
+            model: normalizeText(convertStage.model),
+            prompt: normalizeStagePrompt(convertStage.prompt),
+            params: normalizeStageParams(convertStage.params),
+          },
+          listen: {
+            model: normalizeText(listenStage.model),
+            prompt: normalizeStagePrompt(listenStage.prompt),
+            params: normalizeStageParams(listenStage.params),
+          },
+          compare: {
+            family: normalizeText(compareStage.family || config.compareFamily).toLowerCase() === "omni" ? "omni" : "qwen",
+            model: normalizeText(compareStage.model),
+            prompt: normalizeStagePrompt(compareStage.prompt),
+            params: normalizeStageParams(compareStage.params),
+            adoptionThreshold: compareStage.adoptionThreshold,
           },
         };
       }
       return {
-        recognize: {
-          model: normalizeText(config.singleModel),
-          prompt: normalizeStagePrompt(config.aiOptions?.singlePrompt),
+        convert: {
+          model: normalizeText(config.convertModel || config.aiOptions?.candidateModel),
+          prompt: normalizeStagePrompt(config.aiOptions?.candidatePrompt),
           params: normalizeStageParams(config.aiOptions),
+        },
+        listen: {
+          model: normalizeText(config.listenModel || config.singleModel),
+          prompt: normalizeStagePrompt(config.aiOptions?.listenPrompt || config.aiOptions?.singlePrompt),
+          params: normalizeStageParams(config.aiOptions),
+        },
+        compare: {
+          family: normalizeText(config.compareFamily).toLowerCase() === "omni" ? "omni" : "qwen",
+          model: normalizeText(config.compareModel || config.singleModel),
+          prompt: normalizeStagePrompt(config.aiOptions?.comparePrompt),
+          params: normalizeStageParams(config.aiOptions),
+          adoptionThreshold: config.aiOptions?.audioFirstReferenceCorrectionThreshold,
         },
       };
     }
@@ -366,22 +390,65 @@
       };
       requestBody.enableThinking = false;
       requestBody.aiStages = {
-        recognize: {
-          model: aiStages.recognize.model,
-          prompt: aiStages.recognize.prompt,
-          params: aiStages.recognize.params,
+        convert: {
+          model: aiStages.convert.model,
+          prompt: aiStages.convert.prompt,
+          params: aiStages.convert.params,
+        },
+        listen: {
+          model: aiStages.listen.model,
+          prompt: aiStages.listen.prompt,
+          params: aiStages.listen.params,
+        },
+        compare: {
+          family: aiStages.compare.family,
+          model: aiStages.compare.model,
+          prompt: aiStages.compare.prompt,
+          params: aiStages.compare.params,
+          adoptionThreshold: aiStages.compare.adoptionThreshold,
         },
       };
       return requestBody;
     }
 
-    async function sendRequest(endpoint, requestBody, timeoutMs) {
+    async function sendRequest(endpoint, requestBody, timeoutMs, signal) {
+      if (jobClient && typeof jobClient.runJobLifecycle === "function") {
+        const jobResult = await jobClient.runJobLifecycle({
+          endpoint: endpoint,
+          body: requestBody,
+          timeoutMs: timeoutMs,
+          signal: signal || undefined,
+          fetchImpl: fetchImpl,
+          pollIntervalMs: Math.max(200, Number(config.jobPollIntervalMs) || 800),
+          buildApiError: function (responseBody, statusCode) { return buildApiError(responseBody, statusCode); },
+          buildTerminalError: function (jobBody) {
+            const errorBody = jobBody?.error && typeof jobBody.error === "object" ? jobBody.error : jobBody;
+            const providerStatus = Number(errorBody?.error?.providerStatus || errorBody?.providerStatus || 500) || 500;
+            return buildApiError(errorBody, providerStatus);
+          },
+          mapSuccess: function (jobBody) {
+            const payload = jobBody?.data && typeof jobBody.data === "object" ? jobBody.data : {};
+            return Object.assign({}, payload.data || {}, { meta: payload.meta && typeof payload.meta === "object" ? payload.meta : {} });
+          },
+        });
+        return jobResult.data;
+      }
       if (typeof fetchImpl !== "function") {
         throw createClientError("当前环境不支持 fetch，无法调用 AI 推荐接口。", {
           code: "fetch-unavailable",
         });
       }
       const controller = typeof AbortController === "function" ? new AbortController() : null;
+      const onAbort = function () {
+        if (controller) {
+          controller.abort();
+        }
+      };
+      if (signal?.aborted) {
+        onAbort();
+      } else if (signal && typeof signal.addEventListener === "function") {
+        signal.addEventListener("abort", onAbort, { once: true });
+      }
       const timer = controller
         ? globalThis.setTimeout(function () {
             controller.abort();
@@ -395,7 +462,7 @@
             "Content-Type": "application/json",
           },
           body: JSON.stringify(requestBody),
-          signal: controller ? controller.signal : undefined,
+          signal: controller ? controller.signal : signal || undefined,
         });
         const responseBody = await response.json().catch(function () {
           return null;
@@ -409,6 +476,9 @@
       } finally {
         if (timer) {
           clearTimeout(timer);
+        }
+        if (signal && typeof signal.removeEventListener === "function") {
+          signal.removeEventListener("abort", onAbort);
         }
       }
     }
@@ -461,8 +531,9 @@
       }
     }
 
-    async function recommend(item) {
+    async function recommend(item, requestOptions) {
       const source = item && typeof item === "object" ? item : {};
+      const signal = requestOptions?.signal || null;
       if (!source.taskId) {
         throw new Error("缺少 taskId，无法调用 AI 推荐。");
       }
@@ -481,13 +552,16 @@
       const backendMode = getBackendModeFromSettings(config.settings || {}, endpoint);
 
       try {
-        const result = await sendRequest(endpoint, requestBody, timeoutMs);
+        const result = await sendRequest(endpoint, requestBody, timeoutMs, signal);
         return attachClientDebug(result, {
           backendMode: backendMode,
           endpoint: endpoint,
           fallbackUsed: false,
         });
       } catch (error) {
+        if (signal?.aborted || error?.code === "user-aborted") {
+          throw createClientError("已停止自动流程。", { code: "user-aborted" });
+        }
         if (error?.name === "AbortError") {
           throw createClientError("AI 推荐接口请求超时。", { code: "timeout" });
         }

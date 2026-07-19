@@ -50,29 +50,55 @@
   function formatTimingSummary(timing) {
     const source = timing && typeof timing === "object" ? timing : {};
     const total = Number(source.totalDurationMs || 0);
-    const recognize = Number(
-      source.recognizeDurationMs || source.listenDurationMs || 0
-    );
-    if (total <= 0 && recognize <= 0) {
+    const convert = Number(source.convertDurationMs || source.candidateDurationMs || 0);
+    const listen = Number(source.listenDurationMs || source.recognizeDurationMs || 0);
+    const compare = Number(source.compareDurationMs || 0);
+    if (total <= 0 && convert <= 0 && listen <= 0 && compare <= 0) {
       return "-";
     }
-    if (total > 0 && recognize > 0) {
-      return formatDurationMs(total) + "（识别 " + formatDurationMs(recognize) + "）";
+    const detailParts = [];
+    if (convert > 0) {
+      detailParts.push("转换 " + formatDurationMs(convert));
+    }
+    if (listen > 0) {
+      detailParts.push("听音 " + formatDurationMs(listen));
+    }
+    if (compare > 0) {
+      detailParts.push("比较 " + formatDurationMs(compare));
+    }
+    if (total > 0 && detailParts.length > 0) {
+      return formatDurationMs(total) + "（" + detailParts.join(" / ") + "）";
     }
     if (total > 0) {
       return formatDurationMs(total);
     }
-    return "识别 " + formatDurationMs(recognize);
+    return detailParts.join(" / ");
   }
 
   function formatModelSelection(models) {
     const source = models && typeof models === "object" ? models : {};
-    return normalizeText(source.recognizeModel || source.singleModel) || "-";
+    const parts = [];
+    if (normalizeText(source.convertModel || source.candidateModel)) {
+      parts.push("转换 " + normalizeText(source.convertModel || source.candidateModel));
+    }
+    if (normalizeText(source.listenModel || source.recognizeModel || source.singleModel)) {
+      parts.push("听音 " + normalizeText(source.listenModel || source.recognizeModel || source.singleModel));
+    }
+    if (normalizeText(source.compareModel)) {
+      const family = normalizeText(source.compareModelFamily || "qwen").toLowerCase() === "omni"
+        ? "Omni"
+        : "Qwen";
+      parts.push("比较 " + family + " " + normalizeText(source.compareModel));
+    }
+    return parts.length > 0 ? parts.join(" / ") : "-";
   }
 
   function formatModeSummary(models) {
-    void models;
-    return "单阶段 Omni 识别";
+    const source = models && typeof models === "object" ? models : {};
+    const family = normalizeText(source.compareModelFamily || "qwen").toLowerCase() === "omni"
+      ? "Omni"
+      : "Qwen";
+    return "转换候选 + 听音转写 + 比较决策（" + family + "）";
   }
 
   function formatConcurrency(debug, fallbackFrontConcurrency) {
@@ -293,5 +319,4 @@
 
   globalThis.__ASREdgeAishellTechCantoneseDiagnostics = api;
 })();
-
 

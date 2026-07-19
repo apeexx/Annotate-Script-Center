@@ -107,6 +107,14 @@
       "[" + ROOT_ATTR + "] .asc-link-btn { border: none; background: none; padding: 0; color: #1d4ed8; cursor: pointer; font-size: 11px; font-weight: 700; }",
       "[" + ROOT_ATTR + "] .asc-failure-detail { margin-top: 8px; padding: 8px 10px; border: 1px solid #dbeafe; border-radius: 8px; background: #ffffff; color: #334155; }",
       "[" + ROOT_ATTR + "] .asc-failure-raw { margin-top: 8px; max-height: 220px; overflow: auto; padding: 8px 10px; border-radius: 8px; background: #0f172a; color: #e2e8f0; font-family: monospace; font-size: 11px; white-space: pre-wrap; }",
+      "[" + ROOT_ATTR + "] .asc-diff-card { margin-top: 12px; padding: 10px; border: 1px solid #dbeafe; border-radius: 10px; background: #ffffff; }",
+      "[" + ROOT_ATTR + "] .asc-diff-title { font-weight: 700; color: #1d4ed8; margin-bottom: 8px; }",
+      "[" + ROOT_ATTR + "] .asc-diff-row { display: grid; grid-template-columns: 88px minmax(0, 1fr); gap: 8px; align-items: start; }",
+      "[" + ROOT_ATTR + "] .asc-diff-row + .asc-diff-row { margin-top: 8px; }",
+      "[" + ROOT_ATTR + "] .asc-diff-text { min-height: 32px; padding: 8px 10px; border: 1px solid #cbd5e1; border-radius: 8px; background: #f8fafc; white-space: pre-wrap; overflow-wrap: anywhere; }",
+      "[" + ROOT_ATTR + "] .asc-diff-char--heard { background: #fef3c7; color: #92400e; border-radius: 4px; padding: 0 1px; }",
+      "[" + ROOT_ATTR + "] .asc-diff-char--candidate { background: #dbeafe; color: #1d4ed8; border-radius: 4px; padding: 0 1px; }",
+      "[" + ROOT_ATTR + "] .asc-diff-empty { color: #64748b; font-style: italic; }",
     ].join("\n");
     (document.head || document.documentElement).appendChild(style);
   }
@@ -208,12 +216,85 @@
 
   function buildResultRows(result) {
     const source = result && typeof result === "object" ? result : {};
-    return [
-      ["原始文本", String(source.referenceText || "")],
-      ["识别文本", String(source.recommendedText || "")],
+    const rows = [
+      ["原始参考文本", String(source.referenceText || "")],
+      ["转换候选", String(source.convertedText || "") || "-"],
+      ["听音文本", String(source.heardText || "") || "-"],
+      ["最终推荐", String(source.recommendedText || "")],
       ["当前语速", String(source.currentSpeed || "") || "未填写"],
-      ["语速建议", String(source.recommendedSpeed || "") || "未给出"],
+      ["最终语速", String(source.recommendedSpeed || "") || "未给出"],
     ];
+    if (String(source.decision || "")) {
+      rows.push(["比较决策", String(source.decision)]);
+    }
+    if (Number.isFinite(Number(source.confidence))) {
+      rows.push(["比较置信度", String(Number(source.confidence))]);
+    }
+    if (source.needHumanReview === true) {
+      rows.push(["人工复核", "需要"]);
+    }
+    if (Array.isArray(source.changePoints) && source.changePoints.length > 0) {
+      rows.push(["差异说明", source.changePoints.map(String).filter(Boolean).join("；")]);
+    }
+    return rows;
+  }
+
+  function buildTextDiffState(leftText, rightText) {
+    const leftChars = Array.from(String(leftText || ""));
+    const rightChars = Array.from(String(rightText || ""));
+    const dp = Array.from({ length: leftChars.length + 1 }, function () {
+      return new Array(rightChars.length + 1).fill(0);
+    });
+    const append = function (parts, text, type) {
+      const last = parts[parts.length - 1];
+      if (last && last.type === type) {
+        last.text += text;
+      } else {
+        parts.push({ type: type, text: text });
+      }
+    };
+
+    for (let leftIndex = leftChars.length - 1; leftIndex >= 0; leftIndex -= 1) {
+      for (let rightIndex = rightChars.length - 1; rightIndex >= 0; rightIndex -= 1) {
+        dp[leftIndex][rightIndex] =
+          leftChars[leftIndex] === rightChars[rightIndex]
+            ? dp[leftIndex + 1][rightIndex + 1] + 1
+            : Math.max(dp[leftIndex + 1][rightIndex], dp[leftIndex][rightIndex + 1]);
+      }
+    }
+
+    const leftParts = [];
+    const rightParts = [];
+    let leftIndex = 0;
+    let rightIndex = 0;
+    let hasDiff = false;
+    while (leftIndex < leftChars.length && rightIndex < rightChars.length) {
+      if (leftChars[leftIndex] === rightChars[rightIndex]) {
+        append(leftParts, leftChars[leftIndex], "same");
+        append(rightParts, rightChars[rightIndex], "same");
+        leftIndex += 1;
+        rightIndex += 1;
+      } else if (dp[leftIndex + 1][rightIndex] >= dp[leftIndex][rightIndex + 1]) {
+        hasDiff = true;
+        append(leftParts, leftChars[leftIndex], "diff");
+        leftIndex += 1;
+      } else {
+        hasDiff = true;
+        append(rightParts, rightChars[rightIndex], "diff");
+        rightIndex += 1;
+      }
+    }
+    while (leftIndex < leftChars.length) {
+      hasDiff = true;
+      append(leftParts, leftChars[leftIndex], "diff");
+      leftIndex += 1;
+    }
+    while (rightIndex < rightChars.length) {
+      hasDiff = true;
+      append(rightParts, rightChars[rightIndex], "diff");
+      rightIndex += 1;
+    }
+    return { hasDiff: hasDiff, leftParts: leftParts, rightParts: rightParts };
   }
 
   function canFillCurrentResult(result) {
@@ -522,6 +603,53 @@
       container.appendChild(grid);
     }
 
+    function renderDiffText(textNode, parts, diffClassName) {
+      textNode.textContent = "";
+      (Array.isArray(parts) ? parts : []).forEach(function (part) {
+        const span = document.createElement("span");
+        span.textContent = part.text;
+        if (part.type === "diff") {
+          span.className = diffClassName;
+        }
+        textNode.appendChild(span);
+      });
+    }
+
+    function renderTextDiffSection(container, heardText, convertedText) {
+      const diffState = buildTextDiffState(heardText, convertedText);
+      const section = document.createElement("div");
+      section.className = "asc-diff-card";
+      const title = document.createElement("div");
+      title.className = "asc-diff-title";
+      title.textContent = "听音文本与转换候选差异";
+      section.appendChild(title);
+
+      if (!diffState.hasDiff) {
+        const empty = document.createElement("div");
+        empty.className = "asc-diff-empty";
+        empty.textContent = "听音文本与转换候选一致。";
+        section.appendChild(empty);
+      } else {
+        [
+          { label: "听音文本", parts: diffState.leftParts, diffClassName: "asc-diff-char--heard" },
+          { label: "转换候选", parts: diffState.rightParts, diffClassName: "asc-diff-char--candidate" },
+        ].forEach(function (item) {
+          const row = document.createElement("div");
+          row.className = "asc-diff-row";
+          const label = document.createElement("div");
+          label.className = "asc-label";
+          label.textContent = item.label;
+          const text = document.createElement("div");
+          text.className = "asc-diff-text";
+          renderDiffText(text, item.parts, item.diffClassName);
+          row.appendChild(label);
+          row.appendChild(text);
+          section.appendChild(row);
+        });
+      }
+      container.appendChild(section);
+    }
+
     function clearErrorJson() {
       if (errorJsonNode) {
         errorJsonNode.remove();
@@ -797,6 +925,8 @@
       const recommendedText = String(source.recommendedText || "");
       const recommendedSpeed = String(source.recommendedSpeed || "");
       const referenceText = String(source.referenceText || "");
+      const convertedText = String(source.convertedText || "");
+      const heardText = String(source.heardText || "");
       const sameAsDisplayedCurrent = isSameAsDisplayedCurrent(source);
       if (recommendTextDisplay) {
         recommendTextDisplay.textContent = recommendedText || "暂无识别结果";
@@ -830,6 +960,9 @@
       resultNode.appendChild(title);
 
       renderKeyValueRows(resultNode, buildResultRows(source));
+      if (convertedText || heardText) {
+        renderTextDiffSection(resultNode, heardText, convertedText);
+      }
       const diagnostics = buildCurrentResultDiagnostics(source, {
         fallbackFrontConcurrency: source.debug?.frontConcurrencyNormalized,
       });
@@ -996,6 +1129,7 @@
 
   api.__test__ = {
     buildBatchRows,
+    buildTextDiffState,
     buildResultRows,
     canFillCurrentResult,
     hasFillableRecommendation,
@@ -1008,5 +1142,3 @@
     module.exports = api;
   }
 })();
-
-

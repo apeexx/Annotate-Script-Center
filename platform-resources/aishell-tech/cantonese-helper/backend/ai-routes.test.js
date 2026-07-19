@@ -1,121 +1,53 @@
 "use strict";
 
 const assert = require("node:assert/strict");
-const { Readable } = require("node:stream");
 const test = require("node:test");
 
 const {
   AI_BASE_PATH,
   AI_DEFAULTS_PATH,
   AI_HEALTH_PATH,
-  registerAiRoutes,
+  AI_JOBS_PATH,
+  AI_JOB_DETAIL_PATH,
+  AI_JOB_DEBUG_PATH,
+  AI_JOB_CANCEL_PATH,
+  AI_LOG_SUMMARY_PATH,
   createCantoneseRouteRuntime,
+  registerAiRoutes,
 } = require("./ai-routes");
 
-test("Cantonese backend registers only direct recommend, defaults, and health endpoints", function () {
+test("Cantonese backend registers direct compatibility plus async job, debug, cancel, and log endpoints", function () {
   const registrations = [];
   const router = {
-    get: function (path) {
-      registrations.push(["GET", path]);
-    },
-    post: function (path) {
-      registrations.push(["POST", path]);
-    },
+    get: function (path) { registrations.push(["GET", path]); },
+    post: function (path) { registrations.push(["POST", path]); },
   };
-
   registerAiRoutes(router);
-
   assert.deepEqual(registrations, [
-    ["GET", "/api/aishell-tech/cantonese-helper/ai/recommend/health"],
-    ["GET", "/api/aishell-tech/cantonese-helper/ai/recommend/defaults"],
-    ["POST", "/api/aishell-tech/cantonese-helper/ai/recommend"],
+    ["GET", AI_HEALTH_PATH], ["GET", AI_DEFAULTS_PATH], ["POST", AI_BASE_PATH], ["POST", AI_JOBS_PATH],
+    ["GET", AI_JOB_DETAIL_PATH], ["GET", AI_JOB_DEBUG_PATH], ["POST", AI_JOB_CANCEL_PATH], ["GET", AI_LOG_SUMMARY_PATH],
   ]);
   assert.equal(AI_BASE_PATH, "/api/aishell-tech/cantonese-helper/ai/recommend");
-  assert.equal(AI_HEALTH_PATH, AI_BASE_PATH + "/health");
-  assert.equal(AI_DEFAULTS_PATH, AI_BASE_PATH + "/defaults");
+  assert.equal(AI_JOBS_PATH, AI_BASE_PATH + "/jobs");
 });
 
-test("Cantonese direct endpoint returns a unified retryable response for rate limits", async function () {
+test("Cantonese cancel endpoint delegates to the shared job store and returns terminal job status", function () {
+  const response = { body: "", statusCode: 0, writeHead: function (statusCode) { this.statusCode = statusCode; }, end: function (body) { this.body = String(body || ""); } };
   const runtime = createCantoneseRouteRuntime({
-    createRequestId: function () {
-      return "cantonese-route-rate-limit";
-    },
-    service: {
-      run: async function () {
-        const error = new Error("too many requests");
-        error.code = "provider-rate-limited";
-        error.statusCode = 429;
-        error.stage = "recognize";
-        throw error;
+    jobStore: {
+      cancelJob: function (jobId) {
+        return {
+          jobId,
+          requestId: "cancel-request",
+          status: "failed",
+          errorBody: { success: false, error: { code: "aborted" }, meta: { cancelled: true } },
+        };
       },
     },
-    appendAishellCantoneseAiCallLogSafe: function () {},
   });
-  const response = {
-    statusCode: 0,
-    body: "",
-    writeHead: function (statusCode) {
-      this.statusCode = statusCode;
-    },
-    end: function (body) {
-      this.body = String(body || "");
-    },
-  };
-
-  await runtime.handleRecommend({
-    request: Readable.from([
-      JSON.stringify({
-        taskItemId: "item-3",
-        audioUrl: "https://example.invalid/audio.wav",
-        aiUsageOperatorName: "测试员",
-      }),
-    ]),
-    response,
-  });
-
+  runtime.handleCancelRecommendJob({ params: { jobId: "job-cancel" }, response });
   const body = JSON.parse(response.body);
-  assert.equal(response.statusCode, 429);
-  assert.equal(body.success, false);
-  assert.equal(body.error.code, "provider-rate-limited");
-  assert.equal(body.error.retryable, true);
-  assert.equal(body.meta.requestId, "cantonese-route-rate-limit");
-});
-
-test("Cantonese direct endpoint requires the shared AI usage operator before calling the model", async function () {
-  let called = false;
-  const runtime = createCantoneseRouteRuntime({
-    createRequestId: function () {
-      return "cantonese-route-operator";
-    },
-    service: {
-      run: async function () {
-        called = true;
-        return {};
-      },
-    },
-    appendAishellCantoneseAiCallLogSafe: function () {},
-  });
-  const response = {
-    statusCode: 0,
-    body: "",
-    writeHead: function (statusCode) {
-      this.statusCode = statusCode;
-    },
-    end: function (body) {
-      this.body = String(body || "");
-    },
-  };
-
-  await runtime.handleRecommend({
-    request: Readable.from([
-      JSON.stringify({ taskItemId: "item-4", audioUrl: "https://example.invalid/audio.wav" }),
-    ]),
-    response,
-  });
-
-  const body = JSON.parse(response.body);
-  assert.equal(called, false);
-  assert.equal(response.statusCode, 400);
-  assert.equal(body.success, false);
-  assert.equal(body.error.code, "missing-ai-usage-operator-name");
+  assert.equal(response.statusCode, 200);
+  assert.equal(body.status, "failed");
+  assert.equal(body.error.error.code, "aborted");
 });

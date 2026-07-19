@@ -113,6 +113,10 @@
   - `GET /api/aishell-tech/cantonese-helper/ai/recommend/health`
   - `GET /api/aishell-tech/cantonese-helper/ai/recommend/defaults`
   - `POST /api/aishell-tech/cantonese-helper/ai/recommend`
+  - `POST /api/aishell-tech/cantonese-helper/ai/recommend/jobs`
+  - `GET /api/aishell-tech/cantonese-helper/ai/recommend/jobs/:jobId`
+  - `GET /api/aishell-tech/cantonese-helper/ai/recommend/jobs/:jobId/debug`
+  - `POST /api/aishell-tech/cantonese-helper/ai/recommend/jobs/:jobId/cancel`
 
 实现边界：
 
@@ -120,7 +124,7 @@
 - 闽南语助手继续保留自己的三阶段链路与词表资料目录。
 - 越南语助手固定为“单阶段 Omni 输出 `text + speed` 双字段，其中 `speed` 正式值为 `slow / normal / fast`”，不接词表、不做转换/比较双阶段。
 - 泰语助手固定为“单阶段 Omni 输出 `text + speed` 双字段，其中 `speed` 正式值为 `slow / normal / fast`”，不接词表、不做转换/比较双阶段。
-- 粤语助手固定为“单阶段 Omni 输出 `text + speed` 双字段，其中 `speed` 正式值为 `slow / normal / fast`”；后端只提供同步 `recommend`、`health`、`defaults`，不使用 jobs、SSE 或 WebSocket。
+- 粤语助手使用“转换候选 + 听音转写 + 比较决策”三阶段：默认 `qwen3.5-plus / qwen3.5-omni-flash / qwen3.5-plus`，结果保留 `text + speed` 写入边界；默认以 jobs + 轮询运行，支持调试和取消，不使用 SSE 或 WebSocket。
 - Aishell 的 Omni 音频调用继续复用各脚本各自的 `dashscope-omni-client.js`，统一固定 `enable_thinking=false`。
 - 底层只复用公共 provider HTTP 工具，不再复用 DataBaker recommend orchestration。
 - 闽南语助手当前独立队列组固定为 `aishell_qwen_omni / aishell_fun_asr / aishell_text_compare`。

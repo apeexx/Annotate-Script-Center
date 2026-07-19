@@ -4,197 +4,145 @@ const assert = require("node:assert/strict");
 const test = require("node:test");
 
 const {
-  DEFAULT_OMNI_MODEL,
-  DEFAULT_SINGLE_PROMPT,
+  DEFAULT_COMPARE_ADOPTION_THRESHOLD,
+  buildRecommendErrorBody,
+  buildRecommendSuccessBody,
   createCantoneseRecommendService,
+  createDefaultsPayload,
+  createHealthPayload,
   normalizeRecommendRequest,
 } = require("./ai-service");
-const {
-  buildDashScopeOmniRequestBody,
-  requestOmniInputAudio,
-} = require("./dashscope-omni-client");
+const { buildDashScopeOmniRequestBody } = require("./dashscope-omni-client");
 const { getCantoneseProviderConfig } = require("./config");
 
-test("Cantonese request is fixed to Omni Flash with a Traditional Cantonese transcript prompt", function () {
-  const normalized = normalizeRecommendRequest({
-    taskItemId: "item-1",
-    audioUrl: "https://example.invalid/audio.wav",
-    singleModel: "qwen3.5-omni-plus",
-  });
-
-  assert.equal(DEFAULT_OMNI_MODEL, "qwen3.5-omni-flash");
-  assert.equal(normalized.singleModel, "qwen3.5-omni-flash");
-  assert.match(DEFAULT_SINGLE_PROMPT, /粵語/);
-  assert.match(DEFAULT_SINGLE_PROMPT, /繁體/);
-  assert.match(DEFAULT_SINGLE_PROMPT, /不翻譯成普通話/);
-  assert.match(DEFAULT_SINGLE_PROMPT, /slow\|normal\|fast/);
+test("Cantonese defaults expose editable convert, listen, and compare stages", function () {
+  const defaults = createDefaultsPayload().defaults;
+  assert.equal(defaults.modelMode, "three_stage_parallel");
+  assert.equal(defaults.stages.convert.model, "qwen3.5-plus");
+  assert.equal(defaults.stages.listen.model, "qwen3.5-omni-flash");
+  assert.equal(defaults.stages.compare.family, "qwen");
+  assert.equal(defaults.stages.compare.qwenModel, "qwen3.5-plus");
+  assert.equal(DEFAULT_COMPARE_ADOPTION_THRESHOLD, 0.75);
+  assert.equal(defaults.stages.compare.adoptionThreshold, DEFAULT_COMPARE_ADOPTION_THRESHOLD);
+  assert.match(defaults.stages.convert.prompt, /繁體粵語/);
+  assert.match(defaults.stages.listen.prompt, /slow、normal 或 fast/);
+  assert.match(defaults.stages.compare.omniPrompt, /語速/);
+  assert.equal(defaults.singleModel, "qwen3.5-omni-flash");
+  assert.equal(defaults.singlePrompt, defaults.stages.listen.prompt);
+  assert.deepEqual(defaults.requestParams, defaults.stages.listen.params);
+  assert.equal(createHealthPayload().model, "qwen3.5-omni-flash");
 });
 
-test("Cantonese recommendation returns normalized text, speed, usage, and cost from one Omni call", async function () {
-  const service = createCantoneseRecommendService({
-    requestOmniInputAudio: async function (input, prompt, options) {
-      assert.equal(input.audioUrl, "https://example.invalid/audio.wav");
-      assert.equal(options.model, "qwen3.5-omni-flash");
-      assert.equal(options.timeoutMs, 60000);
-      assert.match(prompt.userPrompt, /粵語/);
-      return {
-        rawText: '{"text":"佢哋話：hello, world!","speed":"快"}',
-        usage: {
-          prompt_tokens: 21,
-          completion_tokens: 7,
-          total_tokens: 28,
-          prompt_tokens_details: {
-            text_tokens: 5,
-            audio_tokens: 16,
-          },
-        },
-      };
-    },
-  });
-
-  const result = await service.run({
-    requestId: "cantonese-success",
-    taskItemId: "item-1",
+test("Cantonese migrates legacy single-stage prompt and parameters into listen", function () {
+  const request = normalizeRecommendRequest({
+    taskItemId: "item-legacy",
     audioUrl: "https://example.invalid/audio.wav",
     referenceText: "參考文字",
+    singleModel: "qwen3.5-omni-plus",
+    singlePrompt: "舊的粵語聽音提示詞",
+    aiOptions: { temperature: 0.2, top_p: 0.7, max_tokens: 1800, stop: ["END"] },
   });
-
-  assert.equal(result.recommendedText, "佢哋話：hello，world！");
-  assert.equal(result.recommendedSpeed, "fast");
-  assert.equal(result.referenceText, "參考文字");
-  assert.deepEqual(result.meta.usage, {
-    promptTokens: 21,
-    completionTokens: 7,
-    totalTokens: 28,
-  });
-  assert.equal(result.meta.models.recognizeModel, "qwen3.5-omni-flash");
-  assert.equal(result.meta.cost.currency, "CNY");
+  assert.equal(request.aiStages.listen.model, "qwen3.5-omni-plus");
+  assert.equal(request.aiStages.listen.prompt, "舊的粵語聽音提示詞");
+  assert.deepEqual(request.aiStages.listen.params, { temperature: 0.2, top_p: 0.7, max_tokens: 1800, stop: ["END"] });
+  assert.equal(request.enableThinking, false);
 });
 
-test("Cantonese recommendation normalizes upstream rate limits into the shared retryable error contract", async function () {
-  const service = createCantoneseRecommendService({
-    requestOmniInputAudio: async function () {
-      const error = new Error("too many requests");
-      error.statusCode = 429;
-      error.code = "provider-http-error";
-      throw error;
+test("Cantonese accepts the released recognize-stage request shape as a listen-stage alias", function () {
+  const request = normalizeRecommendRequest({
+    taskItemId: "item-released-client",
+    audioUrl: "https://example.invalid/audio.wav",
+    aiStages: {
+      recognize: {
+        model: "qwen3.5-omni-plus",
+        prompt: "released-client-prompt",
+        params: { temperature: 0.2, top_p: 0.7, max_tokens: 1800, stop: ["END"] },
+      },
     },
   });
 
-  await assert.rejects(
-    service.run({
-      requestId: "cantonese-rate-limit",
-      taskItemId: "item-2",
-      audioUrl: "https://example.invalid/audio.wav",
-    }),
-    function (error) {
-      assert.equal(error.code, "provider-rate-limited");
-      assert.equal(error.statusCode, 429);
-      assert.equal(error.retryable, true);
-      assert.equal(error.stage, "recognize");
-      return true;
-    }
-  );
+  assert.equal(request.aiStages.listen.model, "qwen3.5-omni-plus");
+  assert.equal(request.aiStages.listen.prompt, "released-client-prompt");
+  assert.deepEqual(request.aiStages.listen.params, {
+    temperature: 0.2,
+    top_p: 0.7,
+    max_tokens: 1800,
+    stop: ["END"],
+  });
 });
 
-test("Cantonese DashScope request always disables thinking", function () {
+test("Cantonese upgrades Fun-ASR plus Qwen comparison to Omni comparison", function () {
+  const request = normalizeRecommendRequest({
+    taskItemId: "item-fun-asr",
+    audioUrl: "https://example.invalid/audio.wav",
+    aiStages: { listen: { model: "fun-asr" }, compare: { family: "qwen", model: "qwen3.5-plus" } },
+  });
+  assert.equal(request.aiStages.listen.model, "fun-asr");
+  assert.equal(request.aiStages.compare.family, "omni");
+  assert.equal(request.aiStages.compare.model, "qwen3.5-omni-flash");
+  assert.equal(request.aiStages.compare.speedSource, "omni-compare");
+});
+
+test("Cantonese Omni request keeps thinking disabled while passing the chosen model and parameters", function () {
   const body = buildDashScopeOmniRequestBody({
-    model: "qwen3.5-omni-flash",
+    model: "qwen3.5-omni-plus",
     audioUrl: "https://example.invalid/audio.mp3",
+    requestParams: { temperature: 0.2, top_p: 0.7, max_tokens: 1800, presence_penalty: 0.1, frequency_penalty: 0.2, seed: 11, stop: ["END"] },
     userPrompt: "請只回傳 JSON。",
   });
-
-  assert.equal(body.model, "qwen3.5-omni-flash");
+  assert.equal(body.model, "qwen3.5-omni-plus");
   assert.equal(body.enable_thinking, false);
-  assert.equal(body.stream, true);
-  assert.equal(body.response_format, undefined);
+  assert.equal(body.max_tokens, 1800);
   assert.equal(body.messages[1].content[0].input_audio.format, "mp3");
+  assert.equal(body.presence_penalty, 0.1);
+  assert.equal(body.frequency_penalty, 0.2);
+  assert.equal(body.seed, 11);
+  assert.deepEqual(body.stop, ["END"]);
 });
 
-test("Cantonese Omni stream preserves its finish reason for JSON diagnostics", async function () {
-  const originalFetch = global.fetch;
-  const originalApiKey = process.env.AISHELL_CANTONESE_AI_API_KEY;
-  process.env.AISHELL_CANTONESE_AI_API_KEY = "test-key";
-  global.fetch = async function () {
-    return new Response(
-      [
-        'data: {"choices":[{"delta":{"content":"not-json"},"finish_reason":null}]}',
-        '',
-        'data: {"choices":[{"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":1,"completion_tokens":2,"total_tokens":3}}',
-        '',
-        'data: [DONE]',
-        '',
-      ].join("\n"),
-      { status: 200, headers: { "Content-Type": "text/event-stream" } }
-    );
-  };
-
-  try {
-    const result = await requestOmniInputAudio(
-      { audioUrl: "https://example.invalid/audio.wav" },
-      { systemPrompt: "", userPrompt: "return JSON" },
-      {}
-    );
-    assert.equal(result.rawText, "not-json");
-    assert.equal(result.finishReason, "stop");
-  } finally {
-    global.fetch = originalFetch;
-    if (originalApiKey === undefined) {
-      delete process.env.AISHELL_CANTONESE_AI_API_KEY;
-    } else {
-      process.env.AISHELL_CANTONESE_AI_API_KEY = originalApiKey;
-    }
-  }
-});
-
-test("Cantonese invalid model JSON records structural diagnostics without transcript content", async function () {
-  const rawText = "转写结果：未使用 JSON 返回";
+test("Cantonese service returns the unified multi-stage result without writing annotations", async function () {
   const service = createCantoneseRecommendService({
-    requestOmniInputAudio: async function () {
-      return {
-        rawText,
-        usage: {},
-        finishReason: "stop",
-      };
+    pipeline: {
+      run: async function () {
+        return {
+          data: { convertedText: "候選", heardText: "聽音", recommendedText: "最終粵語", recommendedSpeed: "fast", referenceText: "參考" },
+          meta: { requestId: "service-success", stage: "complete", usage: { totalTokens: 10 }, cost: { currency: "CNY" } },
+        };
+      },
     },
   });
+  const result = await service.run({ taskItemId: "item-service", audioUrl: "https://example.invalid/audio.wav", requestId: "service-success" });
+  const body = buildRecommendSuccessBody(result);
+  assert.equal(body.success, true);
+  assert.equal(body.data.convertedText, "候選");
+  assert.equal(body.data.heardText, "聽音");
+  assert.equal(body.data.recommendedText, "最終粵語");
+  assert.equal(body.data.recommendedSpeed, "fast");
+});
 
+test("Cantonese service normalizes rate limits into the shared stage error contract", async function () {
+  const service = createCantoneseRecommendService({
+    pipeline: { run: async function () { const error = new Error("too many requests"); error.statusCode = 429; error.stage = "compare"; throw error; } },
+  });
   await assert.rejects(
-    service.run({
-      requestId: "cantonese-invalid-json",
-      taskItemId: "item-invalid-json",
-      audioUrl: "https://example.invalid/audio.wav",
-    }),
+    service.run({ taskItemId: "item-rate-limit", audioUrl: "https://example.invalid/audio.wav", requestId: "rate-limit" }),
     function (error) {
-      assert.equal(error.code, "invalid-model-json");
-      assert.deepEqual(error.debugRawJson, {
-        provider: "aishell-cantonese-dashscope-omni",
-        finishReason: "stop",
-        rawTextLength: rawText.length,
-        hasJsonObjectEnvelope: false,
-        hasJsonFence: false,
-        firstCharacterCode: rawText.codePointAt(0),
-        lastCharacterCode: rawText.codePointAt(rawText.length - 1),
-      });
+      const body = buildRecommendErrorBody(error, "rate-limit");
+      assert.equal(body.error.code, "provider-rate-limited");
+      assert.equal(body.error.stage, "compare");
+      assert.equal(body.error.retryable, true);
       return true;
     }
   );
 });
 
 test("Cantonese environment variables take priority over shared Aishell compatibility variables", function () {
-  const original = {
-    cantoneseKey: process.env.AISHELL_CANTONESE_AI_API_KEY,
-    aishellKey: process.env.AISHELL_AI_API_KEY,
-    dashscopeKey: process.env.DASHSCOPE_API_KEY,
-    cantoneseBaseUrl: process.env.AISHELL_CANTONESE_AI_BASE_URL,
-    aishellBaseUrl: process.env.AISHELL_AI_BASE_URL,
-  };
+  const original = { cantoneseKey: process.env.AISHELL_CANTONESE_AI_API_KEY, aishellKey: process.env.AISHELL_AI_API_KEY, dashscopeKey: process.env.DASHSCOPE_API_KEY, cantoneseBaseUrl: process.env.AISHELL_CANTONESE_AI_BASE_URL, aishellBaseUrl: process.env.AISHELL_AI_BASE_URL };
   process.env.AISHELL_CANTONESE_AI_API_KEY = "cantonese-key";
   process.env.AISHELL_AI_API_KEY = "shared-key";
   process.env.DASHSCOPE_API_KEY = "dashscope-key";
   process.env.AISHELL_CANTONESE_AI_BASE_URL = "https://cantonese.example/v1/";
   process.env.AISHELL_AI_BASE_URL = "https://shared.example/v1";
-
   try {
     const config = getCantoneseProviderConfig();
     assert.equal(config.apiKey, "cantonese-key");
@@ -202,18 +150,8 @@ test("Cantonese environment variables take priority over shared Aishell compatib
     assert.equal(config.timeoutMs, 60000);
   } finally {
     Object.entries(original).forEach(function ([key, value]) {
-      const envKey = {
-        cantoneseKey: "AISHELL_CANTONESE_AI_API_KEY",
-        aishellKey: "AISHELL_AI_API_KEY",
-        dashscopeKey: "DASHSCOPE_API_KEY",
-        cantoneseBaseUrl: "AISHELL_CANTONESE_AI_BASE_URL",
-        aishellBaseUrl: "AISHELL_AI_BASE_URL",
-      }[key];
-      if (value === undefined) {
-        delete process.env[envKey];
-      } else {
-        process.env[envKey] = value;
-      }
+      const envKey = { cantoneseKey: "AISHELL_CANTONESE_AI_API_KEY", aishellKey: "AISHELL_AI_API_KEY", dashscopeKey: "DASHSCOPE_API_KEY", cantoneseBaseUrl: "AISHELL_CANTONESE_AI_BASE_URL", aishellBaseUrl: "AISHELL_AI_BASE_URL" }[key];
+      if (value === undefined) delete process.env[envKey]; else process.env[envKey] = value;
     });
   }
 });

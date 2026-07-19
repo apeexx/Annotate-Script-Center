@@ -28,6 +28,10 @@ test("Cantonese helper is registered as a complete isolated Aishell content-scri
     bundle.js.includes("shared/ai-batch-summary.js"),
     "manifest must load the shared batch usage and cost accumulator before the Cantonese runtime"
   );
+  assert.ok(
+    bundle.js.includes("shared/ai-job-client.js"),
+    "manifest must load the shared task client before the Cantonese runtime"
+  );
   runtimeFiles.forEach(function (fileName) {
     assert.ok(
       bundle.js.includes("sites/aishell-tech/cantonese-helper/" + fileName),
@@ -38,6 +42,7 @@ test("Cantonese helper is registered as a complete isolated Aishell content-scri
 
   const contentSource = fs.readFileSync(path.join(helperRoot, "content.js"), "utf8");
   const recommendSource = fs.readFileSync(path.join(helperRoot, "ai-recommendation.js"), "utf8");
+  const diagnosticsSource = fs.readFileSync(path.join(helperRoot, "diagnostics.js"), "utf8");
   assert.match(contentSource, /aishellTechCantoneseAssistant/);
   assert.match(contentSource, /cantonese-helper/);
   assert.match(contentSource, /AISHELL_TECH_CANTONESE_SCRIPT_ID/);
@@ -45,11 +50,14 @@ test("Cantonese helper is registered as a complete isolated Aishell content-scri
   assert.doesNotMatch(contentSource, /AISHELL_TECH_THAI_(SCRIPT_ID|AI_RECOMMEND_PATH)/);
   assert.match(recommendSource, /AISHELL_TECH_CANTONESE_AI_RECOMMEND_PATH/);
   assert.doesNotMatch(recommendSource, /AISHELL_TECH_THAI_AI_RECOMMEND_PATH/);
-  assert.doesNotMatch(
+  assert.match(
     recommendSource,
     /runJobLifecycle/,
-    "Cantonese recommend requests must use the direct POST endpoint, not the async job protocol"
+    "Cantonese recommend requests must use the three-stage async task protocol"
   );
+  assert.match(recommendSource, /aiStages/);
+  assert.match(diagnosticsSource, /转换候选.*听音转写.*比较决策/);
+  assert.doesNotMatch(diagnosticsSource, /单阶段 Omni 识别/);
 });
 
 test("Cantonese runtime AI call logs are excluded from Git", function () {
@@ -61,4 +69,12 @@ test("Cantonese runtime AI call logs are excluded from Git", function () {
     /^\/platform-resources\/aishell-tech\/cantonese-helper\/data\/runtime\/\*\.csv$/m,
     "runtime AI call logs must remain local-only"
   );
+});
+
+test("Cantonese batch stop propagates cancellation to active AI jobs", function () {
+  const contentSource = fs.readFileSync(path.join(helperRoot, "content.js"), "utf8");
+
+  assert.match(contentSource, /activeRequestControllers/);
+  assert.match(contentSource, /abortActiveRequests/);
+  assert.match(contentSource, /aiClient\.recommend\(item,\s*\{\s*signal:/);
 });

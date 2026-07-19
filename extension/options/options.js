@@ -2655,6 +2655,9 @@
     const convert = stages.convert && typeof stages.convert === "object" ? stages.convert : {};
     const listen = stages.listen && typeof stages.listen === "object" ? stages.listen : {};
     const compare = stages.compare && typeof stages.compare === "object" ? stages.compare : {};
+    const convertParams = convert.params && typeof convert.params === "object" ? convert.params : {};
+    const listenParams = listen.params && typeof listen.params === "object" ? listen.params : {};
+    const compareParams = compare.params && typeof compare.params === "object" ? compare.params : {};
     const qwenModelOptions = buildAishellTechTextModelOptions(defaults, [
       convert.model,
       compare.model,
@@ -2685,15 +2688,15 @@
         ),
         modelOptions: qwenModelOptions,
         prompt: String(convert.prompt || defaults.candidatePrompt || ""),
-        temperature: convert.temperature ?? defaults.temperature ?? "",
-        top_p: convert.top_p ?? defaults.top_p ?? "",
-        max_tokens: convert.max_tokens ?? defaults.max_tokens ?? "",
+        temperature: convert.temperature ?? convertParams.temperature ?? defaults.temperature ?? "",
+        top_p: convert.top_p ?? convertParams.top_p ?? defaults.top_p ?? "",
+        max_tokens: convert.max_tokens ?? convertParams.max_tokens ?? defaults.max_tokens ?? "",
         max_completion_tokens:
-          convert.max_completion_tokens ?? defaults.max_completion_tokens ?? "",
-        presence_penalty: convert.presence_penalty ?? defaults.presence_penalty ?? "",
-        frequency_penalty: convert.frequency_penalty ?? defaults.frequency_penalty ?? "",
-        seed: convert.seed ?? defaults.seed ?? "",
-        stop: convert.stop ?? convert.stopSequences ?? defaults.stop ?? "",
+          convert.max_completion_tokens ?? convertParams.max_completion_tokens ?? defaults.max_completion_tokens ?? "",
+        presence_penalty: convert.presence_penalty ?? convertParams.presence_penalty ?? defaults.presence_penalty ?? "",
+        frequency_penalty: convert.frequency_penalty ?? convertParams.frequency_penalty ?? defaults.frequency_penalty ?? "",
+        seed: convert.seed ?? convertParams.seed ?? defaults.seed ?? "",
+        stop: convert.stop ?? convert.stopSequences ?? convertParams.stop ?? defaults.stop ?? "",
       },
       listen: {
         model: normalizeDataBakerListenModel(
@@ -2702,15 +2705,15 @@
         ),
         modelOptions: listenModelOptions,
         prompt: String(listen.prompt || defaults.listenPrompt || ""),
-        temperature: listen.temperature ?? defaults.temperature ?? "",
-        top_p: listen.top_p ?? defaults.top_p ?? "",
-        max_tokens: listen.max_tokens ?? defaults.max_tokens ?? "",
+        temperature: listen.temperature ?? listenParams.temperature ?? defaults.temperature ?? "",
+        top_p: listen.top_p ?? listenParams.top_p ?? defaults.top_p ?? "",
+        max_tokens: listen.max_tokens ?? listenParams.max_tokens ?? defaults.max_tokens ?? "",
         max_completion_tokens:
-          listen.max_completion_tokens ?? defaults.max_completion_tokens ?? "",
-        presence_penalty: listen.presence_penalty ?? defaults.presence_penalty ?? "",
-        frequency_penalty: listen.frequency_penalty ?? defaults.frequency_penalty ?? "",
-        seed: listen.seed ?? defaults.seed ?? "",
-        stop: listen.stop ?? listen.stopSequences ?? defaults.stop ?? "",
+          listen.max_completion_tokens ?? listenParams.max_completion_tokens ?? defaults.max_completion_tokens ?? "",
+        presence_penalty: listen.presence_penalty ?? listenParams.presence_penalty ?? defaults.presence_penalty ?? "",
+        frequency_penalty: listen.frequency_penalty ?? listenParams.frequency_penalty ?? defaults.frequency_penalty ?? "",
+        seed: listen.seed ?? listenParams.seed ?? defaults.seed ?? "",
+        stop: listen.stop ?? listen.stopSequences ?? listenParams.stop ?? defaults.stop ?? "",
       },
       compare: {
         family: compareFamily,
@@ -2733,15 +2736,15 @@
             1,
             3
           ) || "0.75",
-        temperature: compare.temperature ?? defaults.temperature ?? "",
-        top_p: compare.top_p ?? defaults.top_p ?? "",
-        max_tokens: compare.max_tokens ?? defaults.max_tokens ?? "",
+        temperature: compare.temperature ?? compareParams.temperature ?? defaults.temperature ?? "",
+        top_p: compare.top_p ?? compareParams.top_p ?? defaults.top_p ?? "",
+        max_tokens: compare.max_tokens ?? compareParams.max_tokens ?? defaults.max_tokens ?? "",
         max_completion_tokens:
-          compare.max_completion_tokens ?? defaults.max_completion_tokens ?? "",
-        presence_penalty: compare.presence_penalty ?? defaults.presence_penalty ?? "",
-        frequency_penalty: compare.frequency_penalty ?? defaults.frequency_penalty ?? "",
-        seed: compare.seed ?? defaults.seed ?? "",
-        stop: compare.stop ?? compare.stopSequences ?? defaults.stop ?? "",
+          compare.max_completion_tokens ?? compareParams.max_completion_tokens ?? defaults.max_completion_tokens ?? "",
+        presence_penalty: compare.presence_penalty ?? compareParams.presence_penalty ?? defaults.presence_penalty ?? "",
+        frequency_penalty: compare.frequency_penalty ?? compareParams.frequency_penalty ?? defaults.frequency_penalty ?? "",
+        seed: compare.seed ?? compareParams.seed ?? defaults.seed ?? "",
+        stop: compare.stop ?? compare.stopSequences ?? compareParams.stop ?? defaults.stop ?? "",
       },
     };
   }
@@ -3815,7 +3818,10 @@
   }
 
   function updateAishellTechListenModelFields(listenModel) {
-    const aiDefaults = getAsrVoiceAiDefaultsCached(aishellTechMinnanScriptId).defaults || {};
+    const activeAishellScriptId = isAishellTechCantoneseScript(getCurrentDetailScriptId())
+      ? aishellTechCantoneseScriptId
+      : aishellTechMinnanScriptId;
+    const aiDefaults = getAsrVoiceAiDefaultsCached(activeAishellScriptId).defaults || {};
     const draftConfig = getAishellTechSettingsDraftConfig(aiDefaults);
     draftConfig.aiRecommendListenModel = normalizeDataBakerListenModel(
       listenModel,
@@ -3825,7 +3831,10 @@
   }
 
   function updateAishellTechCompareFamilyFields(compareFamily) {
-    const aiDefaults = getAsrVoiceAiDefaultsCached(aishellTechMinnanScriptId).defaults || {};
+    const activeAishellScriptId = isAishellTechCantoneseScript(getCurrentDetailScriptId())
+      ? aishellTechCantoneseScriptId
+      : aishellTechMinnanScriptId;
+    const aiDefaults = getAsrVoiceAiDefaultsCached(activeAishellScriptId).defaults || {};
     const draftConfig = getAishellTechSettingsDraftConfig(aiDefaults);
     draftConfig.aiRecommendCompareFamily = normalizeAishellTechCompareFamily(
       compareFamily,
@@ -6501,6 +6510,15 @@
         aiRecommendEnabled: false,
         aiRecommendRequestTimeoutMs: DEFAULT_AI_REQUEST_TIMEOUT_MS,
         aiQualifiedAutofillConcurrency: 5,
+        aiRecommendConvertModel: "qwen3.5-plus",
+        aiRecommendConvertPrompt: "",
+        aiRecommendListenModel: "qwen3.5-omni-flash",
+        aiRecommendListenPrompt: "",
+        aiRecommendCompareFamily: "qwen",
+        aiRecommendCompareModel: "qwen3.5-plus",
+        aiRecommendCompareQwenPrompt: "",
+        aiRecommendCompareOmniPrompt: "",
+        aiRecommendCompareAdoptionThreshold: "",
         aiRecommendSingleModel: "qwen3.5-omni-flash",
         aiRecommendSinglePrompt: "",
         aiRecommendTemperature: "",
@@ -6516,16 +6534,62 @@
       defaults,
       current
     );
+    if (!hasOwn(current, "aiRecommendListenModel") && normalizeText(current.aiRecommendSingleModel)) {
+      config.aiRecommendListenModel = current.aiRecommendSingleModel;
+    }
+    if (!hasOwn(current, "aiRecommendListenPrompt") && normalizePromptText(current.aiRecommendSinglePrompt)) {
+      config.aiRecommendListenPrompt = current.aiRecommendSinglePrompt;
+    }
+    [
+      "Temperature",
+      "TopP",
+      "MaxTokens",
+      "MaxCompletionTokens",
+      "PresencePenalty",
+      "FrequencyPenalty",
+      "Seed",
+      "StopSequences",
+    ].forEach(function (suffix) {
+      const listenKey = "aiRecommendListen" + suffix;
+      const legacyKey = "aiRecommend" + suffix;
+      if (!hasOwn(current, listenKey) && hasOwn(current, legacyKey)) {
+        config[listenKey] = current[legacyKey];
+      }
+    });
 
     config.aiRecommendRequestTimeoutMs = DEFAULT_AI_REQUEST_TIMEOUT_MS;
-    config.aiRecommendSingleModel = "qwen3.5-omni-flash";
-    config.aiRecommendSinglePrompt = normalizePromptText(config.aiRecommendSinglePrompt || "");
-    normalizeAishellTechStageParamFields(config, "aiRecommend");
+    config.aiRecommendConvertModel = normalizeDataBakerCompareModel(
+      config.aiRecommendConvertModel,
+      "qwen3.5-plus"
+    );
+    config.aiRecommendListenModel = normalizeDataBakerListenModel(
+      config.aiRecommendListenModel || config.aiRecommendSingleModel,
+      "qwen3.5-omni-flash"
+    );
+    config.aiRecommendCompareFamily = normalizeAishellTechCompareFamily(
+      config.aiRecommendCompareFamily,
+      "qwen"
+    );
+    config.aiRecommendCompareModel =
+      config.aiRecommendCompareFamily === "omni"
+        ? normalizeDataBakerSingleModel(config.aiRecommendCompareModel, "qwen3.5-omni-flash")
+        : normalizeDataBakerCompareModel(config.aiRecommendCompareModel, "qwen3.5-plus");
+    config.aiRecommendConvertPrompt = normalizePromptText(config.aiRecommendConvertPrompt || "");
+    config.aiRecommendListenPrompt = normalizePromptText(
+      config.aiRecommendListenPrompt || config.aiRecommendSinglePrompt || ""
+    );
+    config.aiRecommendCompareQwenPrompt = normalizePromptText(config.aiRecommendCompareQwenPrompt || "");
+    config.aiRecommendCompareOmniPrompt = normalizePromptText(config.aiRecommendCompareOmniPrompt || "");
+    ["aiRecommendConvert", "aiRecommendListen", "aiRecommendCompare"].forEach(function (prefix) {
+      normalizeAishellTechStageParamFields(config, prefix);
+    });
     config.aiQualifiedAutofillConcurrency = normalizeDataBakerAutofillConcurrency(
       config.aiQualifiedAutofillConcurrency,
       {
-        aiRecommendPipelineMode: "omni_single",
-        aiRecommendSingleModel: config.aiRecommendSingleModel,
+        aiRecommendPipelineMode: "three_stage_parallel",
+        aiRecommendListenModel: config.aiRecommendListenModel,
+        aiRecommendCompareFamily: config.aiRecommendCompareFamily,
+        aiRecommendCompareModel: config.aiRecommendCompareModel,
       }
     );
     config.aiRecommendEnableThinking = false;
@@ -7465,14 +7529,14 @@
     ].join("");
   }
 
-  function renderAishellTechAiSettingsSection(panel, headerHtml, defaultsTipId) {
+  function renderAishellTechAiSettingsSection(panel, headerHtml, defaultsTipId, concurrencyScriptId) {
     panel.innerHTML = [
       '<div class="asr-ai-panel">',
       headerHtml,
       '<div class="asr-ai-note" id="' + defaultsTipId + '"></div>',
       '<div class="asr-ai-block"><strong>基础设置</strong><div class="asr-ai-grid two">',
       '<label class="asr-ai-field"><span>启用 AI 推荐文本</span><label class="asr-ai-boolean"><input id="aishell-tech-ai-recommend-enabled" type="checkbox" /><span>关闭后不显示当前条推荐与批量保存面板</span></label></label>',
-      renderSharedAsrAutofillConcurrencyField(aishellTechMinnanScriptId),
+        renderSharedAsrAutofillConcurrencyField(concurrencyScriptId || aishellTechMinnanScriptId),
       '<label class="asr-ai-field"><span>请求超时时间（ms）</span><input id="aishell-tech-ai-timeout" type="number" min="1000" max="300000" step="1000" /></label>',
       '<label class="asr-ai-field"><span>思考开关</span><label class="asr-ai-boolean"><input id="aishell-tech-ai-enable-thinking" type="checkbox" /><span>thinking 已全局固定关闭，以避免请求链路拖慢。</span></label></label>',
       "</div></div>",
@@ -9196,22 +9260,12 @@
   }
 
   function renderAishellTechCantoneseAiSettingsSection(panel, headerHtml, defaultsTipId) {
-    panel.innerHTML = [
-      '<div class="asr-ai-panel">',
+    renderAishellTechAiSettingsSection(
+      panel,
       headerHtml,
-      '<div class="asr-ai-note" id="' + defaultsTipId + '"></div>',
-      '<div class="asr-ai-block"><strong>基础设置</strong><div class="asr-ai-grid two">',
-      '<label class="asr-ai-field"><span>启用 AI 文本与语速识别</span><label class="asr-ai-boolean"><input id="aishell-tech-ai-recommend-enabled" type="checkbox" /><span>关闭后不显示当前条识别与批量保存面板</span></label></label>',
-      renderSharedAsrAutofillConcurrencyField(aishellTechCantoneseScriptId),
-      '<div class="asr-ai-field"><span>固定运行规则</span><span class="asr-ai-help">模型固定为 `qwen3.5-omni-flash`，请求超时固定为 60000ms，thinking 固定关闭。</span></div>',
-      "</div></div>",
-      '<div class="asr-ai-block"><strong>单阶段 Omni 识别</strong><div class="asr-ai-grid">',
-      '<label class="asr-ai-field"><span>识别 Prompt（可选）</span><textarea id="aishell-tech-ai-single-prompt" maxlength="8000"></textarea><span class="asr-ai-help">留空或恢复默认时，使用后端默认 Prompt。</span></label>',
-      "</div></div>",
-      "</div>",
-    ].join("");
-    syncOptionsCustomSelects(panel);
-    panel.classList.remove("hidden");
+      defaultsTipId,
+      aishellTechCantoneseScriptId
+    );
   }
 
   function renderAishellTechShortcutGrid() {
@@ -13105,7 +13159,7 @@
           : isAishellTechThaiScript(scriptId)
             ? "希尔贝壳泰语助手使用单阶段 Omni 同时输出文本与语速；批量模式只处理当前分包，并保持 AI 并发请求 + 页面串行保存，不自动提交任务。"
             : isAishellTechCantoneseScript(scriptId)
-              ? "希尔贝壳粤语助手使用单阶段 Omni 同时输出繁体粤语口语文本与语速；批量模式只处理当前分包，并保持 AI 并发请求 + 页面串行保存，不自动提交任务。"
+              ? "希尔贝壳粤语助手使用“转换候选 + 听音转写 + 比较决策”三阶段流程；批量模式只处理当前分包，并保持 AI 并发请求 + 页面串行保存，不自动提交任务。"
               : "希尔贝壳批量模式只处理当前分包、从当前选中条开始、跳过已完成条目；每条会先对齐到目标条，再调用平台原生保存接口，不自动提交任务。"
       );
       return;
@@ -13626,18 +13680,17 @@
     if (getElement("aishell-tech-ai-recommend-enabled")) {
       getElement("aishell-tech-ai-recommend-enabled").checked =
         config.aiRecommendEnabled !== false;
-      getElement("aishell-tech-ai-single-prompt").value = String(
-        getAsrVoiceAiEffectiveText(config.aiRecommendSinglePrompt, aiDefaults.singlePrompt)
+      getElement("aishell-tech-ai-timeout").value = String(
+        Number(config.aiRecommendRequestTimeoutMs || aiDefaults.timeoutMs || DEFAULT_AI_REQUEST_TIMEOUT_MS)
+      );
+      applyAishellTechStageFields(config, aiDefaults);
+      applyForcedThinkingToggle(
+        "aishell-tech-ai-enable-thinking",
+        "thinking 已全局固定关闭；粤语助手不允许开启模型思考模式。"
       );
       updateAishellTechAutofillConcurrencyField(
-        {
-          aiRecommendPipelineMode: "omni_single",
-          aiRecommendSingleModel: config.aiRecommendSingleModel,
-          aiQualifiedAutofillConcurrency: config.aiQualifiedAutofillConcurrency,
-        },
-        {
-          scriptId: aishellTechCantoneseScriptId,
-        }
+        Object.assign({}, config, { aiRecommendPipelineMode: "three_stage_parallel" }),
+        { scriptId: aishellTechCantoneseScriptId }
       );
     }
     stopAishellTechShortcutRecording("");
@@ -14827,38 +14880,31 @@
 
     const currentConfig = getAishellTechCantoneseConfig(currentSettings || {});
     const aiDefaults = getAsrVoiceAiDefaultsCached(aishellTechCantoneseScriptId).defaults || {};
-    const hasAiSettingsPanel = Boolean(getElement("aishell-tech-ai-recommend-enabled"));
+    const hasAiSettingsPanel = Boolean(getElement("aishell-tech-ai-timeout"));
     const aiRecommendEnabled = hasAiSettingsPanel
       ? getElement("aishell-tech-ai-recommend-enabled").checked
       : currentConfig.aiRecommendEnabled !== false;
-    const timeoutMs = DEFAULT_AI_REQUEST_TIMEOUT_MS;
-    const singleModel = "qwen3.5-omni-flash";
-    const promptDraft = hasAiSettingsPanel
-      ? normalizePromptText(getElement("aishell-tech-ai-single-prompt")?.value || "")
-      : currentConfig.aiRecommendSinglePrompt;
+    const draftConfig = hasAiSettingsPanel
+      ? getAishellTechSettingsDraftConfig(aiDefaults)
+      : currentConfig;
+    if (
+      isDataBakerFunAsrListenModel(draftConfig.aiRecommendListenModel) &&
+      draftConfig.aiRecommendCompareFamily === "qwen"
+    ) {
+      draftConfig.aiRecommendCompareFamily = "omni";
+      draftConfig.aiRecommendCompareModel = "qwen3.5-omni-flash";
+    }
     const autofillConcurrency = normalizeDataBakerAutofillConcurrency(
       getElement("aishell-tech-qualified-autofill-concurrency")?.value,
-      {
-        aiRecommendPipelineMode: "omni_single",
-        aiRecommendSingleModel: singleModel,
-      }
+      getAishellTechConcurrencyModelConfig(draftConfig)
     );
     updateAishellTechAutofillConcurrencyField(
-      {
-        aiRecommendPipelineMode: "omni_single",
-        aiRecommendSingleModel: singleModel,
+      Object.assign({}, draftConfig, {
+        aiRecommendPipelineMode: "three_stage_parallel",
         aiQualifiedAutofillConcurrency: autofillConcurrency,
-      },
-      {
-        scriptId: aishellTechCantoneseScriptId,
-      }
+      }),
+      { scriptId: aishellTechCantoneseScriptId }
     );
-    const normalizeOverridePrompt = function (value, defaultValue) {
-      const normalizedValue = normalizePromptText(value || "");
-      const normalizedDefault = normalizePromptText(defaultValue || "");
-      return normalizedValue && normalizedValue !== normalizedDefault ? normalizedValue : "";
-    };
-    const stageOverrides = {};
     const shortcuts = {};
     ensureAishellTechShortcutDraft();
     getAishellTechShortcutActions(aishellTechCantoneseScriptId).forEach(function (action) {
@@ -14877,23 +14923,51 @@
               cantoneseHelper: {
                 id: aishellTechCantoneseScriptId,
                 aiRecommendEnabled: aiRecommendEnabled,
-                aiRecommendRequestTimeoutMs: timeoutMs,
-                aiRecommendSingleModel: singleModel,
-                aiRecommendSinglePrompt: normalizeOverridePrompt(
-                  promptDraft,
-                  aiDefaults.singlePrompt
-                ),
-                aiRecommendTemperature: stageOverrides.aiRecommendTemperature,
-                aiRecommendTopP: stageOverrides.aiRecommendTopP,
-                aiRecommendMaxTokens: stageOverrides.aiRecommendMaxTokens,
-                aiRecommendMaxCompletionTokens:
-                  stageOverrides.aiRecommendMaxCompletionTokens,
-                aiRecommendPresencePenalty:
-                  stageOverrides.aiRecommendPresencePenalty,
-                aiRecommendFrequencyPenalty:
-                  stageOverrides.aiRecommendFrequencyPenalty,
-                aiRecommendSeed: stageOverrides.aiRecommendSeed,
-                aiRecommendStopSequences: stageOverrides.aiRecommendStopSequences,
+                aiRecommendRequestTimeoutMs: DEFAULT_AI_REQUEST_TIMEOUT_MS,
+                aiRecommendConvertModel: draftConfig.aiRecommendConvertModel,
+                aiRecommendConvertPrompt: draftConfig.aiRecommendConvertPrompt,
+                aiRecommendConvertTemperature: draftConfig.aiRecommendConvertTemperature,
+                aiRecommendConvertTopP: draftConfig.aiRecommendConvertTopP,
+                aiRecommendConvertMaxTokens: draftConfig.aiRecommendConvertMaxTokens,
+                aiRecommendConvertMaxCompletionTokens: draftConfig.aiRecommendConvertMaxCompletionTokens,
+                aiRecommendConvertPresencePenalty: draftConfig.aiRecommendConvertPresencePenalty,
+                aiRecommendConvertFrequencyPenalty: draftConfig.aiRecommendConvertFrequencyPenalty,
+                aiRecommendConvertSeed: draftConfig.aiRecommendConvertSeed,
+                aiRecommendConvertStopSequences: draftConfig.aiRecommendConvertStopSequences,
+                aiRecommendListenModel: draftConfig.aiRecommendListenModel,
+                aiRecommendListenPrompt: draftConfig.aiRecommendListenPrompt,
+                aiRecommendListenTemperature: draftConfig.aiRecommendListenTemperature,
+                aiRecommendListenTopP: draftConfig.aiRecommendListenTopP,
+                aiRecommendListenMaxTokens: draftConfig.aiRecommendListenMaxTokens,
+                aiRecommendListenMaxCompletionTokens: draftConfig.aiRecommendListenMaxCompletionTokens,
+                aiRecommendListenPresencePenalty: draftConfig.aiRecommendListenPresencePenalty,
+                aiRecommendListenFrequencyPenalty: draftConfig.aiRecommendListenFrequencyPenalty,
+                aiRecommendListenSeed: draftConfig.aiRecommendListenSeed,
+                aiRecommendListenStopSequences: draftConfig.aiRecommendListenStopSequences,
+                aiRecommendCompareFamily: draftConfig.aiRecommendCompareFamily,
+                aiRecommendCompareModel: draftConfig.aiRecommendCompareModel,
+                aiRecommendCompareQwenPrompt: draftConfig.aiRecommendCompareQwenPrompt,
+                aiRecommendCompareOmniPrompt: draftConfig.aiRecommendCompareOmniPrompt,
+                aiRecommendCompareAdoptionThreshold: draftConfig.aiRecommendCompareAdoptionThreshold,
+                aiRecommendCompareTemperature: draftConfig.aiRecommendCompareTemperature,
+                aiRecommendCompareTopP: draftConfig.aiRecommendCompareTopP,
+                aiRecommendCompareMaxTokens: draftConfig.aiRecommendCompareMaxTokens,
+                aiRecommendCompareMaxCompletionTokens: draftConfig.aiRecommendCompareMaxCompletionTokens,
+                aiRecommendComparePresencePenalty: draftConfig.aiRecommendComparePresencePenalty,
+                aiRecommendCompareFrequencyPenalty: draftConfig.aiRecommendCompareFrequencyPenalty,
+                aiRecommendCompareSeed: draftConfig.aiRecommendCompareSeed,
+                aiRecommendCompareStopSequences: draftConfig.aiRecommendCompareStopSequences,
+                aiRecommendPipelineMode: "three_stage_parallel",
+                aiRecommendSingleModel: "",
+                aiRecommendSinglePrompt: "",
+                aiRecommendTemperature: "",
+                aiRecommendTopP: "",
+                aiRecommendMaxTokens: "",
+                aiRecommendMaxCompletionTokens: "",
+                aiRecommendPresencePenalty: "",
+                aiRecommendFrequencyPenalty: "",
+                aiRecommendSeed: "",
+                aiRecommendStopSequences: "",
                 aiRecommendEnableThinking: false,
                 aiQualifiedAutofillConcurrency: autofillConcurrency,
                 shortcuts: shortcuts,

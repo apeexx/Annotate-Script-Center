@@ -505,8 +505,17 @@ test("Aishell storage defaults expose disabled Cantonese helper config", async f
     assert.equal(cantoneseScript.id, "aishellTechCantoneseAssistant");
     assert.equal(cantoneseScript.enabled, false);
     assert.equal(cantoneseScript.aiRecommendEnabled, false);
-    assert.equal(cantoneseScript.aiRecommendSingleModel, "qwen3.5-omni-flash");
-    assert.equal(cantoneseScript.aiRecommendSinglePrompt, "");
+    assert.equal(cantoneseScript.aiRecommendPipelineMode, "three_stage_parallel");
+    assert.equal(cantoneseScript.aiRecommendConvertModel, "qwen3.5-plus");
+    assert.equal(cantoneseScript.aiRecommendListenModel, "qwen3.5-omni-flash");
+    assert.equal(cantoneseScript.aiRecommendCompareFamily, "qwen");
+    assert.equal(cantoneseScript.aiRecommendCompareModel, "qwen3.5-plus");
+    assert.equal(cantoneseScript.aiRecommendCompareAdoptionThreshold, 0.75);
+    assert.equal(cantoneseScript.aiRecommendConvertPrompt, "");
+    assert.equal(cantoneseScript.aiRecommendListenPrompt, "");
+    assert.equal(cantoneseScript.aiRecommendCompareQwenPrompt, "");
+    assert.equal(cantoneseScript.aiRecommendCompareOmniPrompt, "");
+    assert.equal(Object.prototype.hasOwnProperty.call(cantoneseScript, "aiRecommendSingleModel"), false);
     assert.equal(
       cantoneseScript.aiRecommendEndpoint,
       "https://script.aisiyunling.com/api/aishell-tech/cantonese-helper/ai/recommend"
@@ -556,7 +565,7 @@ test("Aishell storage derives the Cantonese endpoint from the saved global backe
   }
 });
 
-test("Aishell storage keeps the Cantonese model, timeout, and thinking mode fixed", async function () {
+test("Aishell storage migrates Cantonese legacy single-stage settings into listening", async function () {
   const harness = loadStorageApi({
     platforms: {
       aishellTech: {
@@ -564,6 +573,8 @@ test("Aishell storage keeps the Cantonese model, timeout, and thinking mode fixe
           cantoneseHelper: {
             id: "aishellTechCantoneseAssistant",
             aiRecommendSingleModel: "qwen3.5-omni-plus",
+            aiRecommendSinglePrompt: "legacy-listen-prompt",
+            aiRecommendTemperature: "0.2",
             aiRecommendRequestTimeoutMs: 90000,
             aiRecommendEnableThinking: true,
           },
@@ -574,9 +585,51 @@ test("Aishell storage keeps the Cantonese model, timeout, and thinking mode fixe
 
   try {
     const script = (await harness.storage.getSettings()).platforms.aishellTech.scripts.cantoneseHelper;
-    assert.equal(script.aiRecommendSingleModel, "qwen3.5-omni-flash");
+    assert.equal(script.aiRecommendPipelineMode, "three_stage_parallel");
+    assert.equal(script.aiRecommendConvertModel, "qwen3.5-plus");
+    assert.equal(script.aiRecommendListenModel, "qwen3.5-omni-plus");
+    assert.equal(script.aiRecommendListenPrompt, "legacy-listen-prompt");
+    assert.equal(script.aiRecommendListenTemperature, "0.2");
+    assert.equal(script.aiRecommendCompareFamily, "qwen");
+    assert.equal(script.aiRecommendCompareModel, "qwen3.5-plus");
+    assert.equal(Object.prototype.hasOwnProperty.call(script, "aiRecommendSingleModel"), false);
     assert.equal(script.aiRecommendRequestTimeoutMs, 60000);
     assert.equal(script.aiRecommendEnableThinking, false);
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test("Aishell storage keeps custom Cantonese stages and forces Fun-ASR comparison to Omni", async function () {
+  const harness = loadStorageApi({
+    platforms: {
+      aishellTech: {
+        scripts: {
+          cantoneseHelper: {
+            id: "aishellTechCantoneseAssistant",
+            aiRecommendConvertModel: "qwen3.6-plus",
+            aiRecommendConvertPrompt: "convert-prompt",
+            aiRecommendListenModel: "fun-asr",
+            aiRecommendListenPrompt: "listen-prompt",
+            aiRecommendCompareFamily: "qwen",
+            aiRecommendCompareModel: "qwen3.6-plus",
+            aiRecommendCompareQwenPrompt: "compare-prompt",
+            aiRecommendCompareAdoptionThreshold: "0.8",
+          },
+        },
+      },
+    },
+  });
+
+  try {
+    const script = (await harness.storage.getSettings()).platforms.aishellTech.scripts.cantoneseHelper;
+    assert.equal(script.aiRecommendConvertModel, "qwen3.6-plus");
+    assert.equal(script.aiRecommendConvertPrompt, "convert-prompt");
+    assert.equal(script.aiRecommendListenModel, "fun-asr");
+    assert.equal(script.aiRecommendListenPrompt, "listen-prompt");
+    assert.equal(script.aiRecommendCompareFamily, "omni");
+    assert.equal(script.aiRecommendCompareModel, "qwen3.5-omni-flash");
+    assert.equal(script.aiRecommendCompareAdoptionThreshold, 0.8);
   } finally {
     harness.cleanup();
   }

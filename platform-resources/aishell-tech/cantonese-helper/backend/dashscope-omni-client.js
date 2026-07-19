@@ -45,6 +45,10 @@ function applyRequestParams(body, value) {
   const temperature = normalizeNumberInRange(source.temperature, 0, 2);
   const topP = normalizeNumberInRange(source.top_p, 0, 1);
   const maxTokens = Math.floor(Number(source.max_tokens));
+  const maxCompletionTokens = Math.floor(Number(source.max_completion_tokens));
+  const presencePenalty = normalizeNumberInRange(source.presence_penalty, -2, 2);
+  const frequencyPenalty = normalizeNumberInRange(source.frequency_penalty, -2, 2);
+  const seed = Math.floor(Number(source.seed));
   if (temperature !== null) {
     body.temperature = temperature;
   }
@@ -54,12 +58,28 @@ function applyRequestParams(body, value) {
   if (Number.isFinite(maxTokens) && maxTokens >= 1 && maxTokens <= 8192) {
     body.max_tokens = maxTokens;
   }
+  if (Number.isFinite(maxCompletionTokens) && maxCompletionTokens >= 1 && maxCompletionTokens <= 8192) {
+    body.max_completion_tokens = maxCompletionTokens;
+    delete body.max_tokens;
+  }
+  if (presencePenalty !== null) {
+    body.presence_penalty = presencePenalty;
+  }
+  if (frequencyPenalty !== null) {
+    body.frequency_penalty = frequencyPenalty;
+  }
+  if (Number.isFinite(seed) && seed >= 0 && seed <= 2147483647) {
+    body.seed = seed;
+  }
+  if (Array.isArray(source.stop) && source.stop.length > 0) {
+    body.stop = source.stop.map(function (item) { return String(item || "").trim(); }).filter(Boolean).slice(0, 8);
+  }
 }
 
 function buildDashScopeOmniRequestBody(input) {
   const source = input && typeof input === "object" ? input : {};
   const body = {
-    model: DEFAULT_OMNI_MODEL,
+    model: String(source.model || DEFAULT_OMNI_MODEL).trim() || DEFAULT_OMNI_MODEL,
     stream: true,
     stream_options: { include_usage: true },
     enable_thinking: false,
@@ -207,7 +227,9 @@ async function requestOmniInputAudio(input, prompt, options) {
   }
   const controller = typeof AbortController === "function" ? new AbortController() : null;
   const unbind = bindSignal(controller, signal);
-  const timer = controller ? setTimeout(function () { controller.abort(); }, DEFAULT_TIMEOUT_MS) : null;
+  const timeoutMs = Math.max(1000, Number(options?.timeoutMs) || DEFAULT_TIMEOUT_MS);
+  const requestedModel = String(options?.model || config.omniModel || DEFAULT_OMNI_MODEL).trim() || DEFAULT_OMNI_MODEL;
+  const timer = controller ? setTimeout(function () { controller.abort(); }, timeoutMs) : null;
   try {
     const response = await fetch(config.baseUrl + "/chat/completions", {
       method: "POST",
@@ -217,6 +239,7 @@ async function requestOmniInputAudio(input, prompt, options) {
       },
       body: JSON.stringify(
         buildDashScopeOmniRequestBody({
+          model: requestedModel,
           audioUrl: input?.audioUrl,
           systemPrompt: prompt?.systemPrompt,
           userPrompt: prompt?.userPrompt,
@@ -250,7 +273,7 @@ async function requestOmniInputAudio(input, prompt, options) {
       throw error;
     }
     return {
-      model: DEFAULT_OMNI_MODEL,
+      model: requestedModel,
       rawText: result.text,
       usage: result.usage,
       finishReason: result.finishReason,

@@ -340,6 +340,58 @@ class AiJobStore {
     return control?.controller?.signal || null;
   }
 
+  cancelJob(jobId, options) {
+    const normalizedJobId = normalizeText(jobId);
+    const source = options && typeof options === "object" ? options : {};
+    const job = this.jobs.get(normalizedJobId);
+    if (!job) {
+      throw createJobNotFoundError();
+    }
+    if (isTerminalStatus(job.status)) {
+      return cloneJson(job);
+    }
+    const errorBody = source.errorBody && typeof source.errorBody === "object"
+      ? cloneJson(source.errorBody)
+      : {
+          success: false,
+          error: {
+            code: "aborted",
+            message: "任务已取消。",
+            stage: normalizeText(source.stage) || "queue",
+            retryable: false,
+            providerStatus: 0,
+            providerCode: "",
+          },
+          meta: {
+            requestId: normalizeText(source.requestId || job.requestId),
+            stage: normalizeText(source.stage) || "queue",
+            cancelled: true,
+          },
+        };
+    const control = this.controls.get(normalizedJobId);
+    if (control?.controller && typeof control.controller.abort === "function") {
+      try {
+        control.controller.abort(errorBody);
+      } catch (_error) {
+        control.controller.abort();
+      }
+    }
+    const outcome = this.updateJob(normalizedJobId, function (mutableJob) {
+      if (isTerminalStatus(mutableJob.status)) {
+        return { ignored: true };
+      }
+      mutableJob.status = "failed";
+      mutableJob.finishedAt = Date.now();
+      mutableJob.responseBody = null;
+      mutableJob.errorBody = errorBody;
+      return { ignored: false };
+    });
+    if (!outcome.ignored) {
+      this.clearControl(normalizedJobId);
+    }
+    return outcome.job;
+  }
+
   getJobDebug(jobId) {
     this.cleanupExpired(this.now());
     const normalizedJobId = normalizeText(jobId);

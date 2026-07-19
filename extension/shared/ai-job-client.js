@@ -72,6 +72,10 @@
     return buildJobDetailEndpoint(baseEndpoint, jobId) + "/debug";
   }
 
+  function buildJobCancelEndpoint(baseEndpoint, jobId) {
+    return buildJobDetailEndpoint(baseEndpoint, jobId) + "/cancel";
+  }
+
   async function requestJson(options) {
     const config = options && typeof options === "object" ? options : {};
     const fetchImpl =
@@ -90,6 +94,7 @@
     const externalSignal = config.signal || null;
     const controller = typeof AbortController === "function" ? new AbortController() : null;
     let timedOut = false;
+    let responseTimeout = null;
     const timer = globalThis.setTimeout(function () {
       timedOut = true;
       if (controller) {
@@ -112,7 +117,7 @@
             : null
         )),
         new Promise(function (_resolve, reject) {
-          globalThis.setTimeout(function () {
+          responseTimeout = globalThis.setTimeout(function () {
             if (timedOut) {
               reject(createError("AI 任务请求超时。", {
                 code: "timeout",
@@ -136,6 +141,9 @@
       };
     } finally {
       globalThis.clearTimeout(timer);
+      if (responseTimeout) {
+        globalThis.clearTimeout(responseTimeout);
+      }
     }
   }
 
@@ -249,50 +257,99 @@
       }
     }
 
-    const createResponse = await requestPhase(
-      buildJobsEndpoint(endpoint),
-      "POST",
-      config.body,
-      "create"
-    );
-    if (
-      !createResponse.response.ok ||
-      createResponse.body?.success !== true ||
-      !normalizeText(createResponse.body?.jobId)
-    ) {
-      throw buildApiError(createResponse.body, createResponse.response.status, "create");
+    let jobId = "";
+    let remoteCancelPromise = null;
+
+    function requestRemoteCancel() {
+      if (!jobId || remoteCancelPromise) {
+        return remoteCancelPromise;
+      }
+      remoteCancelPromise = requestJson({
+        fetchImpl: config.fetchImpl,
+        url: buildJobCancelEndpoint(endpoint, jobId),
+        method: "POST",
+        timeoutMs: Math.min(perRequestTimeoutMs, Math.max(1000, deadlineAt - Date.now())),
+        requestInit: config.requestInit,
+        phase: "cancel",
+      }).catch(function () {
+        // The user-visible outcome is still cancellation even if a network failure
+        // prevents the best-effort backend notification.
+        return null;
+      });
+      return remoteCancelPromise;
     }
 
-    let jobBody = createResponse.body;
-    while (true) {
-      if (externalSignal?.aborted) {
-        throw createUserAbortedError("poll");
-      }
-      if (isTerminalSuccess(jobBody)) {
-        return {
-          job: jobBody,
-          data: mapSuccess(jobBody),
-          createResponse,
-        };
-      }
-      if (isTerminalFailure(jobBody)) {
-        throw buildTerminalError(jobBody);
-      }
-      const remainingMs = deadlineAt - Date.now();
-      if (remainingMs <= 0) {
-        throw createTimeoutError("poll");
-      }
-      await delay(Math.min(pollIntervalMs, remainingMs), externalSignal, "poll");
-      const statusResponse = await requestPhase(
-        buildJobDetailEndpoint(endpoint, jobBody.jobId),
-        "GET",
-        undefined,
-        "poll"
+    function onExternalAbort() {
+      void requestRemoteCancel();
+    }
+
+    if (externalSignal && typeof externalSignal.addEventListener === "function") {
+      externalSignal.addEventListener("abort", onExternalAbort, { once: true });
+    }
+
+    try {
+      const createResponse = await requestPhase(
+        buildJobsEndpoint(endpoint),
+        "POST",
+        config.body,
+        "create"
       );
-      if (!statusResponse.response.ok || statusResponse.body?.success !== true) {
-        throw buildApiError(statusResponse.body, statusResponse.response.status, "poll");
+      if (
+        !createResponse.response.ok ||
+        createResponse.body?.success !== true ||
+        !normalizeText(createResponse.body?.jobId)
+      ) {
+        throw buildApiError(createResponse.body, createResponse.response.status, "create");
       }
-      jobBody = statusResponse.body;
+
+      let jobBody = createResponse.body;
+      jobId = normalizeText(jobBody.jobId);
+      if (externalSignal?.aborted) {
+        await requestRemoteCancel();
+        throw createUserAbortedError("create");
+      }
+
+      while (true) {
+        if (externalSignal?.aborted) {
+          await requestRemoteCancel();
+          throw createUserAbortedError("poll");
+        }
+        if (isTerminalSuccess(jobBody)) {
+          return {
+            job: jobBody,
+            data: mapSuccess(jobBody),
+            createResponse,
+          };
+        }
+        if (isTerminalFailure(jobBody)) {
+          throw buildTerminalError(jobBody);
+        }
+        const remainingMs = deadlineAt - Date.now();
+        if (remainingMs <= 0) {
+          throw createTimeoutError("poll");
+        }
+        await delay(Math.min(pollIntervalMs, remainingMs), externalSignal, "poll");
+        const statusResponse = await requestPhase(
+          buildJobDetailEndpoint(endpoint, jobBody.jobId),
+          "GET",
+          undefined,
+          "poll"
+        );
+        if (!statusResponse.response.ok || statusResponse.body?.success !== true) {
+          throw buildApiError(statusResponse.body, statusResponse.response.status, "poll");
+        }
+        jobBody = statusResponse.body;
+      }
+    } catch (error) {
+      if (externalSignal?.aborted) {
+        await requestRemoteCancel();
+        throw createUserAbortedError(error?.phase || "poll");
+      }
+      throw error;
+    } finally {
+      if (externalSignal && typeof externalSignal.removeEventListener === "function") {
+        externalSignal.removeEventListener("abort", onExternalAbort);
+      }
     }
   }
 
@@ -324,6 +381,7 @@
 
   const api = {
     buildEndpoint,
+    buildJobCancelEndpoint,
     buildJobDebugEndpoint,
     buildJobDetailEndpoint,
     buildJobsEndpoint,

@@ -167,11 +167,34 @@
   }
 
   function buildAiStages(config) {
+    const listenModel = normalizeText(config.aiRecommendListenModel || config.aiRecommendSingleModel);
+    let compareFamily = normalizeText(config.aiRecommendCompareFamily).toLowerCase() === "omni" ? "omni" : "qwen";
+    let compareModel = normalizeText(config.aiRecommendCompareModel);
+    if (listenModel === "fun-asr" && compareFamily === "qwen") {
+      compareFamily = "omni";
+      compareModel = "qwen3.5-omni-flash";
+    }
     return {
-      recognize: {
-        model: normalizeText(config.aiRecommendSingleModel),
-        prompt: normalizePromptText(config.aiRecommendSinglePrompt),
-        params: buildStageParams(config, "aiRecommend"),
+      convert: {
+        model: normalizeText(config.aiRecommendConvertModel),
+        prompt: normalizePromptText(config.aiRecommendConvertPrompt),
+        params: buildStageParams(config, "aiRecommendConvert"),
+      },
+      listen: {
+        model: listenModel,
+        prompt: normalizePromptText(config.aiRecommendListenPrompt || config.aiRecommendSinglePrompt),
+        params: buildStageParams(config, "aiRecommendListen"),
+      },
+      compare: {
+        family: compareFamily,
+        model: compareModel,
+        prompt: normalizePromptText(
+          compareFamily === "omni"
+            ? config.aiRecommendCompareOmniPrompt
+            : config.aiRecommendCompareQwenPrompt
+        ),
+        params: buildStageParams(config, "aiRecommendCompare"),
+        adoptionThreshold: normalizeOptionalNumber(config.aiRecommendCompareAdoptionThreshold, 0, 1),
       },
     };
   }
@@ -193,6 +216,15 @@
         aiRecommendEnabled: false,
         aiRecommendRequestTimeoutMs: DEFAULT_TIMEOUT_MS,
         aiQualifiedAutofillConcurrency: 5,
+        aiRecommendConvertModel: "qwen3.5-plus",
+        aiRecommendConvertPrompt: "",
+        aiRecommendListenModel: "qwen3.5-omni-flash",
+        aiRecommendListenPrompt: "",
+        aiRecommendCompareFamily: "qwen",
+        aiRecommendCompareModel: "qwen3.5-plus",
+        aiRecommendCompareQwenPrompt: "",
+        aiRecommendCompareOmniPrompt: "",
+        aiRecommendCompareAdoptionThreshold: "",
         aiRecommendSingleModel: "qwen3.5-omni-flash",
         aiRecommendSinglePrompt: "",
         aiRecommendEnableThinking: false,
@@ -225,13 +257,26 @@
       id: SCRIPT_ID,
       aiRecommendEndpoint: endpoint,
     });
+    if (!Object.prototype.hasOwnProperty.call(scriptConfig, "aiRecommendListenModel")) {
+      merged.aiRecommendListenModel = normalizeText(scriptConfig.aiRecommendSingleModel) || merged.aiRecommendListenModel;
+    }
+    if (!Object.prototype.hasOwnProperty.call(scriptConfig, "aiRecommendListenPrompt")) {
+      merged.aiRecommendListenPrompt = normalizePromptText(scriptConfig.aiRecommendSinglePrompt) || merged.aiRecommendListenPrompt;
+    }
+    ["Temperature", "TopP", "MaxTokens", "MaxCompletionTokens", "PresencePenalty", "FrequencyPenalty", "Seed", "StopSequences"].forEach(function (suffix) {
+      const listenKey = "aiRecommendListen" + suffix;
+      const legacyKey = "aiRecommend" + suffix;
+      if (!Object.prototype.hasOwnProperty.call(scriptConfig, listenKey) && Object.prototype.hasOwnProperty.call(scriptConfig, legacyKey)) {
+        merged[listenKey] = scriptConfig[legacyKey];
+      }
+    });
     merged.aiQualifiedAutofillConcurrency = Math.max(
       1,
       Math.floor(Number(merged.aiQualifiedAutofillConcurrency || 5) || 5)
     );
-    merged.aiRecommendRequestTimeoutMs = Math.max(
-      1000,
-      Number(merged.aiRecommendRequestTimeoutMs || DEFAULT_TIMEOUT_MS) || DEFAULT_TIMEOUT_MS
+    merged.aiRecommendRequestTimeoutMs = Math.min(
+      DEFAULT_TIMEOUT_MS,
+      Math.max(1000, Number(merged.aiRecommendRequestTimeoutMs || DEFAULT_TIMEOUT_MS) || DEFAULT_TIMEOUT_MS)
     );
     return {
       config: merged,
@@ -314,10 +359,21 @@
     };
     let batchStopRequested = false;
     let activeBatchContext = null;
+    const activeRequestControllers = new Set();
 
     function syncBusyState(nextState) {
       currentBusyState = Object.assign({}, currentBusyState, nextState || {});
       panel.setBusy(currentBusyState);
+    }
+
+    function abortActiveRequests() {
+      activeRequestControllers.forEach(function (controller) {
+        try {
+          controller.abort();
+        } catch (_error) {
+          // A best-effort stop must not prevent the rest of the batch from closing.
+        }
+      });
     }
 
     async function handleRecommend() {
@@ -353,12 +409,15 @@
       if (activeBatchContext?.requestStream?.cancelPending) {
         activeBatchContext.requestStream.cancelPending("批量识别已手动停止。");
       }
+      if (typeof activeBatchContext?.abortActiveRequests === "function") {
+        activeBatchContext.abortActiveRequests();
+      }
       if (typeof activeBatchContext?.notifyStopSignal === "function") {
         activeBatchContext.notifyStopSignal();
       }
       const batchMeta = getBatchModeMeta(activeBatchContext?.mode);
       panel.setStatus(
-        "已请求停止，将在当前条完成后结束本轮" + batchMeta.label + "。",
+        "已请求停止，正在取消已发起的 AI 任务并结束本轮" + batchMeta.label + "。",
         "warning"
       );
       panel.updateBatch({
@@ -459,7 +518,20 @@
               String(item.taskItemId || "unknown"),
             ].join(":");
             item.frontConcurrency = batchConcurrency;
-            return aiClient.recommend(item);
+            const controller =
+              typeof AbortController === "function" ? new AbortController() : null;
+            if (controller) {
+              activeRequestControllers.add(controller);
+            }
+            try {
+              return await aiClient.recommend(item, {
+                signal: controller ? controller.signal : undefined,
+              });
+            } finally {
+              if (controller) {
+                activeRequestControllers.delete(controller);
+              }
+            }
           },
         });
 
@@ -468,6 +540,7 @@
           requestStream: requestStream,
           batchRunId: batchRunId,
           notifyStopSignal: notifyStopSignal,
+          abortActiveRequests: abortActiveRequests,
         };
 
         updateBatchSnapshot(batchMeta.label + "开始", tasks[0].displayName, true);
@@ -689,4 +762,3 @@
     bootstrap();
   }
 })();
-

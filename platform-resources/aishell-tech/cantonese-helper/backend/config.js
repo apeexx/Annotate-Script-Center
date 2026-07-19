@@ -5,8 +5,15 @@ const {
   DEFAULT_REQUEST_PARAMS,
 } = require("../../../backend/ai/config");
 
+const DEFAULT_CONVERT_MODEL = "qwen3.5-plus";
 const DEFAULT_OMNI_MODEL = "qwen3.5-omni-flash";
+const DEFAULT_LISTEN_MODEL = DEFAULT_OMNI_MODEL;
+const DEFAULT_QWEN_COMPARE_MODEL = "qwen3.5-plus";
 const DEFAULT_TIMEOUT_MS = 60000;
+
+const TEXT_MODEL_OPTIONS = ["qwen3.5-plus", "qwen3.6-plus", "qwen3.5-flash", "qwen3.6-flash"];
+const OMNI_MODEL_OPTIONS = ["qwen3.5-omni-flash", "qwen3.5-omni-plus"];
+const LISTEN_MODEL_OPTIONS = OMNI_MODEL_OPTIONS.concat(["fun-asr"]);
 
 function normalizeText(value) {
   return String(value || "").trim();
@@ -54,8 +61,14 @@ function getCantoneseProviderConfig() {
 }
 
 module.exports = {
+  DEFAULT_CONVERT_MODEL,
+  DEFAULT_LISTEN_MODEL,
   DEFAULT_OMNI_MODEL,
+  DEFAULT_QWEN_COMPARE_MODEL,
   DEFAULT_REQUEST_PARAMS,
   DEFAULT_TIMEOUT_MS,
+  LISTEN_MODEL_OPTIONS,
+  OMNI_MODEL_OPTIONS,
+  TEXT_MODEL_OPTIONS,
   getCantoneseProviderConfig,
 };
