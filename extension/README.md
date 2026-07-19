@@ -12,7 +12,7 @@
 
 - `manifest.json`：扩展声明、权限和 content script 注入入口。
 - `shared/`：共享常量、存储、构建元信息和通用工具。
-- `options/`：脚本中心工作台。提供功能面板、脚本详情设置、脚本下载中心和系统管理四个视图；卡片和可进入的详情页只从 `shared/constants.js` 的 `SCRIPT_LIBRARY` 及 public 可见性规则生成。
+- `options/`：脚本中心工作台。提供功能面板、脚本详情设置、脚本下载中心和系统管理四个视图；卡片和可进入的详情页只从 `shared/constants.js` 的 `SCRIPT_LIBRARY` 及 public 可见性规则生成。系统管理中的后端模式与根地址设置固定显示在密码验证入口之前，以便服务器后端不可用时仍能切换到本机后端。
 - `popup/`：当前页面脚本识别和启停入口。
 - `background/`：后台 service worker。
 - `sites/`：各平台运行时代码。

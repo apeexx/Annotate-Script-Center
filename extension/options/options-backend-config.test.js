@@ -20,3 +20,13 @@ test("options backend panel exposes public server and local root url inputs", fu
   assert.match(script, /buildDownloadUrl/);
   assert.match(script, /backendConfigExpanded/);
 });
+
+test("backend mode switch stays available before administrator authentication", function () {
+  const script = fs.readFileSync(path.resolve(__dirname, "options.js"), "utf8");
+
+  assert.match(
+    script,
+    /adminStage\.insertBefore\(homeEndpointCard, authGate\)/,
+    "the local/server switch must be usable when the current server endpoint cannot unlock admin"
+  );
+});

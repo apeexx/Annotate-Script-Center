@@ -11870,9 +11870,14 @@
     detailView.insertAdjacentElement("afterend", adminSection);
 
     const homeEndpointCard = getElement("home-endpoint-card");
-    const backendSlot = getElement("admin-backend-card-slot");
-    if (homeEndpointCard instanceof HTMLElement && backendSlot instanceof HTMLElement) {
-      backendSlot.appendChild(homeEndpointCard);
+    const adminStage = adminSection.querySelector(".admin-stage");
+    const authGate = getElement("admin-auth-gate");
+    if (
+      homeEndpointCard instanceof HTMLElement &&
+      adminStage instanceof HTMLElement &&
+      authGate instanceof HTMLElement
+    ) {
+      adminStage.insertBefore(homeEndpointCard, authGate);
     }
     const projectDownloadPanel = getElement("project-data-download-panel");
     const aiCallLogPanel = getElement("ai-call-log-download-panel");
