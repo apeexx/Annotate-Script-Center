@@ -112,9 +112,6 @@ function normalizeRecommendRequest(value) {
   if (!audioUrl) {
     throw createHttpError(400, "缺少可用音频地址。", "invalid-audio-url");
   }
-  if (!referenceText) {
-    throw createHttpError(400, "referenceText 不能为空。", "invalid-reference-text");
-  }
   return {
     requestId: normalizeText(source.requestId || source.clientRequestId),
     taskId: normalizeText(source.taskId),

@@ -4,7 +4,7 @@
 
 - 运行时代码：`extension/sites/aishell-tech/cantonese-helper/`。
 - 仅在 `https://mark.aishelltech.com/mytask/mark?...` 工作页启用。
-- 使用当前分包条目的 `dataRoot + url` 拼接 OSS 音频地址；保留任务、分包、条目、参考文本、页面当前文本、条目编号、时长和使用人元数据。
+- 使用当前分包条目的 `dataRoot + url` 拼接 OSS 音频地址；保留任务、分包、条目、参考文本、页面当前文本、条目编号、时长和使用人元数据。参考文本可为空，不阻断基于音频的原始听写。
 - AI 为单次 Omni 原始听写，直接把音频 URL 交给模型，不下载、裁剪或转 Base64。
 - 成功业务结果唯一为繁体粤语口语 `listenText`。页面展示、复制和填入都原样使用该字段，不做繁简转换、去空格、补标点或词表替换。
 

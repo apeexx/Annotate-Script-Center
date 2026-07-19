@@ -16,6 +16,8 @@
 
 接口见上级 README。同步推荐仅供兼容和诊断；运行时默认创建 `POST /jobs` 后轮询结果。任务使用公共 job store、缓存和 `aishell_qwen_omni` 队列，但粤语 job 从创建时刻起（含排队）固定最多 `60000ms`，不受公共 `ASC_AI_JOB_TIMEOUT_MS` 放宽影响；超时、客户端断开或取消都会取消未完成的模型请求，且取消或失败的任务不写入成功缓存。
 
+原始听写只要求有效的 `taskItemId` 与 `audioUrl`；`referenceText` 仅作为可为空的条目上下文保留在请求、缓存和结果中，不参与 Prompt，也不作为拒绝条件。
+
 - `POST /api/aishell-tech/cantonese-helper/ai/recommend/jobs/:jobId/cancel`：取消已创建 job；不需要请求体，成功返回 `200` 与该 job 的轮询状态。当前路由器只支持 `GET/POST`，因此不使用 `DELETE`。
 - `GET /api/aishell-tech/cantonese-helper/ai/recommend/jobs/:jobId`：继续轮询 job。取消后或超时后返回 `status: "failed"`，并在 `error.error.code` 中返回 `aborted` 或 `ai-job-timeout`。
 

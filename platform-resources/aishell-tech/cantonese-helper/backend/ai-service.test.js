@@ -46,6 +46,17 @@ test("Aishell Cantonese request keeps a saved prompt but always disables thinkin
   assert.equal(request.pipelineMode, "omni_single_raw_listen");
 });
 
+test("Aishell Cantonese accepts an audio item without platform reference text", function () {
+  const api = loadModule();
+  const request = api.normalizeRecommendRequest({
+    taskItemId: "item-without-reference",
+    audioUrl: "https://example.com/audio.wav",
+  });
+
+  assert.equal(request.taskItemId, "item-without-reference");
+  assert.equal(request.referenceText, "");
+});
+
 test("Aishell Cantonese success body preserves raw listenText", function () {
   const api = loadModule();
   const rawListenText = "冇問題 ！";
