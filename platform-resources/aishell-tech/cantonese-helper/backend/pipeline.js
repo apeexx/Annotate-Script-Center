@@ -4,6 +4,7 @@ const { estimateProjectCost } = require("../../../backend/ai/model-pricing");
 const { requestCompare } = require("../../../backend/ai/providers/qwen-openai-compatible");
 const { requestFunAsrRecognition } = require("../../../backend/ai/providers/funasr");
 const { enqueueProviderTask } = require("../../../backend/ai/provider-queue");
+const { sanitizeProviderDebugText } = require("../../../backend/ai/sanitizer");
 const { requestOmniInputAudio } = require("./dashscope-omni-client");
 const {
   createHttpError,
@@ -24,6 +25,29 @@ function createStageError(error, stage, requestId) {
   if (Number(result.statusCode) === 429) result.retryable = true;
   if (Number(result.statusCode) === 504 || result.code === "timeout") result.retryable = true;
   return result;
+}
+
+function parseStageJson(result, stage, stageConfig, requestId) {
+  try {
+    return parseJsonText(result?.rawText);
+  } catch (error) {
+    const stageError = createStageError(error, stage, requestId);
+    const rawText = String(result?.rawText || "");
+    stageError.debugRawAiResponse = Object.assign(
+      {
+        provider: "aishell-cantonese-pipeline",
+        stage,
+        model: normalizeText(result?.model || stageConfig?.model),
+        rawText: sanitizeProviderDebugText(rawText, 20000),
+        rawTextLength: rawText.length,
+        finishReason: sanitizeProviderDebugText(result?.finishReason || "", 120),
+      },
+      stageError.debugRawAiResponse && typeof stageError.debugRawAiResponse === "object"
+        ? stageError.debugRawAiResponse
+        : {}
+    );
+    throw stageError;
+  }
 }
 
 function buildConvertPrompt(stagePrompt, referenceText) {
@@ -135,7 +159,7 @@ function createCantoneseRecommendPipeline(overrides) {
         Object.assign({}, stage.params, { model: stage.model, timeoutMs: runtime.timeoutMs, signal: runtime.signal, stage: "convert", enableThinking: false })
       );
     });
-    const parsed = parseJsonText(result?.rawText);
+    const parsed = parseStageJson(result, "convert", stage, runtime.requestId);
     return {
       text: extractText(parsed, ["convertedText", "candidateText", "recommendedText", "text"], "empty-converted-text", "转换阶段未返回可用的粤语候选。"),
       usage: normalizeUsage(result?.usage),
@@ -167,7 +191,7 @@ function createCantoneseRecommendPipeline(overrides) {
         Object.assign({}, stage.params, { model: stage.model, timeoutMs: runtime.timeoutMs, signal: runtime.signal, stage: "listen" })
       );
     });
-    const parsed = parseJsonText(result?.rawText);
+    const parsed = parseStageJson(result, "listen", stage, runtime.requestId);
     return {
       text: extractText(parsed, ["heardText", "text", "transcription", "recommendedText"], "empty-heard-text", "听音阶段未返回可用的粤语转写。"),
       speed: normalizeSpeed(parsed.recommendedSpeed || parsed.speed || parsed.speechRate),
@@ -188,7 +212,7 @@ function createCantoneseRecommendPipeline(overrides) {
           Object.assign({}, stage.params, { model: stage.model, timeoutMs: runtime.timeoutMs, signal: runtime.signal, stage: "compare" })
         );
       });
-      const parsed = parseJsonText(result?.rawText);
+      const parsed = parseStageJson(result, "compare", stage, runtime.requestId);
       return {
         text: extractText(parsed, ["recommendedText", "text", "heardText"], "empty-recommended-text", "比较阶段未返回最终粤语文本。"),
         speed: normalizeSpeed(parsed.recommendedSpeed || parsed.speed || parsed.speechRate),
@@ -203,7 +227,7 @@ function createCantoneseRecommendPipeline(overrides) {
         Object.assign({}, stage.params, { model: stage.model, timeoutMs: runtime.timeoutMs, signal: runtime.signal, stage: "compare", enableThinking: false })
       );
     });
-    const parsed = parseJsonText(result?.rawText);
+    const parsed = parseStageJson(result, "compare", stage, runtime.requestId);
     return {
       text: extractText(parsed, ["recommendedText", "text", "heardText"], "empty-recommended-text", "比较阶段未返回最终粤语文本。"),
       speed: heard.speed,

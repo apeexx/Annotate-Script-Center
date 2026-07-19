@@ -113,3 +113,41 @@ test("Cantonese pipeline falls back to heard text when comparison confidence mis
   assert.equal(result.meta.adoption.accepted, false);
   assert.equal(result.meta.adoption.threshold, 0.8);
 });
+
+test("Cantonese pipeline retains the listening stage diagnostics when the provider returns empty text", async function () {
+  const pipeline = createCantoneseRecommendPipeline({
+    enqueueTask: async function (_group, task) { return task(); },
+    requestCompare: async function (_input, _prompt, _heardText, options) {
+      if (options.stage === "convert") {
+        return { rawText: '{"convertedText":"候选文字"}', usage: {} };
+      }
+      throw new Error("comparison must not run after listening fails");
+    },
+    requestOmniInputAudio: async function () {
+      return { model: "qwen3.5-omni-flash", rawText: "", finishReason: "stop", usage: {} };
+    },
+  });
+
+  await assert.rejects(
+    pipeline.run({
+      requestId: "pipeline-empty-listen",
+      taskItemId: "item-4",
+      audioUrl: "https://example.invalid/audio.wav",
+      referenceText: "参考文字",
+      aiStages: {
+        convert: { model: "qwen3.5-plus", prompt: "convert", params: {} },
+        listen: { model: "qwen3.5-omni-flash", prompt: "listen", params: {} },
+        compare: { family: "qwen", model: "qwen3.5-plus", prompt: "compare", params: {}, adoptionThreshold: 0.8 },
+      },
+    }),
+    function (error) {
+      assert.equal(error.code, "empty-provider-response");
+      assert.equal(error.stage, "listen");
+      assert.equal(error.debugRawAiResponse.stage, "listen");
+      assert.equal(error.debugRawAiResponse.model, "qwen3.5-omni-flash");
+      assert.equal(error.debugRawAiResponse.rawTextLength, 0);
+      assert.equal(error.debugRawAiResponse.finishReason, "stop");
+      return true;
+    }
+  );
+});

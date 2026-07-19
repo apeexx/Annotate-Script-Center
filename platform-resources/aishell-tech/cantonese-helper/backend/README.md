@@ -25,6 +25,7 @@
 - 比较阶段默认采纳阈值固定为 `0.75`；扩展、设置页和未传阈值的兼容接口使用同一默认值，低于此值时回退听音文本并标记人工复核。
 - 成功：`success=true`、`data.convertedText`、`data.heardText`、`data.recommendedText`、`data.recommendedSpeed`、`data.referenceText`、分阶段 `meta.usage`、分阶段 `meta.cost`。
 - 失败：`success=false`、`error.code / message / stage / retryable`、`meta.requestId`。
+- 模型返回空文本或无效 JSON 时，失败任务会保留脱敏后的真实阶段、模型名、文本长度、结束原因与原始文本摘要；可在任务仍有效时通过 `GET /jobs/:jobId/debug` 读取，便于区分转换、听音和比较阶段。
 - 上游限流统一为 `provider-rate-limited`，状态码 `429` 且可重试；超时为 `timeout`，状态码 `504` 且可重试。
 
 ## 安全边界
