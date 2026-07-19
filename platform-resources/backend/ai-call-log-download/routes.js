@@ -25,9 +25,6 @@ const {
 const {
   aiCallLogger: aishellThaiLogger,
 } = require("../../aishell-tech/thai-helper/data/ai-call-log");
-const {
-  aiCallLogger: aishellCantoneseLogger,
-} = require("../../aishell-tech/cantonese-helper/data/ai-call-log");
 const { aiCallLogger: magicDataHakkaLogger } = require("../../magic-data/hakka-helper/backend/ai-call-log");
 const { aiCallLogger: magicDataMinnanLogger } = require("../../magic-data/minnan-helper/backend/ai-call-log");
 const { aiCallLogger: asrJudgementLogger } = require("../../alibaba-labelx/asr-judgement/backend/ai-call-log");
@@ -146,14 +143,6 @@ function createDatasetRegistry(config) {
       defaultFileName: "aishell-tech-thai-helper-ai-calls.csv",
       getLogger: function () {
         return aishellThaiLogger;
-      },
-    },
-    {
-      id: "aishell-tech-cantonese-helper-ai",
-      label: "Aishell Tech 粤语助手 AI 调用记录",
-      defaultFileName: "aishell-tech-cantonese-helper-ai-calls.csv",
-      getLogger: function () {
-        return aishellCantoneseLogger;
       },
     },
     {

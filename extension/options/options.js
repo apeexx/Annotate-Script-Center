@@ -30,8 +30,6 @@
     constants.AISHELL_TECH_VIETNAMESE_SCRIPT_ID || "aishellTechVietnameseAssistant";
   const aishellTechThaiScriptId =
     constants.AISHELL_TECH_THAI_SCRIPT_ID || "aishellTechThaiAssistant";
-  const aishellTechCantoneseScriptId =
-    constants.AISHELL_TECH_CANTONESE_SCRIPT_ID || "aishellTechCantoneseAssistant";
   const aishellTechCnEnShortDramaScriptId =
     constants.AISHELL_TECH_CN_EN_SHORT_DRAMA_SCRIPT_ID || "aishellTechCnEnShortDrama";
   const abakaAiTaskPageCaptureScriptId =
@@ -514,14 +512,6 @@
       { key: "fillRecommendedText", label: "填入并保存当前条" },
       { key: "ignoreAiResult", label: "忽略 AI 结果" },
     ];
-  const aishellTechCantoneseShortcutActions =
-    constants.AISHELL_TECH_CANTONESE_SHORTCUT_ACTIONS || [
-      { key: "aiRecommendCurrentItem", label: "AI 识别当前条" },
-      { key: "autoFillQualifiedItem", label: "批量识别并保存" },
-      { key: "copyRecommendedText", label: "复制识别文本" },
-      { key: "fillRecommendedText", label: "填入并保存当前条" },
-      { key: "ignoreAiResult", label: "忽略 AI 结果" },
-    ];
   const aishellTechCnEnShortDramaShortcutActions =
     constants.AISHELL_TECH_CN_EN_SHORT_DRAMA_SHORTCUT_ACTIONS || [];
   const dataBakerCvpcShortcutActions = [
@@ -648,16 +638,6 @@
     'speed 只能返回 "slow"、"normal"、"fast" 三个值之一。',
     "text 保留泰语字符，不翻译成中文，不改写成其他语言。",
     "按当前项目泰语规则收口标点与空格，统一使用半角英文标点。",
-  ].join("\n");
-  const aishellTechCantoneseDefaultSinglePrompt = [
-    "你正在处理粤语音频转写。",
-    "请同时输出繁體粵語口語文本和语速建议。",
-    "只输出 JSON，不要输出 Markdown、解释、前缀或引号。",
-    'JSON 固定字段：{"text":"...","speed":"slow|normal|fast"}。',
-    'speed 只能返回 "slow"、"normal"、"fast" 三个值之一。',
-    "text 必须忠实保留音频中的粤语口语、常用繁体粤字以及合理的中英混说。",
-    "不要翻译成普通话，不要改写成其他语言，不要把粤语口语改成书面普通话。",
-    "清理首尾空格和重复空格，使用繁体中文常用全角标点。",
   ].join("\n");
   const magicDataHelperModelModeOptions = Array.isArray(
     constants.MAGIC_DATA_HELPER_MODEL_MODE_OPTIONS
@@ -992,7 +972,6 @@
     aishellTechMinnanAssistant: "/api/aishell-tech/minnan-helper/ai/recommend/defaults",
     aishellTechVietnameseAssistant: "/api/aishell-tech/vietnamese-helper/ai/recommend/defaults",
     aishellTechThaiAssistant: "/api/aishell-tech/thai-helper/ai/recommend/defaults",
-    aishellTechCantoneseAssistant: "/api/aishell-tech/cantonese-helper/ai/recommend/defaults",
   };
   let projectDataDownloadDatasets = [];
   let aiCallLogDownloadDatasets = [];
@@ -2655,9 +2634,6 @@
     const convert = stages.convert && typeof stages.convert === "object" ? stages.convert : {};
     const listen = stages.listen && typeof stages.listen === "object" ? stages.listen : {};
     const compare = stages.compare && typeof stages.compare === "object" ? stages.compare : {};
-    const convertParams = convert.params && typeof convert.params === "object" ? convert.params : {};
-    const listenParams = listen.params && typeof listen.params === "object" ? listen.params : {};
-    const compareParams = compare.params && typeof compare.params === "object" ? compare.params : {};
     const qwenModelOptions = buildAishellTechTextModelOptions(defaults, [
       convert.model,
       compare.model,
@@ -2688,15 +2664,15 @@
         ),
         modelOptions: qwenModelOptions,
         prompt: String(convert.prompt || defaults.candidatePrompt || ""),
-        temperature: convert.temperature ?? convertParams.temperature ?? defaults.temperature ?? "",
-        top_p: convert.top_p ?? convertParams.top_p ?? defaults.top_p ?? "",
-        max_tokens: convert.max_tokens ?? convertParams.max_tokens ?? defaults.max_tokens ?? "",
+        temperature: convert.temperature ?? defaults.temperature ?? "",
+        top_p: convert.top_p ?? defaults.top_p ?? "",
+        max_tokens: convert.max_tokens ?? defaults.max_tokens ?? "",
         max_completion_tokens:
-          convert.max_completion_tokens ?? convertParams.max_completion_tokens ?? defaults.max_completion_tokens ?? "",
-        presence_penalty: convert.presence_penalty ?? convertParams.presence_penalty ?? defaults.presence_penalty ?? "",
-        frequency_penalty: convert.frequency_penalty ?? convertParams.frequency_penalty ?? defaults.frequency_penalty ?? "",
-        seed: convert.seed ?? convertParams.seed ?? defaults.seed ?? "",
-        stop: convert.stop ?? convert.stopSequences ?? convertParams.stop ?? defaults.stop ?? "",
+          convert.max_completion_tokens ?? defaults.max_completion_tokens ?? "",
+        presence_penalty: convert.presence_penalty ?? defaults.presence_penalty ?? "",
+        frequency_penalty: convert.frequency_penalty ?? defaults.frequency_penalty ?? "",
+        seed: convert.seed ?? defaults.seed ?? "",
+        stop: convert.stop ?? convert.stopSequences ?? defaults.stop ?? "",
       },
       listen: {
         model: normalizeDataBakerListenModel(
@@ -2705,15 +2681,15 @@
         ),
         modelOptions: listenModelOptions,
         prompt: String(listen.prompt || defaults.listenPrompt || ""),
-        temperature: listen.temperature ?? listenParams.temperature ?? defaults.temperature ?? "",
-        top_p: listen.top_p ?? listenParams.top_p ?? defaults.top_p ?? "",
-        max_tokens: listen.max_tokens ?? listenParams.max_tokens ?? defaults.max_tokens ?? "",
+        temperature: listen.temperature ?? defaults.temperature ?? "",
+        top_p: listen.top_p ?? defaults.top_p ?? "",
+        max_tokens: listen.max_tokens ?? defaults.max_tokens ?? "",
         max_completion_tokens:
-          listen.max_completion_tokens ?? listenParams.max_completion_tokens ?? defaults.max_completion_tokens ?? "",
-        presence_penalty: listen.presence_penalty ?? listenParams.presence_penalty ?? defaults.presence_penalty ?? "",
-        frequency_penalty: listen.frequency_penalty ?? listenParams.frequency_penalty ?? defaults.frequency_penalty ?? "",
-        seed: listen.seed ?? listenParams.seed ?? defaults.seed ?? "",
-        stop: listen.stop ?? listen.stopSequences ?? listenParams.stop ?? defaults.stop ?? "",
+          listen.max_completion_tokens ?? defaults.max_completion_tokens ?? "",
+        presence_penalty: listen.presence_penalty ?? defaults.presence_penalty ?? "",
+        frequency_penalty: listen.frequency_penalty ?? defaults.frequency_penalty ?? "",
+        seed: listen.seed ?? defaults.seed ?? "",
+        stop: listen.stop ?? listen.stopSequences ?? defaults.stop ?? "",
       },
       compare: {
         family: compareFamily,
@@ -2736,15 +2712,15 @@
             1,
             3
           ) || "0.75",
-        temperature: compare.temperature ?? compareParams.temperature ?? defaults.temperature ?? "",
-        top_p: compare.top_p ?? compareParams.top_p ?? defaults.top_p ?? "",
-        max_tokens: compare.max_tokens ?? compareParams.max_tokens ?? defaults.max_tokens ?? "",
+        temperature: compare.temperature ?? defaults.temperature ?? "",
+        top_p: compare.top_p ?? defaults.top_p ?? "",
+        max_tokens: compare.max_tokens ?? defaults.max_tokens ?? "",
         max_completion_tokens:
-          compare.max_completion_tokens ?? compareParams.max_completion_tokens ?? defaults.max_completion_tokens ?? "",
-        presence_penalty: compare.presence_penalty ?? compareParams.presence_penalty ?? defaults.presence_penalty ?? "",
-        frequency_penalty: compare.frequency_penalty ?? compareParams.frequency_penalty ?? defaults.frequency_penalty ?? "",
-        seed: compare.seed ?? compareParams.seed ?? defaults.seed ?? "",
-        stop: compare.stop ?? compare.stopSequences ?? compareParams.stop ?? defaults.stop ?? "",
+          compare.max_completion_tokens ?? defaults.max_completion_tokens ?? "",
+        presence_penalty: compare.presence_penalty ?? defaults.presence_penalty ?? "",
+        frequency_penalty: compare.frequency_penalty ?? defaults.frequency_penalty ?? "",
+        seed: compare.seed ?? defaults.seed ?? "",
+        stop: compare.stop ?? compare.stopSequences ?? defaults.stop ?? "",
       },
     };
   }
@@ -3818,10 +3794,7 @@
   }
 
   function updateAishellTechListenModelFields(listenModel) {
-    const activeAishellScriptId = isAishellTechCantoneseScript(getCurrentDetailScriptId())
-      ? aishellTechCantoneseScriptId
-      : aishellTechMinnanScriptId;
-    const aiDefaults = getAsrVoiceAiDefaultsCached(activeAishellScriptId).defaults || {};
+    const aiDefaults = getAsrVoiceAiDefaultsCached(aishellTechMinnanScriptId).defaults || {};
     const draftConfig = getAishellTechSettingsDraftConfig(aiDefaults);
     draftConfig.aiRecommendListenModel = normalizeDataBakerListenModel(
       listenModel,
@@ -3831,10 +3804,7 @@
   }
 
   function updateAishellTechCompareFamilyFields(compareFamily) {
-    const activeAishellScriptId = isAishellTechCantoneseScript(getCurrentDetailScriptId())
-      ? aishellTechCantoneseScriptId
-      : aishellTechMinnanScriptId;
-    const aiDefaults = getAsrVoiceAiDefaultsCached(activeAishellScriptId).defaults || {};
+    const aiDefaults = getAsrVoiceAiDefaultsCached(aishellTechMinnanScriptId).defaults || {};
     const draftConfig = getAishellTechSettingsDraftConfig(aiDefaults);
     draftConfig.aiRecommendCompareFamily = normalizeAishellTechCompareFamily(
       compareFamily,
@@ -4472,7 +4442,6 @@
       scriptId === aishellTechMinnanScriptId ||
       scriptId === aishellTechVietnameseScriptId ||
       scriptId === aishellTechThaiScriptId ||
-      scriptId === aishellTechCantoneseScriptId ||
       scriptId === aishellTechCnEnShortDramaScriptId
     );
   }
@@ -4483,10 +4452,6 @@
 
   function isAishellTechThaiScript(scriptId) {
     return scriptId === aishellTechThaiScriptId;
-  }
-
-  function isAishellTechCantoneseScript(scriptId) {
-    return scriptId === aishellTechCantoneseScriptId;
   }
 
   function isAishellTechCnEnShortDramaScript(scriptId) {
@@ -4532,9 +4497,7 @@
         ? "aishell-tech-vietnamese-status"
         : isAishellTechThaiScript(scriptId)
           ? "aishell-tech-thai-status"
-          : isAishellTechCantoneseScript(scriptId)
-            ? "aishell-tech-cantonese-status"
-            : "aishell-tech-status";
+        : "aishell-tech-status";
     }
     return "detail-status";
   }
@@ -4612,9 +4575,6 @@
     }
     if (scriptId === aishellTechThaiScriptId) {
       return asrVoiceAiDefaultsPaths.aishellTechThaiAssistant;
-    }
-    if (scriptId === aishellTechCantoneseScriptId) {
-      return asrVoiceAiDefaultsPaths.aishellTechCantoneseAssistant;
     }
     return "";
   }
@@ -4701,31 +4661,6 @@
           model: "qwen3.5-omni-flash",
           modelOptions: clone(dataBakerSingleModelOptions),
           prompt: aishellTechVietnameseDefaultSinglePrompt,
-          temperature: 0.1,
-          top_p: 0.8,
-          max_tokens: 1200,
-          max_completion_tokens: "",
-          presence_penalty: 0,
-          frequency_penalty: 0,
-          seed: "",
-          stop: "",
-        },
-      };
-      return {
-        defaults: baseDefaults,
-        supportedParams: supportedParams,
-        loadedFromBackend: false,
-        error: "",
-      };
-    }
-    if (scriptId === aishellTechCantoneseScriptId) {
-      baseDefaults.pipelineMode = "omni_single";
-      baseDefaults.singlePrompt = aishellTechCantoneseDefaultSinglePrompt;
-      baseDefaults.stages = {
-        recognize: {
-          model: "qwen3.5-omni-flash",
-          modelOptions: clone(dataBakerSingleModelOptions),
-          prompt: aishellTechCantoneseDefaultSinglePrompt,
           temperature: 0.1,
           top_p: 0.8,
           max_tokens: 1200,
@@ -5511,9 +5446,7 @@
       ? aishellTechVietnameseShortcutActions
       : isAishellTechThaiScript(scriptId)
         ? aishellTechThaiShortcutActions
-        : isAishellTechCantoneseScript(scriptId)
-          ? aishellTechCantoneseShortcutActions
-        : aishellTechMinnanShortcutActions;
+      : aishellTechMinnanShortcutActions;
   }
 
   function normalizeAishellTechShortcuts(shortcuts, scriptId) {
@@ -5861,7 +5794,6 @@
       candidate === aishellTechMinnanScriptId ||
       candidate === aishellTechVietnameseScriptId ||
       candidate === aishellTechThaiScriptId ||
-      candidate === aishellTechCantoneseScriptId ||
       candidate === aishellTechCnEnShortDramaScriptId
     ) {
       return candidate;
@@ -5869,7 +5801,6 @@
     const minnanConfig = settings?.platforms?.aishellTech?.scripts?.minnanHelper || {};
     const vietnameseConfig = settings?.platforms?.aishellTech?.scripts?.vietnameseHelper || {};
     const thaiConfig = settings?.platforms?.aishellTech?.scripts?.thaiHelper || {};
-    const cantoneseConfig = settings?.platforms?.aishellTech?.scripts?.cantoneseHelper || {};
     const cnEnShortDramaConfig = settings?.platforms?.aishellTech?.scripts?.cnEnShortDrama || {};
     const minnanEnabled =
       minnanConfig.enabled !== false && minnanConfig.aiRecommendEnabled !== false;
@@ -5877,22 +5808,17 @@
       vietnameseConfig.enabled !== false && vietnameseConfig.aiRecommendEnabled !== false;
     const thaiEnabled =
       thaiConfig.enabled !== false && thaiConfig.aiRecommendEnabled !== false;
-    const cantoneseEnabled =
-      cantoneseConfig.enabled !== false && cantoneseConfig.aiRecommendEnabled !== false;
     const cnEnShortDramaEnabled = cnEnShortDramaConfig.enabled !== false;
-    if (minnanEnabled && !vietnameseEnabled && !thaiEnabled && !cantoneseEnabled && !cnEnShortDramaEnabled) {
+    if (minnanEnabled && !vietnameseEnabled && !thaiEnabled && !cnEnShortDramaEnabled) {
       return aishellTechMinnanScriptId;
     }
-    if (!minnanEnabled && vietnameseEnabled && !thaiEnabled && !cantoneseEnabled && !cnEnShortDramaEnabled) {
+    if (!minnanEnabled && vietnameseEnabled && !thaiEnabled && !cnEnShortDramaEnabled) {
       return aishellTechVietnameseScriptId;
     }
-    if (!minnanEnabled && !vietnameseEnabled && thaiEnabled && !cantoneseEnabled && !cnEnShortDramaEnabled) {
+    if (!minnanEnabled && !vietnameseEnabled && thaiEnabled && !cnEnShortDramaEnabled) {
       return aishellTechThaiScriptId;
     }
-    if (!minnanEnabled && !vietnameseEnabled && !thaiEnabled && cantoneseEnabled && !cnEnShortDramaEnabled) {
-      return aishellTechCantoneseScriptId;
-    }
-    if (!minnanEnabled && !vietnameseEnabled && !thaiEnabled && !cantoneseEnabled && cnEnShortDramaEnabled) {
+    if (!minnanEnabled && !vietnameseEnabled && !thaiEnabled && cnEnShortDramaEnabled) {
       return aishellTechCnEnShortDramaScriptId;
     }
     return minnanEnabled
@@ -5901,11 +5827,9 @@
         ? aishellTechVietnameseScriptId
         : thaiEnabled
           ? aishellTechThaiScriptId
-          : cantoneseEnabled
-            ? aishellTechCantoneseScriptId
-            : cnEnShortDramaEnabled
-              ? aishellTechCnEnShortDramaScriptId
-              : "";
+          : cnEnShortDramaEnabled
+            ? aishellTechCnEnShortDramaScriptId
+          : "";
   }
 
   function getDataBakerRoundOneConfig(settings) {
@@ -6499,107 +6423,6 @@
     return config;
   }
 
-  function getAishellTechCantoneseConfig(settings) {
-    const defaults =
-      constants.DEFAULT_SETTINGS?.platforms?.aishellTech?.scripts?.cantoneseHelper || {};
-    const current = settings?.platforms?.aishellTech?.scripts?.cantoneseHelper || {};
-    const config = Object.assign(
-      {
-        id: aishellTechCantoneseScriptId,
-        enabled: false,
-        aiRecommendEnabled: false,
-        aiRecommendRequestTimeoutMs: DEFAULT_AI_REQUEST_TIMEOUT_MS,
-        aiQualifiedAutofillConcurrency: 5,
-        aiRecommendConvertModel: "qwen3.5-plus",
-        aiRecommendConvertPrompt: "",
-        aiRecommendListenModel: "qwen3.5-omni-flash",
-        aiRecommendListenPrompt: "",
-        aiRecommendCompareFamily: "qwen",
-        aiRecommendCompareModel: "qwen3.5-plus",
-        aiRecommendCompareQwenPrompt: "",
-        aiRecommendCompareOmniPrompt: "",
-        aiRecommendCompareAdoptionThreshold: "",
-        aiRecommendSingleModel: "qwen3.5-omni-flash",
-        aiRecommendSinglePrompt: "",
-        aiRecommendTemperature: "",
-        aiRecommendTopP: "",
-        aiRecommendMaxTokens: "",
-        aiRecommendMaxCompletionTokens: "",
-        aiRecommendPresencePenalty: "",
-        aiRecommendFrequencyPenalty: "",
-        aiRecommendSeed: "",
-        aiRecommendStopSequences: "",
-        shortcuts: {},
-      },
-      defaults,
-      current
-    );
-    if (!hasOwn(current, "aiRecommendListenModel") && normalizeText(current.aiRecommendSingleModel)) {
-      config.aiRecommendListenModel = current.aiRecommendSingleModel;
-    }
-    if (!hasOwn(current, "aiRecommendListenPrompt") && normalizePromptText(current.aiRecommendSinglePrompt)) {
-      config.aiRecommendListenPrompt = current.aiRecommendSinglePrompt;
-    }
-    [
-      "Temperature",
-      "TopP",
-      "MaxTokens",
-      "MaxCompletionTokens",
-      "PresencePenalty",
-      "FrequencyPenalty",
-      "Seed",
-      "StopSequences",
-    ].forEach(function (suffix) {
-      const listenKey = "aiRecommendListen" + suffix;
-      const legacyKey = "aiRecommend" + suffix;
-      if (!hasOwn(current, listenKey) && hasOwn(current, legacyKey)) {
-        config[listenKey] = current[legacyKey];
-      }
-    });
-
-    config.aiRecommendRequestTimeoutMs = DEFAULT_AI_REQUEST_TIMEOUT_MS;
-    config.aiRecommendConvertModel = normalizeDataBakerCompareModel(
-      config.aiRecommendConvertModel,
-      "qwen3.5-plus"
-    );
-    config.aiRecommendListenModel = normalizeDataBakerListenModel(
-      config.aiRecommendListenModel || config.aiRecommendSingleModel,
-      "qwen3.5-omni-flash"
-    );
-    config.aiRecommendCompareFamily = normalizeAishellTechCompareFamily(
-      config.aiRecommendCompareFamily,
-      "qwen"
-    );
-    config.aiRecommendCompareModel =
-      config.aiRecommendCompareFamily === "omni"
-        ? normalizeDataBakerSingleModel(config.aiRecommendCompareModel, "qwen3.5-omni-flash")
-        : normalizeDataBakerCompareModel(config.aiRecommendCompareModel, "qwen3.5-plus");
-    config.aiRecommendConvertPrompt = normalizePromptText(config.aiRecommendConvertPrompt || "");
-    config.aiRecommendListenPrompt = normalizePromptText(
-      config.aiRecommendListenPrompt || config.aiRecommendSinglePrompt || ""
-    );
-    config.aiRecommendCompareQwenPrompt = normalizePromptText(config.aiRecommendCompareQwenPrompt || "");
-    config.aiRecommendCompareOmniPrompt = normalizePromptText(config.aiRecommendCompareOmniPrompt || "");
-    ["aiRecommendConvert", "aiRecommendListen", "aiRecommendCompare"].forEach(function (prefix) {
-      normalizeAishellTechStageParamFields(config, prefix);
-    });
-    config.aiQualifiedAutofillConcurrency = normalizeDataBakerAutofillConcurrency(
-      config.aiQualifiedAutofillConcurrency,
-      {
-        aiRecommendPipelineMode: "three_stage_parallel",
-        aiRecommendListenModel: config.aiRecommendListenModel,
-        aiRecommendCompareFamily: config.aiRecommendCompareFamily,
-        aiRecommendCompareModel: config.aiRecommendCompareModel,
-      }
-    );
-    config.aiRecommendEnableThinking = false;
-    config.shortcuts = normalizeAishellTechShortcuts(
-      config.shortcuts,
-      aishellTechCantoneseScriptId
-    );
-    return config;
-  }
-
   function getAishellTechCnEnShortDramaConfig(settings) {
     const defaults =
       constants.DEFAULT_SETTINGS?.platforms?.aishellTech?.scripts?.cnEnShortDrama || {};
@@ -6633,9 +6456,7 @@
       ? getAishellTechVietnameseConfig(settings)
       : isAishellTechThaiScript(scriptId)
         ? getAishellTechThaiConfig(settings)
-        : isAishellTechCantoneseScript(scriptId)
-          ? getAishellTechCantoneseConfig(settings)
-          : getAishellTechMinnanConfig(settings);
+        : getAishellTechMinnanConfig(settings);
   }
 
   function getAbakaAiTaskPageConfig(settings) {
@@ -7529,14 +7350,14 @@
     ].join("");
   }
 
-  function renderAishellTechAiSettingsSection(panel, headerHtml, defaultsTipId, concurrencyScriptId) {
+  function renderAishellTechAiSettingsSection(panel, headerHtml, defaultsTipId) {
     panel.innerHTML = [
       '<div class="asr-ai-panel">',
       headerHtml,
       '<div class="asr-ai-note" id="' + defaultsTipId + '"></div>',
       '<div class="asr-ai-block"><strong>基础设置</strong><div class="asr-ai-grid two">',
       '<label class="asr-ai-field"><span>启用 AI 推荐文本</span><label class="asr-ai-boolean"><input id="aishell-tech-ai-recommend-enabled" type="checkbox" /><span>关闭后不显示当前条推荐与批量保存面板</span></label></label>',
-        renderSharedAsrAutofillConcurrencyField(concurrencyScriptId || aishellTechMinnanScriptId),
+      renderSharedAsrAutofillConcurrencyField(aishellTechMinnanScriptId),
       '<label class="asr-ai-field"><span>请求超时时间（ms）</span><input id="aishell-tech-ai-timeout" type="number" min="1000" max="300000" step="1000" /></label>',
       '<label class="asr-ai-field"><span>思考开关</span><label class="asr-ai-boolean"><input id="aishell-tech-ai-enable-thinking" type="checkbox" /><span>thinking 已全局固定关闭，以避免请求链路拖慢。</span></label></label>',
       "</div></div>",
@@ -7873,8 +7694,6 @@
         renderAishellTechVietnameseAiSettingsSection(panel, headerHtml, defaultsTipId);
       } else if (isAishellTechThaiScript(scriptId)) {
         renderAishellTechThaiAiSettingsSection(panel, headerHtml, defaultsTipId);
-      } else if (isAishellTechCantoneseScript(scriptId)) {
-        renderAishellTechCantoneseAiSettingsSection(panel, headerHtml, defaultsTipId);
       } else {
         renderAishellTechAiSettingsSection(panel, headerHtml, defaultsTipId);
       }
@@ -9257,15 +9076,6 @@
         aishellTechShortcutsDraft[action.key] = null;
       }
     });
-  }
-
-  function renderAishellTechCantoneseAiSettingsSection(panel, headerHtml, defaultsTipId) {
-    renderAishellTechAiSettingsSection(
-      panel,
-      headerHtml,
-      defaultsTipId,
-      aishellTechCantoneseScriptId
-    );
   }
 
   function renderAishellTechShortcutGrid() {
@@ -13043,10 +12853,6 @@
       "hidden",
       scriptId !== aishellTechThaiScriptId
     );
-    getElement("detail-aishell-tech-cantonese-helper-panel").classList.toggle(
-      "hidden",
-      scriptId !== aishellTechCantoneseScriptId
-    );
     getElement("detail-aishell-tech-cn-en-short-drama-panel").classList.toggle(
       "hidden",
       scriptId !== aishellTechCnEnShortDramaScriptId
@@ -13158,9 +12964,7 @@
             ? "中英短剧脚本当前只在 /mytask/mark 展示只读“当前媒体信息”面板，不接入 AI 推荐、自动保存或自动提交。"
           : isAishellTechThaiScript(scriptId)
             ? "希尔贝壳泰语助手使用单阶段 Omni 同时输出文本与语速；批量模式只处理当前分包，并保持 AI 并发请求 + 页面串行保存，不自动提交任务。"
-            : isAishellTechCantoneseScript(scriptId)
-              ? "希尔贝壳粤语助手使用“转换候选 + 听音转写 + 比较决策”三阶段流程；批量模式只处理当前分包，并保持 AI 并发请求 + 页面串行保存，不自动提交任务。"
-              : "希尔贝壳批量模式只处理当前分包、从当前选中条开始、跳过已完成条目；每条会先对齐到目标条，再调用平台原生保存接口，不自动提交任务。"
+            : "希尔贝壳批量模式只处理当前分包、从当前选中条开始、跳过已完成条目；每条会先对齐到目标条，再调用平台原生保存接口，不自动提交任务。"
       );
       return;
     }
@@ -13672,31 +13476,6 @@
     renderAishellTechShortcutGrid();
   }
 
-  function applyAishellTechCantoneseForm(settings) {
-    const config = getAishellTechCantoneseConfig(settings);
-    const defaultsPayload = getAsrVoiceAiDefaultsCached(aishellTechCantoneseScriptId);
-    const aiDefaults = defaultsPayload.defaults || {};
-    aishellTechShortcutsDraft = clone(config.shortcuts) || {};
-    if (getElement("aishell-tech-ai-recommend-enabled")) {
-      getElement("aishell-tech-ai-recommend-enabled").checked =
-        config.aiRecommendEnabled !== false;
-      getElement("aishell-tech-ai-timeout").value = String(
-        Number(config.aiRecommendRequestTimeoutMs || aiDefaults.timeoutMs || DEFAULT_AI_REQUEST_TIMEOUT_MS)
-      );
-      applyAishellTechStageFields(config, aiDefaults);
-      applyForcedThinkingToggle(
-        "aishell-tech-ai-enable-thinking",
-        "thinking 已全局固定关闭；粤语助手不允许开启模型思考模式。"
-      );
-      updateAishellTechAutofillConcurrencyField(
-        Object.assign({}, config, { aiRecommendPipelineMode: "three_stage_parallel" }),
-        { scriptId: aishellTechCantoneseScriptId }
-      );
-    }
-    stopAishellTechShortcutRecording("");
-    renderAishellTechShortcutGrid();
-  }
-
   function applyAishellTechForm(settings, scriptId) {
     if (isAishellTechCnEnShortDramaScript(scriptId)) {
       const config = getAishellTechCnEnShortDramaConfig(settings);
@@ -13711,10 +13490,6 @@
     }
     if (isAishellTechThaiScript(scriptId)) {
       applyAishellTechThaiForm(settings);
-      return;
-    }
-    if (isAishellTechCantoneseScript(scriptId)) {
-      applyAishellTechCantoneseForm(settings);
       return;
     }
     applyAishellTechMinnanForm(settings);
@@ -14872,133 +14647,13 @@
     }
   }
 
-  async function saveAishellTechCantoneseSettings() {
-    if (!storage || typeof storage.patchSettings !== "function") {
-      setStatus("aishell-tech-cantonese-status", "当前扩展版本不支持保存希尔贝壳设置。");
-      return false;
-    }
-
-    const currentConfig = getAishellTechCantoneseConfig(currentSettings || {});
-    const aiDefaults = getAsrVoiceAiDefaultsCached(aishellTechCantoneseScriptId).defaults || {};
-    const hasAiSettingsPanel = Boolean(getElement("aishell-tech-ai-timeout"));
-    const aiRecommendEnabled = hasAiSettingsPanel
-      ? getElement("aishell-tech-ai-recommend-enabled").checked
-      : currentConfig.aiRecommendEnabled !== false;
-    const draftConfig = hasAiSettingsPanel
-      ? getAishellTechSettingsDraftConfig(aiDefaults)
-      : currentConfig;
-    if (
-      isDataBakerFunAsrListenModel(draftConfig.aiRecommendListenModel) &&
-      draftConfig.aiRecommendCompareFamily === "qwen"
-    ) {
-      draftConfig.aiRecommendCompareFamily = "omni";
-      draftConfig.aiRecommendCompareModel = "qwen3.5-omni-flash";
-    }
-    const autofillConcurrency = normalizeDataBakerAutofillConcurrency(
-      getElement("aishell-tech-qualified-autofill-concurrency")?.value,
-      getAishellTechConcurrencyModelConfig(draftConfig)
-    );
-    updateAishellTechAutofillConcurrencyField(
-      Object.assign({}, draftConfig, {
-        aiRecommendPipelineMode: "three_stage_parallel",
-        aiQualifiedAutofillConcurrency: autofillConcurrency,
-      }),
-      { scriptId: aishellTechCantoneseScriptId }
-    );
-    const shortcuts = {};
-    ensureAishellTechShortcutDraft();
-    getAishellTechShortcutActions(aishellTechCantoneseScriptId).forEach(function (action) {
-      shortcuts[action.key] = normalizeNullableShortcut(aishellTechShortcutsDraft[action.key]);
-    });
-
-    setStatus("aishell-tech-cantonese-status", "正在保存希尔贝壳设置...");
-
-    try {
-      currentSettings = await storage.patchSettings({
-        platforms: {
-          aishellTech: {
-            enabled: true,
-            activeScriptId: aishellTechCantoneseScriptId,
-            scripts: {
-              cantoneseHelper: {
-                id: aishellTechCantoneseScriptId,
-                aiRecommendEnabled: aiRecommendEnabled,
-                aiRecommendRequestTimeoutMs: DEFAULT_AI_REQUEST_TIMEOUT_MS,
-                aiRecommendConvertModel: draftConfig.aiRecommendConvertModel,
-                aiRecommendConvertPrompt: draftConfig.aiRecommendConvertPrompt,
-                aiRecommendConvertTemperature: draftConfig.aiRecommendConvertTemperature,
-                aiRecommendConvertTopP: draftConfig.aiRecommendConvertTopP,
-                aiRecommendConvertMaxTokens: draftConfig.aiRecommendConvertMaxTokens,
-                aiRecommendConvertMaxCompletionTokens: draftConfig.aiRecommendConvertMaxCompletionTokens,
-                aiRecommendConvertPresencePenalty: draftConfig.aiRecommendConvertPresencePenalty,
-                aiRecommendConvertFrequencyPenalty: draftConfig.aiRecommendConvertFrequencyPenalty,
-                aiRecommendConvertSeed: draftConfig.aiRecommendConvertSeed,
-                aiRecommendConvertStopSequences: draftConfig.aiRecommendConvertStopSequences,
-                aiRecommendListenModel: draftConfig.aiRecommendListenModel,
-                aiRecommendListenPrompt: draftConfig.aiRecommendListenPrompt,
-                aiRecommendListenTemperature: draftConfig.aiRecommendListenTemperature,
-                aiRecommendListenTopP: draftConfig.aiRecommendListenTopP,
-                aiRecommendListenMaxTokens: draftConfig.aiRecommendListenMaxTokens,
-                aiRecommendListenMaxCompletionTokens: draftConfig.aiRecommendListenMaxCompletionTokens,
-                aiRecommendListenPresencePenalty: draftConfig.aiRecommendListenPresencePenalty,
-                aiRecommendListenFrequencyPenalty: draftConfig.aiRecommendListenFrequencyPenalty,
-                aiRecommendListenSeed: draftConfig.aiRecommendListenSeed,
-                aiRecommendListenStopSequences: draftConfig.aiRecommendListenStopSequences,
-                aiRecommendCompareFamily: draftConfig.aiRecommendCompareFamily,
-                aiRecommendCompareModel: draftConfig.aiRecommendCompareModel,
-                aiRecommendCompareQwenPrompt: draftConfig.aiRecommendCompareQwenPrompt,
-                aiRecommendCompareOmniPrompt: draftConfig.aiRecommendCompareOmniPrompt,
-                aiRecommendCompareAdoptionThreshold: draftConfig.aiRecommendCompareAdoptionThreshold,
-                aiRecommendCompareTemperature: draftConfig.aiRecommendCompareTemperature,
-                aiRecommendCompareTopP: draftConfig.aiRecommendCompareTopP,
-                aiRecommendCompareMaxTokens: draftConfig.aiRecommendCompareMaxTokens,
-                aiRecommendCompareMaxCompletionTokens: draftConfig.aiRecommendCompareMaxCompletionTokens,
-                aiRecommendComparePresencePenalty: draftConfig.aiRecommendComparePresencePenalty,
-                aiRecommendCompareFrequencyPenalty: draftConfig.aiRecommendCompareFrequencyPenalty,
-                aiRecommendCompareSeed: draftConfig.aiRecommendCompareSeed,
-                aiRecommendCompareStopSequences: draftConfig.aiRecommendCompareStopSequences,
-                aiRecommendPipelineMode: "three_stage_parallel",
-                aiRecommendSingleModel: "",
-                aiRecommendSinglePrompt: "",
-                aiRecommendTemperature: "",
-                aiRecommendTopP: "",
-                aiRecommendMaxTokens: "",
-                aiRecommendMaxCompletionTokens: "",
-                aiRecommendPresencePenalty: "",
-                aiRecommendFrequencyPenalty: "",
-                aiRecommendSeed: "",
-                aiRecommendStopSequences: "",
-                aiRecommendEnableThinking: false,
-                aiQualifiedAutofillConcurrency: autofillConcurrency,
-                shortcuts: shortcuts,
-              },
-            },
-          },
-        },
-      });
-      applyAishellTechCantoneseForm(currentSettings);
-      setStatus(
-        "aishell-tech-cantonese-status",
-        "希尔贝壳设置已保存；已打开的标注页请刷新或等待自动同步。"
-      );
-      return true;
-    } catch (error) {
-      setStatus(
-        "aishell-tech-cantonese-status",
-        "保存失败：" + (error && error.message ? error.message : String(error))
-      );
-      return false;
-    }
-  }
   async function saveAishellTechSettings(scriptId) {
     const resolvedScriptId = scriptId || getCurrentDetailScriptId();
     return isAishellTechVietnameseScript(resolvedScriptId)
       ? saveAishellTechVietnameseSettings()
       : isAishellTechThaiScript(resolvedScriptId)
         ? saveAishellTechThaiSettings()
-        : isAishellTechCantoneseScript(resolvedScriptId)
-          ? saveAishellTechCantoneseSettings()
-          : saveAishellTechMinnanSettings();
+        : saveAishellTechMinnanSettings();
   }
 
   function setStatus(targetId, text) {
@@ -15660,15 +15315,6 @@
     const saveAishellThaiSettingsButton = getElement("save-aishell-tech-thai-settings");
     if (saveAishellThaiSettingsButton) {
       saveAishellThaiSettingsButton.addEventListener("click", function () {
-        void saveAishellTechSettings(getCurrentDetailScriptId());
-      });
-    }
-
-    const saveAishellCantoneseSettingsButton = getElement(
-      "save-aishell-tech-cantonese-settings"
-    );
-    if (saveAishellCantoneseSettingsButton) {
-      saveAishellCantoneseSettingsButton.addEventListener("click", function () {
         void saveAishellTechSettings(getCurrentDetailScriptId());
       });
     }

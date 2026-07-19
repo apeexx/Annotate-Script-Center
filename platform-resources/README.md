@@ -7,7 +7,7 @@
 - `alibaba-labelx/`：LabelX 转写和快判资料、后端与数据说明。
 - `data-baker/`：DataBaker 一检助手资料与后端。
 - `magic-data/`：Magic Data 客家话、闽南语助手资料与后端。
-- `aishell-tech/`：Aishell Tech 闽南语、越南语、泰语、粤语和中英短剧脚本资料与后端。
+- `aishell-tech/`：Aishell Tech 多脚本资料与后端。
 - `abaka-ai/`：Abaka AI Task21 资料与后端。
 - `haitian-utrans/`：uTrans 音频下载助手资料。
 - `backend/`：统一后端入口、公共管理接口、下载与日志能力。
