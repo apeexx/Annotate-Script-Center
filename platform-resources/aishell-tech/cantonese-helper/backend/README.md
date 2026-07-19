@@ -8,7 +8,7 @@
 
 ## 当前实现
 
-- 固定同步单阶段 `recognize`：`qwen3.5-omni-flash`、`60000ms`、`enable_thinking=false`，并固定请求 `response_format={type:"json_object"}`，保证返回 JSON 对象。
+- 固定同步单阶段 `recognize`：`qwen3.5-omni-flash`、`60000ms`、`enable_thinking=false`。输出 JSON 由 Prompt 约束；解析失败时仅记录结束原因和字符结构等脱敏诊断，不记录转写全文。
 - 环境变量优先级：`AISHELL_CANTONESE_AI_*`，再回退 `AISHELL_AI_*`、`DASHSCOPE_*` 和既有兼容项。
 - 请求沿用统一 AI 调用账本，必须携带已在 options 首页保存的 `aiUsageOperatorName`。
 - 默认 Prompt 要求繁体粤语忠实转写、不翻译普通话、保留合理中英混说，并返回严格 JSON：`{"text":"...","speed":"slow|normal|fast"}`。

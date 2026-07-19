@@ -63,7 +63,6 @@ function buildDashScopeOmniRequestBody(input) {
     stream: true,
     stream_options: { include_usage: true },
     enable_thinking: false,
-    response_format: { type: "json_object" },
     modalities: ["text"],
     messages: [
       {
@@ -118,9 +117,14 @@ async function readCompletion(response) {
     const rawText = await response.text();
     try {
       const payload = JSON.parse(rawText);
-      return { rawText, text: extractText(payload), usage: payload.usage || {} };
+      return {
+        rawText,
+        text: extractText(payload),
+        usage: payload.usage || {},
+        finishReason: String(payload?.choices?.[0]?.finish_reason || ""),
+      };
     } catch (_error) {
-      return { rawText, text: rawText, usage: {} };
+      return { rawText, text: rawText, usage: {}, finishReason: "" };
     }
   }
 
@@ -130,6 +134,7 @@ async function readCompletion(response) {
   let rawText = "";
   let text = "";
   let usage = {};
+  let finishReason = "";
   function consume(line) {
     const value = String(line || "").trim();
     if (!value.startsWith("data:")) {
@@ -145,6 +150,9 @@ async function readCompletion(response) {
       text += extractText(payload);
       if (payload.usage && typeof payload.usage === "object") {
         usage = payload.usage;
+      }
+      if (payload?.choices?.[0]?.finish_reason) {
+        finishReason = String(payload.choices[0].finish_reason || "");
       }
     } catch (_error) {
       // Ignore malformed streaming frames and retain successfully parsed content.
@@ -162,7 +170,7 @@ async function readCompletion(response) {
   }
   buffer += decoder.decode();
   buffer.split(/\r?\n/).forEach(consume);
-  return { rawText, text, usage };
+  return { rawText, text, usage, finishReason };
 }
 
 function bindSignal(controller, signal) {
@@ -245,6 +253,7 @@ async function requestOmniInputAudio(input, prompt, options) {
       model: DEFAULT_OMNI_MODEL,
       rawText: result.text,
       usage: result.usage,
+      finishReason: result.finishReason,
       enableThinking: false,
       thinkingDisabledRequested: true,
     };

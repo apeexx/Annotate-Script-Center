@@ -1,9 +1,10 @@
 # 修改日志
 
-## 2026-07-19：修正希尔贝壳粤语模型 JSON 输出约束
+## 2026-07-19：补充希尔贝壳粤语模型 JSON 解析诊断
 
-- 粤语 Omni 单阶段请求固定声明 `response_format={type:"json_object"}`；避免模型仅依赖 Prompt 时返回解释文字或不完整 JSON，导致 `invalid-model-json`。
-- 增加请求体回归断言，继续保持 `qwen3.5-omni-flash`、`60000ms`、关闭 thinking、单阶段调用和不自动提交的既有边界。
+- 粤语 Omni 单阶段请求不发送当前公共 AI 参数白名单不支持的 `response_format`；继续由 Prompt 约束 JSON 输出。
+- 增加 SSE `finish_reason` 和解析失败的脱敏结构诊断（长度、围栏、首尾字符码），用于区分模型输出不合规与流式字段不兼容，不记录转写全文。
+- 保持 `qwen3.5-omni-flash`、`60000ms`、关闭 thinking、单阶段调用和不自动提交的既有边界。
 
 ## 2026-07-18：新增希尔贝壳粤语助手
 

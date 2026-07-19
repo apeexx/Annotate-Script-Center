@@ -88,6 +88,21 @@ function parseJsonText(rawText) {
   throw createHttpError(502, "invalid-model-json", "模型输出不是有效 JSON。");
 }
 
+function buildInvalidModelJsonDiagnostics(rawText, providerResult) {
+  const text = String(rawText || "").trim();
+  const codePoints = Array.from(text);
+  return {
+    provider: "aishell-cantonese-dashscope-omni",
+    finishReason: normalizeText(providerResult?.finishReason),
+    rawTextLength: text.length,
+    hasJsonObjectEnvelope: text.startsWith("{") && text.endsWith("}"),
+    hasJsonFence: text.startsWith("```") && text.endsWith("```"),
+    firstCharacterCode: codePoints.length > 0 ? codePoints[0].codePointAt(0) : undefined,
+    lastCharacterCode:
+      codePoints.length > 0 ? codePoints[codePoints.length - 1].codePointAt(0) : undefined,
+  };
+}
+
 function extractRecommendedFields(rawText) {
   const source = parseJsonText(rawText);
   const recommendedText = normalizeCantoneseText(
@@ -181,7 +196,15 @@ function createCantoneseRecommendService(overrides) {
           stage: "recognize",
         }
       );
-      const recommended = extractRecommendedFields(providerResult?.rawText);
+      let recommended;
+      try {
+        recommended = extractRecommendedFields(providerResult?.rawText);
+      } catch (error) {
+        if (error?.code === "invalid-model-json") {
+          error.debugRawJson = buildInvalidModelJsonDiagnostics(providerResult?.rawText, providerResult);
+        }
+        throw error;
+      }
       const usage = normalizeUsage(providerResult?.usage);
       const cost = estimateProjectCost({
         recognize: {

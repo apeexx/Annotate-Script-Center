@@ -9,7 +9,10 @@ const {
   createCantoneseRecommendService,
   normalizeRecommendRequest,
 } = require("./ai-service");
-const { buildDashScopeOmniRequestBody } = require("./dashscope-omni-client");
+const {
+  buildDashScopeOmniRequestBody,
+  requestOmniInputAudio,
+} = require("./dashscope-omni-client");
 const { getCantoneseProviderConfig } = require("./config");
 
 test("Cantonese request is fixed to Omni Flash with a Traditional Cantonese transcript prompt", function () {
@@ -104,8 +107,78 @@ test("Cantonese DashScope request always disables thinking", function () {
   assert.equal(body.model, "qwen3.5-omni-flash");
   assert.equal(body.enable_thinking, false);
   assert.equal(body.stream, true);
-  assert.deepEqual(body.response_format, { type: "json_object" });
+  assert.equal(body.response_format, undefined);
   assert.equal(body.messages[1].content[0].input_audio.format, "mp3");
+});
+
+test("Cantonese Omni stream preserves its finish reason for JSON diagnostics", async function () {
+  const originalFetch = global.fetch;
+  const originalApiKey = process.env.AISHELL_CANTONESE_AI_API_KEY;
+  process.env.AISHELL_CANTONESE_AI_API_KEY = "test-key";
+  global.fetch = async function () {
+    return new Response(
+      [
+        'data: {"choices":[{"delta":{"content":"not-json"},"finish_reason":null}]}',
+        '',
+        'data: {"choices":[{"delta":{},"finish_reason":"stop"}],"usage":{"prompt_tokens":1,"completion_tokens":2,"total_tokens":3}}',
+        '',
+        'data: [DONE]',
+        '',
+      ].join("\n"),
+      { status: 200, headers: { "Content-Type": "text/event-stream" } }
+    );
+  };
+
+  try {
+    const result = await requestOmniInputAudio(
+      { audioUrl: "https://example.invalid/audio.wav" },
+      { systemPrompt: "", userPrompt: "return JSON" },
+      {}
+    );
+    assert.equal(result.rawText, "not-json");
+    assert.equal(result.finishReason, "stop");
+  } finally {
+    global.fetch = originalFetch;
+    if (originalApiKey === undefined) {
+      delete process.env.AISHELL_CANTONESE_AI_API_KEY;
+    } else {
+      process.env.AISHELL_CANTONESE_AI_API_KEY = originalApiKey;
+    }
+  }
+});
+
+test("Cantonese invalid model JSON records structural diagnostics without transcript content", async function () {
+  const rawText = "转写结果：未使用 JSON 返回";
+  const service = createCantoneseRecommendService({
+    requestOmniInputAudio: async function () {
+      return {
+        rawText,
+        usage: {},
+        finishReason: "stop",
+      };
+    },
+  });
+
+  await assert.rejects(
+    service.run({
+      requestId: "cantonese-invalid-json",
+      taskItemId: "item-invalid-json",
+      audioUrl: "https://example.invalid/audio.wav",
+    }),
+    function (error) {
+      assert.equal(error.code, "invalid-model-json");
+      assert.deepEqual(error.debugRawJson, {
+        provider: "aishell-cantonese-dashscope-omni",
+        finishReason: "stop",
+        rawTextLength: rawText.length,
+        hasJsonObjectEnvelope: false,
+        hasJsonFence: false,
+        firstCharacterCode: rawText.codePointAt(0),
+        lastCharacterCode: rawText.codePointAt(rawText.length - 1),
+      });
+      return true;
+    }
+  );
 });
 
 test("Cantonese environment variables take priority over shared Aishell compatibility variables", function () {
