@@ -1,5 +1,10 @@
 # 修改日志
 
+## 2026-07-19：修正希尔贝壳粤语模型 JSON 输出约束
+
+- 粤语 Omni 单阶段请求固定声明 `response_format={type:"json_object"}`；避免模型仅依赖 Prompt 时返回解释文字或不完整 JSON，导致 `invalid-model-json`。
+- 增加请求体回归断言，继续保持 `qwen3.5-omni-flash`、`60000ms`、关闭 thinking、单阶段调用和不自动提交的既有边界。
+
 ## 2026-07-18：新增希尔贝壳粤语助手
 
 - 新增独立粤语助手 `aishellTechCantoneseAssistant`，默认关闭并与 Aishell Tech 闽南语、越南语、泰语和中英短剧脚本互斥；设置继续继承已保存的全局后端地址。

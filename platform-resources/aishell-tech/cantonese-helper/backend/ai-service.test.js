@@ -104,6 +104,7 @@ test("Cantonese DashScope request always disables thinking", function () {
   assert.equal(body.model, "qwen3.5-omni-flash");
   assert.equal(body.enable_thinking, false);
   assert.equal(body.stream, true);
+  assert.deepEqual(body.response_format, { type: "json_object" });
   assert.equal(body.messages[1].content[0].input_audio.format, "mp3");
 });
 

@@ -63,6 +63,7 @@ function buildDashScopeOmniRequestBody(input) {
     stream: true,
     stream_options: { include_usage: true },
     enable_thinking: false,
+    response_format: { type: "json_object" },
     modalities: ["text"],
     messages: [
       {
