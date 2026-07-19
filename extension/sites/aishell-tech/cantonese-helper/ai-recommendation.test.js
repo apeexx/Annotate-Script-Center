@@ -73,6 +73,13 @@ test("Aishell Cantonese cancels an already-created batch job after stop aborts i
         packageId: "package-1",
         taskItemId: "item-1",
         audioUrl: "https://example.test/audio.wav",
+        audioDataUrl: "data:audio/wav;base64,UklGRg==",
+        regionId: "region-1",
+        segmentNumber: 1,
+        startMs: 1830,
+        endMs: 2990,
+        durationMs: 1160,
+        selectionKey: "region-1:1830-2990",
       },
       { signal: controller.signal }
     ),
@@ -94,4 +101,49 @@ test("Aishell Cantonese cancels an already-created batch job after stop aborts i
       ["POST", "/api/aishell-tech/cantonese-helper/ai/recommend/jobs/cantonese-job-1/cancel", undefined],
     ]
   );
+});
+
+test("Aishell Cantonese sends only the cropped WAV together with the selected segment identity", async function () {
+  let receivedBody = null;
+  const runtime = recommendation.createRuntime({
+    endpoint: "http://127.0.0.1:3333/api/aishell-tech/cantonese-helper/ai/recommend",
+    jobClient: {
+      runJobLifecycle: async function (input) {
+        receivedBody = input.body;
+        return {
+          data: {
+            listenText: "聽到嘅片段",
+            meta: {},
+          },
+        };
+      },
+    },
+    settings: {
+      meta: {
+        aiUsageOperatorName: "test-operator",
+      },
+    },
+  });
+
+  await runtime.recommend({
+    taskId: "task-1",
+    packageId: "package-1",
+    taskItemId: "item-1",
+    audioUrl: "https://example.test/original.wav",
+    audioDataUrl: "data:audio/wav;base64,UklGRg==",
+    regionId: "region-3",
+    segmentNumber: 3,
+    startMs: 4650,
+    endMs: 5120,
+    durationMs: 470,
+    selectionKey: "region-3:4650-5120",
+  });
+
+  assert.equal(receivedBody.audioDataUrl, "data:audio/wav;base64,UklGRg==");
+  assert.equal(receivedBody.regionId, "region-3");
+  assert.equal(receivedBody.segmentNumber, 3);
+  assert.equal(receivedBody.startMs, 4650);
+  assert.equal(receivedBody.endMs, 5120);
+  assert.equal(receivedBody.durationMs, 470);
+  assert.equal(receivedBody.selectionKey, "region-3:4650-5120");
 });

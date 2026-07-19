@@ -310,6 +310,7 @@
         "shared/ai-job-client.js",
         "shared/lexicon-toast.js",
         "sites/aishell-tech/cantonese-helper/data-api.js",
+        "sites/aishell-tech/cantonese-helper/segment-audio-clipper.js",
         "sites/aishell-tech/cantonese-helper/ai-recommendation.js",
         "sites/aishell-tech/cantonese-helper/batch-window.js",
         "sites/aishell-tech/cantonese-helper/diagnostics.js",

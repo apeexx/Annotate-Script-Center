@@ -16,7 +16,7 @@ function loadModule() {
   return require(modulePath);
 }
 
-test("Aishell Cantonese pipeline sends the direct OSS URL and preserves raw listenText", async function () {
+test("Aishell Cantonese pipeline sends only the cropped WAV and preserves raw listenText", async function () {
   const api = loadModule();
   const received = {};
   const pipeline = api.createRecommendPipeline({
@@ -42,6 +42,12 @@ test("Aishell Cantonese pipeline sends the direct OSS URL and preserves raw list
     {
       taskItemId: "item-1",
       audioUrl: "https://oss.example.com/audio.wav",
+      audioDataUrl: "data:audio/wav;base64,UklGRg==",
+      regionId: "region-1",
+      segmentNumber: 1,
+      startMs: 1830,
+      endMs: 2990,
+      durationMs: 1160,
       referenceText: "平台参考文本",
       fileName: "001.wav",
       duration: 1200,
@@ -55,7 +61,7 @@ test("Aishell Cantonese pipeline sends the direct OSS URL and preserves raw list
     { requestId: "req-1", timeoutMs: 60000 }
   );
 
-  assert.equal(received.input.audioUrl, "https://oss.example.com/audio.wav");
+  assert.equal(received.input.audioUrl, "data:audio/wav;base64,UklGRg==");
   assert.equal(received.prompt.systemPrompt, "只輸出原始繁體粵語。");
   assert.doesNotMatch(received.prompt.userPrompt, /平台参考文本/);
   assert.equal(received.options.enableThinking, false);

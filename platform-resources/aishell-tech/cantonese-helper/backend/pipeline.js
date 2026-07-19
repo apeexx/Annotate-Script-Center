@@ -35,6 +35,13 @@ function buildRawListenPrompt(request) {
           fileName: normalizeText(request?.fileName),
           duration: Math.max(0, Number(request?.duration || 0) || 0),
           itemNumber: Math.max(0, Number(request?.itemNumber || 0) || 0),
+          segment: {
+            regionId: normalizeText(request?.regionId),
+            segmentNumber: Math.max(0, Number(request?.segmentNumber || 0) || 0),
+            startMs: Math.max(0, Number(request?.startMs || 0) || 0),
+            endMs: Math.max(0, Number(request?.endMs || 0) || 0),
+            durationMs: Math.max(0, Number(request?.durationMs || 0) || 0),
+          },
         },
         null,
         2
@@ -63,7 +70,7 @@ function createRecommendPipeline(overrides) {
       function () {
         return deps.requestOmniInputAudio(
           {
-            audioUrl: normalizeText(request.audioUrl),
+            audioUrl: normalizeText(request.audioDataUrl),
             aiOptions: request.aiOmni?.params || {},
           },
           buildRawListenPrompt(request),
@@ -93,6 +100,12 @@ function createRecommendPipeline(overrides) {
         fileName: normalizeText(request.fileName),
         referenceText: normalizeText(request.referenceText),
         existingMarkText: normalizeText(request.existingMarkText),
+        regionId: normalizeText(request.regionId),
+        segmentNumber: Math.max(0, Number(request.segmentNumber || 0) || 0),
+        startMs: Math.max(0, Number(request.startMs || 0) || 0),
+        endMs: Math.max(0, Number(request.endMs || 0) || 0),
+        durationMs: Math.max(0, Number(request.durationMs || 0) || 0),
+        selectionKey: normalizeText(request.selectionKey),
         listenText: rawText,
         needHumanReview: rawText === "",
       },

@@ -44,3 +44,4 @@
 - Aishell 当前 `/mytask/mark` 已至少存在两类模板：
   - 共享短标注模板：继续维护在 `04-mytask-mark.md`
   - 中英短剧脚本专属整段评分模板：单独维护在 `../cn-en-short-drama/page-structure/README.md`
+- 共享短标注模板已补充粤语助手的蓝色波形区段定位与文本保存边界，见 `04-mytask-mark.md`。

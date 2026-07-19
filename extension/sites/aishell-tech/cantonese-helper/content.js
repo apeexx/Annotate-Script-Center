@@ -243,6 +243,7 @@
 
   function createRuntime(config) {
     const dataApiFactory = globalThis.__ASREdgeAishellTechCantoneseDataApi;
+    const segmentClipper = globalThis.__ASREdgeAishellTechCantoneseSegmentAudioClipper;
     const aiFactory = globalThis.__ASREdgeAishellTechCantoneseAiRecommendation;
     const diagnosticsFactory = globalThis.__ASREdgeAishellTechCantoneseDiagnostics || {};
     const uiFactory = globalThis.__ASREdgeAishellTechCantoneseUiPanel;
@@ -267,6 +268,7 @@
 
     if (
       !dataApiFactory?.createRuntime ||
+      !segmentClipper?.createAudioClipSession ||
       !aiFactory?.createRuntime ||
       !concurrentRequestStreamFactory?.createConcurrentAiRequestStream ||
       !uiFactory?.createRuntime
@@ -341,6 +343,25 @@
       }
     }
 
+    function releaseClipSession(session) {
+      try {
+        session?.release?.();
+      } catch (_error) {
+        // Releasing a local decoded buffer is best-effort cleanup only.
+      }
+    }
+
+    async function buildCroppedSegmentItem(item, clipSession, signal) {
+      if (!item?.audioUrl || !item?.selectionKey) {
+        throw new Error("当前条目或蓝色区段信息不完整，不能裁剪音频。");
+      }
+      const audioDataUrl = await clipSession.createAudioDataUrl(item, signal);
+      if (!audioDataUrl) {
+        throw new Error("当前蓝色区段裁剪失败，未发送整条音频。");
+      }
+      return Object.assign({}, item, { audioDataUrl: audioDataUrl });
+    }
+
     async function handleRecommend() {
       syncBusyState({ single: true });
       panel.setStatus("正在识别当前条...", "info");
@@ -350,7 +371,14 @@
           throw new Error("当前页面还没有定位到选中条目。");
         }
         panel.updateCurrentItemKey(item.key);
-        const result = await aiClient.recommend(item);
+        const clipSession = segmentClipper.createAudioClipSession(item.audioUrl);
+        let result;
+        try {
+          const croppedItem = await buildCroppedSegmentItem(item, clipSession);
+          result = await aiClient.recommend(croppedItem);
+        } finally {
+          releaseClipSession(clipSession);
+        }
         const selectedItem = await dataApi.getCurrentItem();
         panel.updateCurrentItemKey(selectedItem?.key || "");
         const renderMeta = panel.renderResult(
@@ -386,8 +414,8 @@
       if (typeof activeBatchContext?.abortActiveRequests === "function") {
         activeBatchContext.abortActiveRequests();
       }
-      if (typeof activeBatchContext?.abortActiveSave === "function") {
-        activeBatchContext.abortActiveSave();
+      if (typeof activeBatchContext?.releaseClipSession === "function") {
+        activeBatchContext.releaseClipSession();
       }
       if (typeof activeBatchContext?.notifyStopSignal === "function") {
         activeBatchContext.notifyStopSignal();
@@ -406,12 +434,14 @@
     async function runBatchRecommend(mode) {
       const batchMeta = getBatchModeMeta(mode);
       let batchClosed = false;
+      let clipSession = null;
       syncBusyState({ batch: true });
       batchStopRequested = false;
       panel.setStatus("正在准备" + batchMeta.label + "...", "info");
       try {
-        const tasks = await dataApi.getBatchTasksForPackage({
+        const tasks = await dataApi.getBatchSegmentsForCurrentAudio({
           mode: batchMeta.mode,
+          timeoutMs: 12000,
         });
         if (!tasks.length) {
           throw new Error(batchMeta.emptyMessage);
@@ -427,6 +457,7 @@
         let currentPhaseText = batchMeta.label + "开始";
         let currentDisplayText = tasks[0].displayName || "";
         let requestStream = null;
+        clipSession = segmentClipper.createAudioClipSession(tasks[0].audioUrl);
         let resolveStopSignal = null;
         const stopSignalPromise = new Promise(function (resolve) {
           resolveStopSignal = resolve;
@@ -479,20 +510,16 @@
             updateBatchSnapshot(currentPhaseText, currentDisplayText, true);
           },
           runTask: async function (task, index) {
-            const item = await dataApi.getItemByTask(task, {
-              includeCurrentInput: false,
-            });
-            if (!item) {
-              throw new Error("无法定位批量条目。");
-            }
+            const item = Object.assign({}, task);
             item.batchRunId = batchRunId;
-            item.batchItemIndex = Number(task.index || 0) || index + 1;
+            item.batchItemIndex = Number(task.segmentNumber || task.index || 0) || index + 1;
             item.batchProcessKey =
-              "task-item:" + String(item.taskItemId || task.taskItemId || task.index || "unknown");
+              "task-segment:" + String(item.taskItemId || "unknown") + ":" + String(item.selectionKey || "unknown");
             item.clientRequestId = [
               batchRunId,
-              String(item.batchItemIndex + 1),
+              String(item.batchItemIndex),
               String(item.taskItemId || "unknown"),
+              String(item.selectionKey || "unknown"),
             ].join(":");
             item.frontConcurrency = batchConcurrency;
             const controller =
@@ -501,7 +528,12 @@
               activeRequestControllers.add(controller);
             }
             try {
-              return await aiClient.recommend(item, {
+              const croppedItem = await buildCroppedSegmentItem(
+                item,
+                clipSession,
+                controller ? controller.signal : undefined
+              );
+              return await aiClient.recommend(croppedItem, {
                 signal: controller ? controller.signal : undefined,
               });
             } finally {
@@ -518,29 +550,42 @@
           batchRunId: batchRunId,
           notifyStopSignal: notifyStopSignal,
           abortActiveRequests: abortActiveRequests,
-          abortActiveSave: abortActiveSave,
+          releaseClipSession: function () {
+            releaseClipSession(clipSession);
+          },
         };
 
         updateBatchSnapshot(batchMeta.label + "开始", tasks[0].displayName, true);
 
+        const pendingEntriesByIndex = new Map();
+        let nextSaveIndex = 0;
         while (consumedCount < tasks.length) {
-          const outcome = batchStopRequested === true
-            ? { type: "stop" }
-            : await Promise.race([
-                requestStream.nextResult().then(function (entry) {
-                  return {
-                    type: "result",
-                    entry: entry,
-                  };
-                }),
-                stopSignalPromise,
-              ]);
-
-          if (outcome?.type === "stop") {
+          if (batchStopRequested === true) {
             break;
           }
-          const entry = outcome?.entry || null;
+          let entry = pendingEntriesByIndex.get(nextSaveIndex) || null;
           if (!entry) {
+            const outcome = await Promise.race([
+              requestStream.nextResult().then(function (nextEntry) {
+                return {
+                  type: "result",
+                  entry: nextEntry,
+                };
+              }),
+              stopSignalPromise,
+            ]);
+            if (outcome?.type === "stop") {
+              break;
+            }
+            const arrivedEntry = outcome?.entry || null;
+            if (!arrivedEntry) {
+              break;
+            }
+            pendingEntriesByIndex.set(arrivedEntry.index, arrivedEntry);
+            continue;
+          }
+          pendingEntriesByIndex.delete(nextSaveIndex);
+          if (batchStopRequested === true) {
             break;
           }
           const task = entry.task;
@@ -563,16 +608,30 @@
             updateBatchSnapshot(batchMeta.label + "当前条失败", task.displayName, true);
           } else {
             batchSummaryAccumulator.addResult(entry.value);
+            if (!String(entry.value?.listenText || "")) {
+              consumedCount += 1;
+              failures.push(
+                buildBatchFailureEntry({
+                  task: task,
+                  stage: "empty_result",
+                  message: "该蓝色区段未识别到文本，已标记为需人工复核且未填入、未保存。",
+                  result: entry.value,
+                  batchConcurrency: batchConcurrency,
+                })
+              );
+              updateBatchSnapshot(batchMeta.label + "需人工复核", task.displayName, true);
+              nextSaveIndex += 1;
+              continue;
+            }
             let switchResult = null;
             let saveResult = null;
-            let failureStage = "select_task";
+            let failureStage = "select_segment";
             try {
-              switchResult = await dataApi.selectTask(task, {
+              switchResult = await dataApi.selectSegmentByNumber(task.segmentNumber, {
                 timeoutMs: 12000,
-                maxAttempts: 4,
               });
               if (switchResult?.ok === false) {
-                throw new Error(switchResult.message || "切换批量条目失败。");
+                throw new Error(switchResult.message || "切换蓝色区段失败。");
               }
               if (batchStopRequested === true) {
                 break;
@@ -582,6 +641,8 @@
                   currentText:
                     dataApi.getCurrentInputDisplayValue?.() || dataApi.getCurrentInputValue?.() || "",
                   listenText: entry.value.listenText,
+                  taskItemId: task.taskItemId,
+                  itemKey: task.key,
                 })
               );
               failureStage = "save_current";
@@ -593,6 +654,8 @@
                   {
                     timeoutMs: 15000,
                     signal: saveController.signal,
+                    expectedTaskItemId: task.taskItemId,
+                    expectedSelectionKey: task.selectionKey,
                   }
                 );
               } finally {
@@ -622,6 +685,7 @@
               updateBatchSnapshot(batchMeta.label + "当前条失败", task.displayName, true);
             }
           }
+          nextSaveIndex += 1;
         }
 
         if (batchStopRequested === true) {
@@ -642,6 +706,7 @@
         panel.setStatus(error?.message || String(error), "error");
       } finally {
         batchClosed = true;
+        releaseClipSession(clipSession);
         activeBatchContext = null;
         batchStopRequested = false;
         syncBusyState({ batch: false });

@@ -167,7 +167,10 @@
   function isResultBoundToCurrentItem(result, item) {
     const resultTaskItemId = String(result?.taskItemId || "").trim();
     const currentTaskItemId = String(item?.taskItemId || "").trim();
-    return Boolean(resultTaskItemId) && Boolean(currentTaskItemId) && resultTaskItemId === currentTaskItemId;
+    if (!resultTaskItemId || !currentTaskItemId || resultTaskItemId !== currentTaskItemId) {
+      return false;
+    }
+    return isResultBoundToCurrentItemKey(result, item?.key || "");
   }
 
   function isResultBoundToCurrentItemKey(result, currentItemKey) {

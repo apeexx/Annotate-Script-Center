@@ -93,24 +93,66 @@ function normalizeOmniConfig(value) {
   const defaults = buildOmniDefaults();
   const model = normalizeText(source.model);
   const prompt = typeof source.prompt === "string" ? source.prompt : "";
+  const sourceParams =
+    source.params && typeof source.params === "object" ? source.params : source;
   return {
     model: SUPPORTED_OMNI_MODELS.indexOf(model) >= 0 ? model : defaults.model,
     prompt: normalizeText(prompt) ? prompt : defaults.prompt,
-    params: normalizeOmniParams(source.params),
+    params: normalizeOmniParams(Object.assign({}, defaults.params, sourceParams)),
     enableThinking: false,
   };
+}
+
+function normalizeSegmentNumber(value) {
+  const number = Math.round(Number(value));
+  return Number.isInteger(number) && number > 0 ? number : 0;
+}
+
+function normalizeSegmentRange(source) {
+  const startMs = Math.round(Number(source?.startMs));
+  const endMs = Math.round(Number(source?.endMs));
+  const durationMs = Math.round(Number(source?.durationMs));
+  if (!Number.isFinite(startMs) || !Number.isFinite(endMs) || !Number.isFinite(durationMs) || startMs < 0 || endMs <= startMs) {
+    throw createHttpError(400, "当前区段的开始/结束时间无效。", "invalid-segment-range");
+  }
+  if (durationMs !== endMs - startMs) {
+    throw createHttpError(400, "当前区段时长与开始/结束时间不一致。", "invalid-segment-duration");
+  }
+  return { startMs, endMs, durationMs };
+}
+
+function normalizeAudioDataUrl(value) {
+  const audioDataUrl = normalizeText(value);
+  if (!audioDataUrl) {
+    throw createHttpError(400, "缺少已裁剪的 WAV 音频。", "missing-audio-data-url");
+  }
+  if (!/^data:audio\/(?:wav|x-wav|wave);base64,[a-z0-9+/=]+$/i.test(audioDataUrl)) {
+    throw createHttpError(400, "已裁剪音频必须是 WAV Base64 Data URL。", "invalid-audio-data-url");
+  }
+  return audioDataUrl;
 }
 
 function normalizeRecommendRequest(value) {
   const source = value && typeof value === "object" ? value : {};
   const taskItemId = normalizeText(source.taskItemId || source.itemId);
   const audioUrl = normalizeText(source.audioUrl);
+  const audioDataUrl = normalizeAudioDataUrl(source.audioDataUrl);
+  const regionId = normalizeText(source.regionId);
+  const segmentNumber = normalizeSegmentNumber(source.segmentNumber);
+  const segmentRange = normalizeSegmentRange(source);
   const referenceText = normalizeText(source.referenceText);
   if (!taskItemId) {
     throw createHttpError(400, "缺少 taskItemId。", "missing-task-item-id");
   }
   if (!audioUrl) {
     throw createHttpError(400, "缺少可用音频地址。", "invalid-audio-url");
+  }
+  const selectionKey = normalizeText(source.selectionKey);
+  if (!regionId || !segmentNumber || !selectionKey) {
+    throw createHttpError(400, "缺少当前区段标识。", "missing-segment-identity");
+  }
+  if (selectionKey !== regionId + ":" + String(segmentRange.startMs) + "-" + String(segmentRange.endMs)) {
+    throw createHttpError(400, "当前区段标识与开始/结束时间不一致。", "invalid-segment-identity");
   }
   return {
     requestId: normalizeText(source.requestId || source.clientRequestId),
@@ -119,6 +161,13 @@ function normalizeRecommendRequest(value) {
     taskItemId,
     fileName: normalizeText(source.fileName),
     audioUrl,
+    audioDataUrl,
+    regionId,
+    segmentNumber,
+    startMs: segmentRange.startMs,
+    endMs: segmentRange.endMs,
+    durationMs: segmentRange.durationMs,
+    selectionKey,
     referenceText,
     existingMarkText: normalizeText(source.existingMarkText || source.currentInputText),
     duration: Math.max(0, Number(source.duration || 0) || 0),
@@ -197,6 +246,12 @@ function buildRecommendSuccessBody(value) {
       fileName: normalizeText(data.fileName),
       referenceText: normalizeText(data.referenceText),
       existingMarkText: normalizeText(data.existingMarkText),
+      regionId: normalizeText(data.regionId),
+      segmentNumber: normalizeSegmentNumber(data.segmentNumber),
+      startMs: Math.max(0, Math.round(Number(data.startMs) || 0)),
+      endMs: Math.max(0, Math.round(Number(data.endMs) || 0)),
+      durationMs: Math.max(0, Math.round(Number(data.durationMs) || 0)),
+      selectionKey: normalizeText(data.selectionKey),
       listenText: normalizeListenText(data.listenText),
       needHumanReview: data.needHumanReview === true,
     },

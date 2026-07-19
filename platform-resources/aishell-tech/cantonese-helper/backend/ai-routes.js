@@ -70,7 +70,11 @@ function readRequestBody(request, signal, normalizeLifecycleAbort) {
       if (Buffer.byteLength(body, "utf8") > MAX_BODY_BYTES) {
         cleanup();
         reject(createHttpError(413, "请求体超过 3MB。", "payload-too-large"));
-        request.destroy();
+        try {
+          request.resume();
+        } catch (_error) {
+          // The response path below still returns the explicit 413 error.
+        }
       }
     };
     const onEnd = function () {
@@ -110,6 +114,68 @@ function parseRequestBody(rawBody) {
 
 function cloneJson(value) {
   return JSON.parse(JSON.stringify(value === undefined ? null : value));
+}
+
+function isSensitiveDebugKey(key) {
+  return /(?:authorization|cookie|token|api[_-]?key|secret|password|signature)/i.test(
+    normalizeText(key)
+  );
+}
+
+function isSensitiveDebugString(value) {
+  const text = String(value || "");
+  return (
+    /(?:bearer\s+|["']?(?:authorization|cookie|token|api[_-]?key|secret|password|signature)["']?\s*[:=])/i.test(
+      text
+    ) ||
+    /\beyJ[A-Za-z0-9_-]{5,}\.[A-Za-z0-9_-]{5,}\.[A-Za-z0-9_-]{5,}\b/.test(text)
+  );
+}
+
+function sanitizeDebugPayload(value, depth) {
+  const level = Number(depth || 0);
+  if (level > 8) {
+    return "[truncated]";
+  }
+  if (Array.isArray(value)) {
+    return value.slice(0, 50).map(function (entry) {
+      return sanitizeDebugPayload(entry, level + 1);
+    });
+  }
+  if (value && typeof value === "object") {
+    const result = {};
+    Object.keys(value).slice(0, 100).forEach(function (key) {
+      const normalizedKey = normalizeText(key).toLowerCase();
+      if (
+        normalizedKey === "audiodataurl" ||
+        normalizedKey === "audiourl" ||
+        normalizedKey === "sourceurl" ||
+        normalizedKey === "url"
+      ) {
+        result[key] = "[redacted-audio-source]";
+        return;
+      }
+      if (isSensitiveDebugKey(normalizedKey)) {
+        result[key] = "[redacted-sensitive-value]";
+        return;
+      }
+      result[key] = sanitizeDebugPayload(value[key], level + 1);
+    });
+    return result;
+  }
+  if (typeof value === "string") {
+    if (/data:audio\//i.test(value)) {
+      return "[redacted-audio-data]";
+    }
+    if (/https?:\/\//i.test(value)) {
+      return "[redacted-url]";
+    }
+    if (isSensitiveDebugString(value)) {
+      return "[redacted-sensitive-text]";
+    }
+    return value.length > 20000 ? value.slice(0, 20000) + "…" : value;
+  }
+  return value;
 }
 
 function buildCachedSuccessResult(result, requestId) {
@@ -306,7 +372,7 @@ function createRecommendRouteRuntime(overrides) {
         } catch (error) {
           deps.jobStore.markJobFailed(job.jobId, {
             errorBody: deps.buildRecommendErrorBody({ error: Object.assign(error, { requestId }) }),
-            debugPayload: error?.debugRawJson || error?.rawResponse || null,
+            debugPayload: sanitizeDebugPayload(error?.debugRawJson || error?.rawResponse || null),
           });
         } finally {
           deps.clearTimeout(lifecycleTimer);
@@ -391,4 +457,5 @@ module.exports = {
   handleGetRecommendJobStatus: defaultRouteRuntime.handleGetRecommendJobStatus,
   handleRecommend: defaultRouteRuntime.handleRecommend,
   registerAiRoutes: defaultRouteRuntime.registerAiRoutes,
+  sanitizeDebugPayload,
 };

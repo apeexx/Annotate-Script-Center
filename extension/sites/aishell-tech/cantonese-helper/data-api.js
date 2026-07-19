@@ -709,6 +709,47 @@
       });
   }
 
+  function createSegmentBoundItem(item, segment, existingText) {
+    const source = item && typeof item === "object" ? item : {};
+    const current = segment && typeof segment === "object" ? segment : {};
+    const taskItemId = normalizeText(source.taskItemId);
+    const selectionKey = normalizeText(current.selectionKey);
+    if (!taskItemId || !selectionKey) {
+      throw createRequestError("当前条目或蓝色区段标识无效。");
+    }
+    const baseKey = [
+      normalizeText(source.taskId),
+      normalizeText(source.packageId),
+      taskItemId,
+      normalizeText(source.fileName),
+    ].join("|");
+    const text = typeof existingText === "string" ? existingText : "";
+    return Object.assign({}, source, {
+      regionId: normalizeText(current.regionId),
+      regionLabel: normalizeText(current.regionLabel),
+      segmentNumber: Math.max(0, Math.round(Number(current.segmentNumber) || 0)),
+      startMs: Math.max(0, Math.round(Number(current.startMs) || 0)),
+      endMs: Math.max(0, Math.round(Number(current.endMs) || 0)),
+      durationMs: Math.max(0, Math.round(Number(current.durationMs) || 0)),
+      selectionKey: selectionKey,
+      existingMarkText: text,
+      existingDisplayText: text,
+      key: baseKey + "|" + selectionKey,
+    });
+  }
+
+  function isSameSegmentSelection(left, right) {
+    return Boolean(
+      normalizeText(left?.selectionKey) &&
+      normalizeText(right?.selectionKey) &&
+      normalizeText(left.selectionKey) === normalizeText(right.selectionKey) &&
+      normalizeText(left.regionId) === normalizeText(right.regionId) &&
+      Number(left.startMs) === Number(right.startMs) &&
+      Number(left.endMs) === Number(right.endMs) &&
+      Number(left.durationMs) === Number(right.durationMs)
+    );
+  }
+
   function isSaveCompletionState(previousIndex, snapshot) {
     const source = snapshot && typeof snapshot === "object" ? snapshot : {};
     if (!Number.isInteger(Number(previousIndex)) || Number(previousIndex) < 0) {
@@ -1072,14 +1113,164 @@
       );
     }
 
-    async function getCurrentItem() {
+    function getSegmentClipper() {
+      const clipper = globalThis.__ASREdgeAishellTechCantoneseSegmentAudioClipper;
+      if (
+        !clipper ||
+        typeof clipper.getCurrentSegment !== "function" ||
+        typeof clipper.getSegmentCatalog !== "function"
+      ) {
+        throw createRequestError("粤语区段裁剪模块尚未就绪，请刷新页面后重试。");
+      }
+      return clipper;
+    }
+
+    function readSegmentButtonNumber(button) {
+      const matched = String(button?.textContent || "").match(/^\s*(\d+)\s*$/);
+      return matched ? Number(matched[1]) : 0;
+    }
+
+    function getSegmentButtons() {
+      const selected = document.querySelector("button.regionSelected");
+      const container = selected?.parentElement || null;
+      const buttons = container && typeof container.querySelectorAll === "function"
+        ? Array.from(container.querySelectorAll("button"))
+        : [];
+      if (!selected || buttons.length <= 0) {
+        throw createRequestError("未读取到蓝色区段选择按钮，请先在波形中选择一个区段。");
+      }
+      return buttons;
+    }
+
+    function assertSegmentButtonMapping(catalog) {
+      const segments = Array.isArray(catalog) ? catalog : [];
+      const buttons = getSegmentButtons();
+      if (!segments.length || buttons.length !== segments.length) {
+        throw createRequestError("蓝色区段按钮与波形区段数量不一致，已拒绝继续识别。");
+      }
+      buttons.forEach(function (button, index) {
+        if (readSegmentButtonNumber(button) !== index + 1) {
+          throw createRequestError("蓝色区段按钮顺序与波形区段不一致，已拒绝继续识别。");
+        }
+      });
+      return buttons;
+    }
+
+    function getCurrentSegment() {
+      return getSegmentClipper().getCurrentSegment(document);
+    }
+
+    function getSegmentCatalog() {
+      const catalog = getSegmentClipper().getSegmentCatalog(document);
+      assertSegmentButtonMapping(catalog);
+      return catalog;
+    }
+
+    async function waitForSelectedSegment(expectedSegment, options) {
+      const expected = expectedSegment && typeof expectedSegment === "object" ? expectedSegment : null;
+      const timeoutMs = Math.max(1000, Number(options?.timeoutMs || 5000) || 5000);
+      const deadline = Date.now() + timeoutMs;
+      let lastError = null;
+      while (Date.now() < deadline) {
+        try {
+          const current = getCurrentSegment();
+          if (
+            current.segmentNumber === Number(expected?.segmentNumber) &&
+            (!expected || isSameSegmentSelection(current, expected))
+          ) {
+            return current;
+          }
+        } catch (error) {
+          lastError = error;
+        }
+        await sleep(100);
+      }
+      if (lastError) {
+        throw lastError;
+      }
+      throw createRequestError("蓝色区段切换后未能同步当前选择或截取时长。");
+    }
+
+    async function selectSegmentByNumber(segmentNumber, options) {
+      const catalog = getSegmentCatalog();
+      const expected = catalog[Number(segmentNumber) - 1];
+      if (!expected) {
+        return { ok: false, message: "目标蓝色区段不存在，已拒绝继续保存。" };
+      }
+      const buttons = assertSegmentButtonMapping(catalog);
+      const button = buttons[expected.segmentNumber - 1];
+      if (!button || typeof button.click !== "function") {
+        return { ok: false, message: "未能定位目标蓝色区段按钮。" };
+      }
+      const selected = document.querySelector("button.regionSelected");
+      if (readSegmentButtonNumber(selected) !== expected.segmentNumber) {
+        button.click();
+      }
+      try {
+        const current = await waitForSelectedSegment(expected, options);
+        return { ok: true, message: "已切换到目标蓝色区段。", segment: current };
+      } catch (error) {
+        return { ok: false, message: error?.message || String(error) };
+      }
+    }
+
+    async function getCurrentBaseItem() {
       const selectedIndex = getSelectedIndex();
       if (selectedIndex < 0) {
         return null;
       }
-      return getItemByIndex(selectedIndex, {
-        includeCurrentInput: true,
-      });
+      return getItemByIndex(selectedIndex, { includeCurrentInput: false });
+    }
+
+    async function getCurrentItem() {
+      const baseItem = await getCurrentBaseItem();
+      if (!baseItem) {
+        return null;
+      }
+      return createSegmentBoundItem(baseItem, getCurrentSegment(), getCurrentInputDisplayValue());
+    }
+
+    async function getSegmentItemByTask(task, options) {
+      const baseItem = await getItemByTask(task, { includeCurrentInput: false });
+      if (!baseItem) {
+        return null;
+      }
+      const segment = task && typeof task === "object" ? task : {};
+      return createSegmentBoundItem(
+        baseItem,
+        segment,
+        typeof options?.existingText === "string" ? options.existingText : ""
+      );
+    }
+
+    async function getBatchSegmentsForCurrentAudio(options) {
+      const mode = normalizeBatchTaskMode(options?.mode);
+      const baseItem = await getCurrentBaseItem();
+      if (!baseItem) {
+        return [];
+      }
+      const catalog = getSegmentCatalog();
+      const tasks = [];
+      for (const segment of catalog) {
+        let existingText = "";
+        if (mode === "pending") {
+          const selected = await selectSegmentByNumber(segment.segmentNumber, {
+            timeoutMs: options?.timeoutMs || 8000,
+          });
+          if (selected?.ok !== true || !isSameSegmentSelection(selected.segment, segment)) {
+            throw createRequestError(selected?.message || "蓝色区段切换校验失败。");
+          }
+          existingText = getCurrentInputDisplayValue();
+          if (String(existingText || "").trim()) {
+            continue;
+          }
+        }
+        const task = createSegmentBoundItem(baseItem, segment, existingText);
+        task.index = segment.segmentNumber - 1;
+        task.displayName = "第 " + String(segment.segmentNumber) + " 段";
+        tasks.push(task);
+      }
+      return tasks;
     }
 
     async function getBatchTasksForPackage(options) {
@@ -1243,21 +1434,55 @@
       };
     }
 
+    async function assertExpectedSaveTarget(options) {
+      const expectedTaskItemId = normalizeText(options?.expectedTaskItemId);
+      const expectedSelectionKey = normalizeText(options?.expectedSelectionKey);
+      if (!expectedTaskItemId && !expectedSelectionKey) {
+        return { ok: true };
+      }
+      if (expectedTaskItemId) {
+        let currentItem = null;
+        try {
+          currentItem = await getCurrentBaseItem();
+        } catch (error) {
+          return {
+            ok: false,
+            message: error?.message || "未能重新确认当前条目，已拒绝点击平台保存按钮。",
+          };
+        }
+        if (
+          currentItem?.taskItemId !== expectedTaskItemId ||
+          Number(getSelectedIndex()) !== Number(options?.expectedSelectedIndex)
+        ) {
+          return {
+            ok: false,
+            message: "当前条目已变化，已拒绝点击平台保存按钮。",
+          };
+        }
+      }
+      try {
+        const currentSegment = getCurrentSegment();
+        if (
+          expectedSelectionKey &&
+          normalizeText(currentSegment?.selectionKey) !== expectedSelectionKey
+        ) {
+          return {
+            ok: false,
+            message: "当前蓝色区段已变化，已拒绝点击平台保存按钮。",
+          };
+        }
+      } catch (error) {
+        return {
+          ok: false,
+          message: error?.message || "未能重新确认当前蓝色区段，已拒绝点击平台保存按钮。",
+        };
+      }
+      return { ok: true };
+    }
+
     async function clickSaveAndWait(options) {
       if (isSaveStopRequested(options)) {
         return createStoppedSaveResult();
-      }
-      const expectedText = normalizeMarkCompareText(options?.expectedText || "");
-      const taskItemId = normalizeText(options?.taskItemId);
-      const packageId = normalizeText(options?.packageId);
-      const previousIndex = Number.isInteger(Number(options?.selectedIndex))
-        ? Number(options.selectedIndex)
-        : getSelectedIndex();
-      if (!taskItemId || !packageId) {
-        return {
-          ok: false,
-          message: "当前保存缺少必要参数。",
-        };
       }
       const saveButton = getSaveButton();
       if (!(saveButton instanceof HTMLButtonElement)) {
@@ -1271,6 +1496,16 @@
           ok: false,
           message: "平台“保存”按钮当前不可用，请先确认页面已完成填入。",
         };
+      }
+      const targetCheck =
+        typeof options?.validateBeforeSave === "function"
+          ? await options.validateBeforeSave()
+          : { ok: true };
+      if (targetCheck?.ok === false) {
+        return targetCheck;
+      }
+      if (isSaveStopRequested(options)) {
+        return createStoppedSaveResult();
       }
       const previousMessages = new Set(getToastMessageNodes());
       const clicked = triggerNativeSaveButton(saveButton);
@@ -1296,43 +1531,6 @@
             message: toastMessage.text || "平台保存失败，请检查页面提示。",
           };
         }
-        if (isSaveCompletionState(previousIndex, captureListState(previousIndex))) {
-          return {
-            ok: true,
-            message: "已触发平台真实保存按钮，并检测到列表条目已切换完成。",
-          };
-        }
-        const now = Date.now();
-        if (now - networkCheckAt >= 450) {
-          networkCheckAt = now;
-          try {
-            const shortMarkResult = await getShortMarkResult(taskItemId);
-            const savedText = extractSavedMarkText(shortMarkResult);
-            const textMatched =
-              !expectedText ||
-              normalizeMarkCompareText(savedText) === expectedText;
-            if (expectedText && textMatched) {
-              return {
-                ok: true,
-                message: "已触发平台真实保存按钮，并确认平台已保存当前文本。",
-              };
-            }
-          } catch (_error) {}
-          try {
-            const packageEntry = await refreshPackageItems(packageId);
-            const matchedRecord = Array.isArray(packageEntry?.items)
-              ? packageEntry.items.find(function (item) {
-                  return normalizeText(item?.id) === taskItemId;
-                })
-              : null;
-            if (isPackageItemSaved(matchedRecord)) {
-              return {
-                ok: true,
-                message: "已触发平台真实保存按钮，并检测到平台条目状态已更新为已标注。",
-              };
-            }
-          } catch (_error) {}
-        }
         await sleep(150);
       }
       return {
@@ -1345,10 +1543,13 @@
       if (isSaveStopRequested(options)) {
         return createStoppedSaveResult();
       }
-      const currentItem = await getCurrentItem();
+      const baseItem = await getCurrentBaseItem();
       if (isSaveStopRequested(options)) {
         return createStoppedSaveResult();
       }
+      const currentItem = baseItem
+        ? createSegmentBoundItem(baseItem, getCurrentSegment(), getCurrentInputDisplayValue())
+        : null;
       if (!currentItem?.taskItemId) {
         return {
           ok: false,
@@ -1361,6 +1562,18 @@
       if (isSaveStopRequested(options)) {
         return createStoppedSaveResult();
       }
+      const expectedTaskItemId = normalizeText(options?.expectedTaskItemId);
+      const expectedSelectionKey = normalizeText(options?.expectedSelectionKey);
+      if (
+        (expectedTaskItemId && currentItem.taskItemId !== expectedTaskItemId) ||
+        (expectedSelectionKey && currentItem.selectionKey !== expectedSelectionKey)
+      ) {
+        return {
+          ok: false,
+          message: "当前条目或蓝色区段已变化，已拒绝填入和保存。",
+        };
+      }
+      const expectedSelectedIndex = getSelectedIndex();
       const fillResult = fillPageText(listenText);
       if (fillResult?.ok === false) {
         return fillResult;
@@ -1371,11 +1584,14 @@
       }
       return clickSaveAndWait({
         timeoutMs: options?.timeoutMs || 15000,
-        expectedText: listenText,
-        taskItemId: currentItem.taskItemId,
-        packageId: currentItem.packageId,
-        selectedIndex: getSelectedIndex(),
         signal: options?.signal,
+        validateBeforeSave: function () {
+          return assertExpectedSaveTarget({
+            expectedTaskItemId: expectedTaskItemId,
+            expectedSelectionKey: expectedSelectionKey,
+            expectedSelectedIndex: expectedSelectedIndex,
+          });
+        },
       });
     }
 
@@ -1398,13 +1614,17 @@
       getCurrentItem,
       getCurrentInputValue,
       getCurrentInputDisplayValue,
+      getBatchSegmentsForCurrentAudio,
       getItemByIndex,
       getItemByTask,
+      getSegmentItemByTask,
+      getSegmentCatalog,
       getRecordDisplayName,
       getSelectedIndex,
       isMarkPage,
       parseRouteParams,
       selectItemByIndex,
+      selectSegmentByNumber,
       selectTask,
       start,
       stop,
@@ -1417,6 +1637,7 @@
     buildSaveShortMarkPayload,
     buildAudioUrl,
     createBatchTasksFromPackageItems,
+    createSegmentBoundItem,
     doesDomListItemMatchTask,
     doesListFileHintMatch,
     doesRenderedItemMatch,
@@ -1435,6 +1656,7 @@
     parseRouteParams,
     parseListItemLabel,
     readStorageEntries,
+    isSameSegmentSelection,
   };
 
   if (typeof module !== "undefined" && module.exports) {

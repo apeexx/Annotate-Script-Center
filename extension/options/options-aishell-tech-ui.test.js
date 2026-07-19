@@ -178,12 +178,17 @@ test("Aishell Cantonese manifest injects batch summary after its shared dependen
   const batchSummaryIndex = cantoneseEntry.js.indexOf("shared/ai-batch-summary.js");
   const constantsIndex = cantoneseEntry.js.indexOf("shared/constants.js");
   const storageIndex = cantoneseEntry.js.indexOf("shared/storage.js");
+  const dataApiIndex = cantoneseEntry.js.indexOf("sites/aishell-tech/cantonese-helper/data-api.js");
+  const segmentClipperIndex = cantoneseEntry.js.indexOf("sites/aishell-tech/cantonese-helper/segment-audio-clipper.js");
+  const aiRecommendationIndex = cantoneseEntry.js.indexOf("sites/aishell-tech/cantonese-helper/ai-recommendation.js");
   const contentIndex = cantoneseEntry.js.indexOf("sites/aishell-tech/cantonese-helper/content.js");
 
   assert.ok(batchSummaryIndex >= 0);
   assert.ok(batchSummaryIndex > constantsIndex);
   assert.ok(batchSummaryIndex > storageIndex);
   assert.ok(batchSummaryIndex < contentIndex);
+  assert.ok(segmentClipperIndex > dataApiIndex);
+  assert.ok(segmentClipperIndex < aiRecommendationIndex);
 });
 
 test("Aishell cn-en short drama detail panel exists in options html", function () {

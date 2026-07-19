@@ -35,20 +35,50 @@ test("Aishell Cantonese batch serially uses the platform save button with raw li
 });
 
 test("Aishell Cantonese stops after selecting a batch target before starting a new save", function () {
-  const start = source.indexOf("switchResult = await dataApi.selectTask(task");
+  const start = source.indexOf("switchResult = await dataApi.selectSegmentByNumber(task.segmentNumber");
   const end = source.indexOf("saveResult = await dataApi.fillAndSaveCurrent(", start);
   const selectionBlock = source.slice(start, end);
 
   assert.match(selectionBlock, /if \(batchStopRequested === true\) \{\s*break;\s*\}/);
 });
 
-test("Aishell Cantonese aborts a pending save when batch stop is requested", function () {
+test("Aishell Cantonese lets an already-started platform save finish after batch stop", function () {
   const batchStart = source.indexOf("async function runBatchRecommend(mode)");
   const batchBlock = source.slice(batchStart);
   const saveStart = source.indexOf("saveResult = await dataApi.fillAndSaveCurrent(", batchStart);
   const saveEnd = source.indexOf("if (saveResult?.ok === false)", saveStart);
   const saveBlock = source.slice(saveStart, saveEnd);
 
-  assert.match(batchBlock, /abortActiveSave/);
+  assert.doesNotMatch(batchBlock, /abortActiveSave\(\)/);
+  assert.match(batchBlock, /releaseClipSession/);
   assert.match(saveBlock, /signal:\s*saveController\.signal/);
+});
+
+test("Aishell Cantonese batches current-audio blue segments and crops before each AI request", function () {
+  const batchStart = source.indexOf("async function runBatchRecommend(mode)");
+  const batchBlock = source.slice(batchStart);
+
+  assert.match(batchBlock, /getBatchSegmentsForCurrentAudio/);
+  assert.match(batchBlock, /createAudioClipSession/);
+  assert.match(batchBlock, /buildCroppedSegmentItem\(/);
+  assert.match(batchBlock, /selectSegmentByNumber\(task\.segmentNumber/);
+});
+
+test("Aishell Cantonese buffers out-of-order AI responses and saves blue segments in DOM order", function () {
+  const batchStart = source.indexOf("async function runBatchRecommend(mode)");
+  const batchBlock = source.slice(batchStart);
+
+  assert.match(batchBlock, /pendingEntriesByIndex/);
+  assert.match(batchBlock, /nextSaveIndex/);
+  assert.match(batchBlock, /pendingEntriesByIndex\.get\(nextSaveIndex\)/);
+  assert.match(batchBlock, /nextSaveIndex \+= 1/);
+});
+
+test("Aishell Cantonese marks an empty segment for review without filling or saving it", function () {
+  const batchStart = source.indexOf("async function runBatchRecommend(mode)");
+  const emptyStart = source.indexOf('stage: "empty_result"', batchStart);
+  const saveStart = source.indexOf("let switchResult = null", emptyStart);
+  const emptyBlock = source.slice(emptyStart, saveStart);
+
+  assert.match(emptyBlock, /nextSaveIndex \+= 1;\s*continue;/);
 });

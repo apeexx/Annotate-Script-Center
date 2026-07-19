@@ -341,6 +341,13 @@
         taskItemId: normalizeText(source.taskItemId),
         fileName: normalizeText(source.fileName),
         audioUrl: normalizeText(source.audioUrl),
+        audioDataUrl: normalizeText(source.audioDataUrl),
+        regionId: normalizeText(source.regionId),
+        segmentNumber: Math.max(0, Math.round(Number(source.segmentNumber) || 0)),
+        startMs: Math.max(0, Math.round(Number(source.startMs) || 0)),
+        endMs: Math.max(0, Math.round(Number(source.endMs) || 0)),
+        durationMs: Math.max(0, Math.round(Number(source.durationMs) || 0)),
+        selectionKey: normalizeText(source.selectionKey),
         referenceText: normalizeText(source.referenceText),
         existingMarkText: normalizeText(source.existingMarkText || source.currentInputText),
         duration: source.duration,
@@ -497,6 +504,12 @@
       }
       if (!source.audioUrl) {
         throw new Error("缺少当前条音频地址，请重新点击当前条后再试。");
+      }
+      if (!source.audioDataUrl) {
+        throw new Error("当前区段音频尚未裁剪完成，请重新点击蓝色区段后重试。");
+      }
+      if (!source.regionId || !source.selectionKey || Number(source.endMs) <= Number(source.startMs)) {
+        throw new Error("未读取到当前蓝色区段的有效时间范围，请重新点击后重试。");
       }
       const timeoutMs = Math.max(1000, Number(config.timeoutMs) || DEFAULT_TIMEOUT_MS);
       const requestBody = createRequestBody(source);

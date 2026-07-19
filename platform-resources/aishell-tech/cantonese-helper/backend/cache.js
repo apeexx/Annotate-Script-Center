@@ -21,11 +21,21 @@ function cloneJson(value) {
   return JSON.parse(JSON.stringify(value));
 }
 
+function hashCroppedAudio(value) {
+  return crypto
+    .createHash("sha256")
+    .update(String(value || ""), "utf8")
+    .digest("hex");
+}
+
 function buildRecommendCacheKey(parts) {
   return crypto.createHash("sha256").update(stableStringify({
     taskItemId: String(parts?.taskItemId || ""),
-    audioUrl: String(parts?.audioUrl || ""),
-    referenceText: String(parts?.referenceText || ""),
+    regionId: String(parts?.regionId || ""),
+    segmentNumber: Number(parts?.segmentNumber || 0) || 0,
+    startMs: Number(parts?.startMs || 0) || 0,
+    endMs: Number(parts?.endMs || 0) || 0,
+    croppedAudioDigest: hashCroppedAudio(parts?.audioDataUrl),
     pipelineMode: String(parts?.pipelineMode || ""),
     omniModel: String(parts?.aiOmni?.model || ""),
     omniPrompt: String(parts?.aiOmni?.prompt || ""),
