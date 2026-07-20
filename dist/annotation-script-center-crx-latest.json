@@ -6,13 +6,13 @@
   "filename": "annotation-script-center-v0.4.1.crx",
   "download_url": "https://script.aisiyunling.com/downloads/annotation-script-center-v0.4.1.crx",
   "update_xml_url": "https://script.aisiyunling.com/downloads/annotation-script-center-update.xml",
-  "sha256": "b30e4a607846745535deb94f0a6f1a32b646238be025c4ee47b49f7fc7fefe56",
-  "size_bytes": 862217,
+  "sha256": "162de81b7b589098c544cd14d4f161eb680ab1332e170b8d949785b168ef51ff",
+  "size_bytes": 862964,
   "zip_filename": "annotation-script-center-v0.4.1.zip",
   "zip_download_url": "https://script.aisiyunling.com/downloads/annotation-script-center-v0.4.1.zip",
-  "zip_sha256": "5d73ed0cfae0d7c74d7650d9aa95a3248df0632b46ea800ff6b8e786e9856cf4",
-  "zip_size_bytes": 849211,
-  "created_at": "2026-07-20T01:23:10.910Z",
+  "zip_sha256": "f542a1b3234cb8d16e4f55cd4bbc4f965fa56810cb9aa57e1af66985d61601a7",
+  "zip_size_bytes": 849961,
+  "created_at": "2026-07-20T04:00:58.560Z",
   "min_agent_version": "0.1.0",
-  "release_notes": "0.4.1：希尔贝壳粤语助手支持按蓝色区段精确识别"
+  "release_notes": "annotation-script-center release 0.4.1"
 }
