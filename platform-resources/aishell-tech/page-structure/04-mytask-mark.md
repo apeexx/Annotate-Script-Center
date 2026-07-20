@@ -33,7 +33,7 @@
 | 下一条 | `button` 含 "下一条" |
 | 返回 | `a.el-link` 含 "返回" |
 | 播放/暂停 | `button.el-button--primary` |
-| 可识别蓝色波形区段 | `wave > region.wavesurfer-region[data-region-label]`；仅 `data-region-label` 为连续纯数字的节点参与识别 |
+| 可识别蓝色波形区段 | `wave > region.wavesurfer-region[data-region-label]`；仅 `data-region-label` 为唯一纯数字的节点参与识别，编号可稀疏 |
 | 说话人覆盖层 | 同为 `wave > region.wavesurfer-region`，标签如“说话人S1:1”；只保留页面元数据，不参与识别、结果绑定或批量 |
 | 当前蓝色区段按钮 | `button.regionSelected`；按钮数字须与页面“当前选择”一致 |
 | 当前区段时长 | 页面文本“截取时长: <seconds>s”；用于校准区段的像素时间 |
@@ -49,7 +49,7 @@
 ## 动态区域 / 重渲染风险
 
 - 当前页存在状态切换和局部重绘风险；避免依赖瞬时 class 和全页按钮顺序定位。
-- 粤语助手以纯数字 `data-region-label` 建立连续编号目录，并与区段按钮、页面“当前选择”精确对应；标题只用作整秒范围校验，实际裁剪范围由区段 `left / width` 与当前“截取时长”动态计算。编号、当前选择、时长或标题校验不一致时必须拒绝操作。
+- 粤语助手以唯一纯数字 `data-region-label` 建立可识别区段目录，允许稀疏编号，并按编号与区段按钮、页面“当前选择”精确对应；标题只用作整秒范围校验，实际裁剪范围由区段 `left / width` 与当前“截取时长”动态计算。编号重复、对应按钮缺失、当前选择、时长或标题校验不一致时必须拒绝操作。
 - 当前音频可以存在说话人覆盖区段；覆盖层虽为独立 DOM `region`，但不进入可识别区段目录、结果键或批量队列，也不得被助手自动改写。
 - 页面同时存在两个文案为“保存”的按钮，必须以 `.mark-area` / `.check-area` 容器进行作用域隔离。
 - 质检列表业务序号可能不连续；当前项按 `.list-item-selected` 在 DOM 列表中的数组索引定位。

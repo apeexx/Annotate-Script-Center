@@ -1145,15 +1145,34 @@
     function assertSegmentButtonMapping(catalog) {
       const segments = Array.isArray(catalog) ? catalog : [];
       const buttons = getSegmentButtons();
-      if (!segments.length || buttons.length !== segments.length) {
-        throw createRequestError("蓝色区段按钮与波形区段数量不一致，已拒绝继续识别。");
+      const segmentNumbers = new Set();
+      const buttonsBySegmentNumber = new Map();
+      if (!segments.length) {
+        throw createRequestError("未读取到带数字编号的可识别蓝色区段。");
       }
-      buttons.forEach(function (button, index) {
-        if (readSegmentButtonNumber(button) !== index + 1) {
-          throw createRequestError("蓝色区段按钮顺序与波形区段不一致，已拒绝继续识别。");
+      segments.forEach(function (segment) {
+        const segmentNumber = Number(segment?.segmentNumber);
+        if (!Number.isInteger(segmentNumber) || segmentNumber <= 0 || segmentNumbers.has(segmentNumber)) {
+          throw createRequestError("可识别蓝色区段编号无效或重复，已拒绝继续识别。");
+        }
+        segmentNumbers.add(segmentNumber);
+      });
+      buttons.forEach(function (button) {
+        const segmentNumber = readSegmentButtonNumber(button);
+        if (!segmentNumbers.has(segmentNumber)) {
+          return;
+        }
+        if (buttonsBySegmentNumber.has(segmentNumber)) {
+          throw createRequestError("蓝色区段按钮编号重复，已拒绝继续识别。");
+        }
+        buttonsBySegmentNumber.set(segmentNumber, button);
+      });
+      segments.forEach(function (segment) {
+        if (!buttonsBySegmentNumber.has(Number(segment.segmentNumber))) {
+          throw createRequestError("未读取到可识别蓝色区段对应的选择按钮，已拒绝继续识别。");
         }
       });
-      return buttons;
+      return buttonsBySegmentNumber;
     }
 
     function getCurrentSegment() {
@@ -1193,12 +1212,14 @@
 
     async function selectSegmentByNumber(segmentNumber, options) {
       const catalog = getSegmentCatalog();
-      const expected = catalog[Number(segmentNumber) - 1];
+      const expected = catalog.find(function (segment) {
+        return Number(segment?.segmentNumber) === Number(segmentNumber);
+      });
       if (!expected) {
         return { ok: false, message: "目标蓝色区段不存在，已拒绝继续保存。" };
       }
-      const buttons = assertSegmentButtonMapping(catalog);
-      const button = buttons[expected.segmentNumber - 1];
+      const buttonsBySegmentNumber = assertSegmentButtonMapping(catalog);
+      const button = buttonsBySegmentNumber.get(expected.segmentNumber);
       if (!button || typeof button.click !== "function") {
         return { ok: false, message: "未能定位目标蓝色区段按钮。" };
       }
@@ -1219,7 +1240,8 @@
       if (selectedIndex < 0) {
         return null;
       }
-      return getItemByIndex(selectedIndex, { includeCurrentInput: false });
+      const item = await getItemByIndex(selectedIndex, { includeCurrentInput: false });
+      return item ? Object.assign(item, { index: selectedIndex }) : null;
     }
 
     async function getCurrentItem() {
@@ -1266,7 +1288,7 @@
           }
         }
         const task = createSegmentBoundItem(baseItem, segment, existingText);
-        task.index = segment.segmentNumber - 1;
+        task.index = baseItem.index;
         task.displayName = "第 " + String(segment.segmentNumber) + " 段";
         tasks.push(task);
       }

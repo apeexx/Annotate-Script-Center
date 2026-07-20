@@ -6,7 +6,7 @@
 - 仅在 `https://mark.aishelltech.com/mytask/mark?...` 工作页启用。
 - 使用当前分包条目的 `dataRoot + url` 拼接 OSS 音频地址；保留任务、分包、条目、参考文本、页面当前文本、条目编号、时长和使用人元数据。参考文本可为空，不阻断基于音频的原始听写。
 - AI 为单次 Omni 原始听写。浏览器先按当前蓝色波形区段裁剪原始音频为 `16kHz` 单声道 WAV Base64 Data URL，再交给模型；这是对原先“直传 OSS URL”的已批准替换。
-- 区段只从 `wave > region.wavesurfer-region` 中带纯数字 `data-region-label` 的节点建立目录，并按页面区段按钮与“当前选择”精确匹配；使用当前“截取时长”校准像素时间，标题只作校验。说话人 S1–S4 覆盖层不参与裁剪、结果键或批量。编号映射、时长或裁剪失败时拒绝识别，绝不回退整段音频。
+- 区段只从 `wave > region.wavesurfer-region` 中带唯一纯数字 `data-region-label` 的节点建立目录，编号可以稀疏，并按页面区段按钮与“当前选择”精确匹配；使用当前“截取时长”校准像素时间，标题只作校验。说话人 S1–S4 覆盖层不参与裁剪、结果键或批量。编号映射、时长或裁剪失败时拒绝识别，绝不回退整段音频。
 - 请求固定携带 `regionId`、`segmentNumber`、`startMs`、`endMs`、`durationMs` 与 `selectionKey`。完整 `audioUrl` 仅保留为瞬时来源上下文，不送入模型，也不写入缓存、调试摘要或日志。
 - 成功业务结果唯一为繁体粤语口语 `listenText`。页面展示、复制和填入都原样使用该字段，不做繁简转换、去空格、补标点或词表替换。
 

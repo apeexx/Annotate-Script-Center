@@ -104,11 +104,6 @@
     if (!entries.length) {
       throw createSegmentError("未读取到带数字编号的可识别蓝色区段。", "missing-numbered-segments");
     }
-    entries.forEach(function (entry, index) {
-      if (entry.segmentNumber !== index + 1) {
-        throw createSegmentError("可识别蓝色区段编号缺失或不连续，已拒绝继续识别。", "invalid-segment-number-order");
-      }
-    });
     return entries;
   }
 

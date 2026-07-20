@@ -245,6 +245,117 @@ test("Aishell Cantonese batches every numbered blue segment in catalog order", a
   }
 });
 
+test("Aishell Cantonese batches sparse catalog numbers through their matching buttons", async function () {
+  const previousGlobals = {
+    HTMLElement: globalThis.HTMLElement,
+    HTMLInputElement: globalThis.HTMLInputElement,
+    document: globalThis.document,
+    fetch: globalThis.fetch,
+    location: globalThis.location,
+    window: globalThis.window,
+    __ASREdgeAishellTechCantoneseSegmentAudioClipper: globalThis.__ASREdgeAishellTechCantoneseSegmentAudioClipper,
+  };
+  class FakeElement {
+    constructor() {
+      this.classList = { contains: function () { return false; } };
+    }
+  }
+  class FakeInput extends FakeElement {
+    constructor() {
+      super();
+      this.tagName = "INPUT";
+      this.value = "";
+    }
+  }
+  class FakeButton extends FakeElement {
+    constructor(number, parent) {
+      super();
+      this.textContent = String(number);
+      this.parentElement = parent;
+      this.number = number;
+    }
+    click() {
+      selectedNumber = this.number;
+      clickedNumbers.push(this.number);
+    }
+  }
+
+  let selectedNumber = 1;
+  const clickedNumbers = [];
+  const catalog = [1, 3].map(function (number) {
+    const startMs = number * 1000;
+    return {
+      regionId: "region-" + number,
+      segmentNumber: number,
+      startMs,
+      endMs: startMs + 500,
+      durationMs: 500,
+      selectionKey: "region-" + number + ":" + startMs + "-" + (startMs + 500),
+    };
+  });
+  const buttonContainer = { querySelectorAll: function () { return buttons; } };
+  const buttons = [1, 2, 3].map(function (number) {
+    return new FakeButton(number, buttonContainer);
+  });
+  const input = new FakeInput();
+  const textRow = {
+    textContent: "text",
+    querySelector(selector) {
+      if (selector === "label[for]") {
+        return { textContent: "text", getAttribute(attribute) { return attribute === "for" ? "text" : null; } };
+      }
+      return selector === "input.el-input__inner[type='text']" ? input : null;
+    },
+  };
+  const listItem = new FakeElement();
+  listItem.textContent = "1: sample.wav";
+  listItem.querySelector = function () { return new FakeElement(); };
+  listItem.classList = { contains: function (name) { return name === "list-item-selected"; } };
+
+  globalThis.HTMLElement = FakeElement;
+  globalThis.HTMLInputElement = FakeInput;
+  globalThis.location = { hostname: "mark.aishelltech.com", pathname: "/mytask/mark", search: "?taskId=task-1&packageId=package-1" };
+  globalThis.window = {
+    localStorage: { length: 1, key() { return "token"; }, getItem() { return "a.b.c"; } },
+    sessionStorage: { length: 0, key() { return null; }, getItem() { return null; } },
+    setTimeout: globalThis.setTimeout,
+  };
+  globalThis.document = {
+    querySelector(selector) {
+      return selector === "button.regionSelected" ? buttons.find(function (button) { return button.number === selectedNumber; }) : null;
+    },
+    querySelectorAll(selector) {
+      if (selector === ".list .list-item, .list .list-item-selected, .list .list-item-finshed") return [listItem];
+      if (selector === ".mark-area .el-form-item") return [textRow];
+      return [];
+    },
+  };
+  globalThis.fetch = async function (url) {
+    if (String(url).endsWith("/api/task/detail/task-1")) {
+      return { ok: true, status: 200, json: async function () { return { data: { result: { project: { dataRoot: "https://audio.example.test" } } } }; } };
+    }
+    if (String(url).endsWith("/api/taskItem/packageItemList/package-1")) {
+      return { ok: true, status: 200, json: async function () { return { data: { result: { items: [{ id: "item-1", fileName: "sample.wav", url: "/sample.wav" }] } } }; } };
+    }
+    throw new Error("unexpected request: " + url);
+  };
+  globalThis.__ASREdgeAishellTechCantoneseSegmentAudioClipper = {
+    getCurrentSegment() { return catalog.find(function (segment) { return segment.segmentNumber === selectedNumber; }); },
+    getSegmentCatalog() { return catalog; },
+  };
+
+  const harness = loadApi();
+  try {
+    const tasks = await harness.api.createRuntime().getBatchSegmentsForCurrentAudio({ mode: "pending" });
+    assert.deepEqual(tasks.map(function (task) { return task.segmentNumber; }), [1, 3]);
+    assert.deepEqual(tasks.map(function (task) { return task.index; }), [0, 0]);
+    assert.deepEqual(clickedNumbers, [3]);
+  } finally {
+    harness.cleanup();
+    Object.assign(globalThis, previousGlobals);
+  }
+});
+
 test("Aishell Cantonese does not fill or save when stopped while current-item loading is pending", async function () {
   const previousGlobals = {
     HTMLElement: globalThis.HTMLElement,

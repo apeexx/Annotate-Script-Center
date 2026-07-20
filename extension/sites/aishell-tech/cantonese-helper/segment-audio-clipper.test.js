@@ -130,7 +130,7 @@ test("Aishell Cantonese rejects duplicate numeric region labels", function () {
   }
 });
 
-test("Aishell Cantonese rejects missing numeric region labels", function () {
+test("Aishell Cantonese allows sparse numeric region labels", function () {
   const harness = loadApi();
   try {
     const documentLike = createMarkDocument(
@@ -142,9 +142,37 @@ test("Aishell Cantonese rejects missing numeric region labels", function () {
       1.16
     );
 
-    assert.throws(function () {
+    assert.doesNotThrow(function () {
       harness.api.getSegmentCatalog(documentLike);
     }, /编号/);
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test("Aishell Cantonese resolves sparse selected numbers by their label", function () {
+  const harness = loadApi();
+  try {
+    const documentLike = createMarkDocument(
+      [
+        createRegion("region-1", "1", "0:01-0:02", 183, 116),
+        createRegion("region-3", "3", "0:03-0:06", 315, 336),
+      ],
+      3,
+      3.36
+    );
+
+    const segment = harness.api.getCurrentSegment(documentLike);
+    const catalog = harness.api.getSegmentCatalog(documentLike);
+
+    assert.equal(segment.regionId, "region-3");
+    assert.equal(segment.segmentNumber, 3);
+    assert.deepEqual(
+      catalog.map(function (entry) {
+        return entry.segmentNumber;
+      }),
+      [1, 3]
+    );
   } finally {
     harness.cleanup();
   }
