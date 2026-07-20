@@ -110,6 +110,44 @@ test("Aishell Cantonese resolves the numbered segment when speaker overlays surr
   }
 });
 
+test("Aishell Cantonese crops a hand-drawn numeric segment by pixels when its title differs", function () {
+  const harness = loadApi();
+  try {
+    const documentLike = createMarkDocument(
+      [
+        createRegion("speaker-s1", "说话人S1:1", "0:01-0:02", 410, 40),
+        createRegion("region-1", "1", "0:00-0:01", 100, 120),
+        createRegion("speaker-s2", "说话人S2:2", "0:05-0:06", 500, 45),
+        createRegion("hand-drawn-region-2", "2", "0:01-0:02", 480, 150),
+        createRegion("speaker-s1-copy", "说话人S1:2", "0:06-0:07", 650, 45),
+      ],
+      2,
+      1.5
+    );
+
+    const segment = harness.api.getCurrentSegment(documentLike);
+    const catalog = harness.api.getSegmentCatalog(documentLike);
+
+    assert.deepEqual(segment, {
+      regionId: "hand-drawn-region-2",
+      regionLabel: "2",
+      segmentNumber: 2,
+      startMs: 4800,
+      endMs: 6300,
+      durationMs: 1500,
+      selectionKey: "hand-drawn-region-2:4800-6300",
+    });
+    assert.deepEqual(
+      catalog.map(function (entry) {
+        return entry.regionId;
+      }),
+      ["region-1", "hand-drawn-region-2"]
+    );
+  } finally {
+    harness.cleanup();
+  }
+});
+
 test("Aishell Cantonese rejects duplicate numeric region labels", function () {
   const harness = loadApi();
   try {

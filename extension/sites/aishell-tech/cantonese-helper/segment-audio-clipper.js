@@ -118,7 +118,6 @@
     if (!Number.isInteger(Number(segmentNumber)) || Number(segmentNumber) <= 0 || endMs <= startMs) {
       throw createSegmentError("当前区段的开始/结束时间无效。", "invalid-segment-range");
     }
-    assertTitleMatchesRange(parts.title, startMs, endMs);
     return {
       regionId: parts.regionId,
       regionLabel: parts.regionLabel,
