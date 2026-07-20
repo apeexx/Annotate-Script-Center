@@ -17,6 +17,8 @@
     constants.AISHELL_TECH_VIETNAMESE_SCRIPT_ID || "aishellTechVietnameseAssistant";
   const aishellThaiScriptId =
     constants.AISHELL_TECH_THAI_SCRIPT_ID || "aishellTechThaiAssistant";
+  const aishellCantoneseScriptId =
+    constants.AISHELL_TECH_CANTONESE_SCRIPT_ID || "aishellTechCantoneseAssistant";
   const aishellShortDramaScriptId =
     constants.AISHELL_TECH_CN_EN_SHORT_DRAMA_SCRIPT_ID || "aishellTechCnEnShortDrama";
   const abakaScriptId = constants.ABAKA_AI_TASK_PAGE_CAPTURE_SCRIPT_ID || "abakaAiTaskPageCapture";
@@ -81,6 +83,7 @@
       aishellMinnanScriptId,
       aishellVietnameseScriptId,
       aishellThaiScriptId,
+      aishellCantoneseScriptId,
       aishellShortDramaScriptId,
     ];
     if (ids.indexOf(active) >= 0 && isScriptEnabled(settings, active)) {
