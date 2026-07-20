@@ -84,6 +84,34 @@
     return { regionId, regionLabel, title, left, width };
   }
 
+  function getSelectableRegionEntries(regions) {
+    const source = Array.isArray(regions) ? regions : [];
+    const bySegmentNumber = new Map();
+    source.forEach(function (node) {
+      const regionLabel = normalizeText(node?.getAttribute?.("data-region-label"));
+      if (!/^[1-9]\d*$/.test(regionLabel)) {
+        return;
+      }
+      const segmentNumber = Number(regionLabel);
+      if (bySegmentNumber.has(segmentNumber)) {
+        throw createSegmentError("可识别蓝色区段编号重复，已拒绝继续识别。", "duplicate-segment-number");
+      }
+      bySegmentNumber.set(segmentNumber, { node, segmentNumber });
+    });
+    const entries = Array.from(bySegmentNumber.values()).sort(function (left, right) {
+      return left.segmentNumber - right.segmentNumber;
+    });
+    if (!entries.length) {
+      throw createSegmentError("未读取到带数字编号的可识别蓝色区段。", "missing-numbered-segments");
+    }
+    entries.forEach(function (entry, index) {
+      if (entry.segmentNumber !== index + 1) {
+        throw createSegmentError("可识别蓝色区段编号缺失或不连续，已拒绝继续识别。", "invalid-segment-number-order");
+      }
+    });
+    return entries;
+  }
+
   function buildSegmentSnapshot(node, segmentNumber, pixelsPerSecond) {
     const parts = getRegionNodeParts(node);
     const scale = Number(pixelsPerSecond);
@@ -112,18 +140,22 @@
     const regions = Array.isArray(source.regions) ? source.regions : [];
     const selectedSegmentNumber = Math.round(toFiniteNumber(source.selectedSegmentNumber, 0));
     const selectedDurationMs = Math.round(toFiniteNumber(source.selectedDurationMs, 0));
-    if (!Number.isInteger(selectedSegmentNumber) || selectedSegmentNumber <= 0 || selectedSegmentNumber > regions.length) {
+    const selectableRegions = getSelectableRegionEntries(regions);
+    const selectedEntry = selectableRegions.find(function (entry) {
+      return entry.segmentNumber === selectedSegmentNumber;
+    });
+    if (!Number.isInteger(selectedSegmentNumber) || selectedSegmentNumber <= 0 || !selectedEntry) {
       throw createSegmentError("未读取到当前选择的区段编号。", "missing-selected-segment");
     }
     if (!Number.isFinite(selectedDurationMs) || selectedDurationMs <= 0) {
       throw createSegmentError("未读取到当前区段的截取时长。", "missing-selected-duration");
     }
-    const selectedParts = getRegionNodeParts(regions[selectedSegmentNumber - 1]);
+    const selectedParts = getRegionNodeParts(selectedEntry.node);
     const pixelsPerSecond = selectedParts.width / (selectedDurationMs / 1000);
     if (!Number.isFinite(pixelsPerSecond) || pixelsPerSecond < 10 || pixelsPerSecond > 2000) {
       throw createSegmentError("当前波形的时间比例无效。", "invalid-wave-scale");
     }
-    return buildSegmentSnapshot(regions[selectedSegmentNumber - 1], selectedSegmentNumber, pixelsPerSecond);
+    return buildSegmentSnapshot(selectedEntry.node, selectedSegmentNumber, pixelsPerSecond);
   }
 
   function getRegionNodes(documentLike) {
@@ -168,11 +200,18 @@
 
   function getSegmentCatalog(documentLike) {
     const regions = getRegionNodes(documentLike);
+    const selectableRegions = getSelectableRegionEntries(regions);
     const current = getCurrentSegment(documentLike);
-    const selectedParts = getRegionNodeParts(regions[current.segmentNumber - 1]);
+    const selectedEntry = selectableRegions.find(function (entry) {
+      return entry.segmentNumber === current.segmentNumber;
+    });
+    if (!selectedEntry) {
+      throw createSegmentError("未读取到当前选择的可识别蓝色区段。", "missing-selected-segment");
+    }
+    const selectedParts = getRegionNodeParts(selectedEntry.node);
     const pixelsPerSecond = selectedParts.width / (current.durationMs / 1000);
-    return regions.map(function (region, index) {
-      return buildSegmentSnapshot(region, index + 1, pixelsPerSecond);
+    return selectableRegions.map(function (entry) {
+      return buildSegmentSnapshot(entry.node, entry.segmentNumber, pixelsPerSecond);
     });
   }
 

@@ -134,7 +134,7 @@ test("Aishell Cantonese binds an item key to the exact selected blue segment", f
   }
 });
 
-test("Aishell Cantonese batches every blue segment in DOM order, including speaker overlays", async function () {
+test("Aishell Cantonese batches every numbered blue segment in catalog order", async function () {
   const previousGlobals = {
     HTMLElement: globalThis.HTMLElement,
     HTMLInputElement: globalThis.HTMLInputElement,
@@ -169,21 +169,20 @@ test("Aishell Cantonese batches every blue segment in DOM order, including speak
   }
 
   let selectedNumber = 1;
-  const catalog = Array.from({ length: 152 }, function (_value, index) {
+  const catalog = Array.from({ length: 150 }, function (_value, index) {
     const number = index + 1;
-    const regionId = number === 3 ? "speaker-s1" : number === 4 ? "speaker-s2" : "region-" + number;
     const startMs = number * 1000;
     return {
-      regionId,
+      regionId: "region-" + number,
       segmentNumber: number,
       startMs,
       endMs: startMs + 500,
       durationMs: 500,
-      selectionKey: regionId + ":" + startMs + "-" + (startMs + 500),
+      selectionKey: "region-" + number + ":" + startMs + "-" + (startMs + 500),
     };
   });
   const buttonContainer = { querySelectorAll: function () { return buttons; } };
-  const buttons = Array.from({ length: 152 }, function (_value, index) {
+  const buttons = Array.from({ length: 150 }, function (_value, index) {
     return new FakeButton(index + 1, buttonContainer);
   });
   const input = new FakeInput();
@@ -236,11 +235,10 @@ test("Aishell Cantonese batches every blue segment in DOM order, including speak
   const harness = loadApi();
   try {
     const tasks = await harness.api.createRuntime().getBatchSegmentsForCurrentAudio({ mode: "all" });
-    assert.equal(tasks.length, 152);
+    assert.equal(tasks.length, 150);
     assert.equal(tasks[0].segmentNumber, 1);
-    assert.equal(tasks[2].regionId, "speaker-s1");
-    assert.equal(tasks[3].regionId, "speaker-s2");
-    assert.equal(tasks[151].segmentNumber, 152);
+    assert.equal(tasks[2].regionId, "region-3");
+    assert.equal(tasks[149].segmentNumber, 150);
   } finally {
     harness.cleanup();
     Object.assign(globalThis, previousGlobals);

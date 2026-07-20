@@ -63,22 +63,88 @@ test("Aishell Cantonese maps the selected region by DOM order and preserves mill
   }
 });
 
-test("Aishell Cantonese keeps speaker-overlay regions in the numbered selection order", function () {
+function createMarkDocument(regions, selectedNumber, selectedDurationSeconds) {
+  return {
+    querySelector: function (selector) {
+      return selector === "button.regionSelected" ? { textContent: String(selectedNumber) } : null;
+    },
+    querySelectorAll: function (selector) {
+      return selector === "wave > region.wavesurfer-region" ? regions : [];
+    },
+    body: {
+      textContent:
+        "当前选择：" + String(selectedNumber) + " 截取时长：" + String(selectedDurationSeconds) + "s",
+    },
+  };
+}
+
+test("Aishell Cantonese resolves the numbered segment when speaker overlays surround it", function () {
   const harness = loadApi();
   try {
-    const segment = harness.api.resolveSegmentSnapshot({
-      regions: [
-        createRegion("region-1", "1", "0:01-0:02", 183, 116),
-        createRegion("region-2", "2", "0:03-0:06", 315, 336),
+    const documentLike = createMarkDocument(
+      [
         createRegion("speaker-s1", "说话人S1:1", "0:04-0:05", 465, 47),
+        createRegion("region-1", "1", "0:01-0:02", 183, 116),
+        createRegion("speaker-s2", "说话人S2:2", "0:06-0:07", 630, 50),
+        createRegion("region-2", "2", "0:03-0:06", 315, 336),
+        createRegion("speaker-s3", "说话人S3:2", "0:07-0:08", 730, 50),
       ],
-      selectedSegmentNumber: 3,
-      selectedDurationMs: 470,
-    });
+      1,
+      1.16
+    );
 
-    assert.equal(segment.regionId, "speaker-s1");
-    assert.equal(segment.segmentNumber, 3);
-    assert.equal(segment.selectionKey, "speaker-s1:4650-5120");
+    const segment = harness.api.getCurrentSegment(documentLike);
+    const catalog = harness.api.getSegmentCatalog(documentLike);
+
+    assert.equal(segment.regionId, "region-1");
+    assert.equal(segment.segmentNumber, 1);
+    assert.equal(segment.selectionKey, "region-1:1830-2990");
+    assert.deepEqual(
+      catalog.map(function (entry) {
+        return entry.regionId;
+      }),
+      ["region-1", "region-2"]
+    );
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test("Aishell Cantonese rejects duplicate numeric region labels", function () {
+  const harness = loadApi();
+  try {
+    const documentLike = createMarkDocument(
+      [
+        createRegion("region-1", "1", "0:01-0:02", 183, 116),
+        createRegion("region-1-copy", "1", "0:03-0:06", 315, 336),
+      ],
+      1,
+      1.16
+    );
+
+    assert.throws(function () {
+      harness.api.getSegmentCatalog(documentLike);
+    }, /编号/);
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test("Aishell Cantonese rejects missing numeric region labels", function () {
+  const harness = loadApi();
+  try {
+    const documentLike = createMarkDocument(
+      [
+        createRegion("region-1", "1", "0:01-0:02", 183, 116),
+        createRegion("region-3", "3", "0:03-0:06", 315, 336),
+      ],
+      1,
+      1.16
+    );
+
+    assert.throws(function () {
+      harness.api.getSegmentCatalog(documentLike);
+    }, /编号/);
   } finally {
     harness.cleanup();
   }
