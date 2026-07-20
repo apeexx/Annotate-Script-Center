@@ -148,6 +148,30 @@ test("Aishell Cantonese crops a hand-drawn numeric segment by pixels when its ti
   }
 });
 
+test("Aishell Cantonese rejects numbered segments without usable CSS geometry", function () {
+  const harness = loadApi();
+  try {
+    [-1, 0].forEach(function (invalidValue, index) {
+      const region =
+        index === 0
+          ? createRegion("negative-left", "1", "0:01-0:02", invalidValue, 120)
+          : createRegion("zero-width", "1", "0:01-0:02", 100, invalidValue);
+      assert.throws(
+        function () {
+          harness.api.resolveSegmentSnapshot({
+            regions: [region],
+            selectedSegmentNumber: 1,
+            selectedDurationMs: 1200,
+          });
+        },
+        /缺少可用的波形位置或宽度/
+      );
+    });
+  } finally {
+    harness.cleanup();
+  }
+});
+
 test("Aishell Cantonese rejects duplicate numeric region labels", function () {
   const harness = loadApi();
   try {

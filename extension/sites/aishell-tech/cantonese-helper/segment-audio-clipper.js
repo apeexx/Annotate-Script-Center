@@ -35,53 +35,15 @@
     return matched ? matched[1] : "";
   }
 
-  function parseClockToSeconds(value) {
-    const matched = normalizeText(value).match(/^(?:(\d+):)?(\d{1,2})$/);
-    if (!matched) {
-      return NaN;
-    }
-    const minutes = Number(matched[1] || 0);
-    const seconds = Number(matched[2]);
-    return Number.isFinite(minutes) && Number.isFinite(seconds) && seconds < 60
-      ? minutes * 60 + seconds
-      : NaN;
-  }
-
-  function parseRegionTitle(value) {
-    const matched = normalizeText(value).match(/^([^\-]+)-([^\-]+)$/);
-    if (!matched) {
-      return null;
-    }
-    const startSeconds = parseClockToSeconds(matched[1]);
-    const endSeconds = parseClockToSeconds(matched[2]);
-    if (!Number.isFinite(startSeconds) || !Number.isFinite(endSeconds)) {
-      return null;
-    }
-    return { startSeconds, endSeconds };
-  }
-
-  function assertTitleMatchesRange(title, startMs, endMs) {
-    const parsed = parseRegionTitle(title);
-    if (!parsed) {
-      throw createSegmentError("当前区段缺少可校验的时间标题。", "missing-region-title");
-    }
-    const displayedStart = Math.floor(Math.max(0, Number(startMs) || 0) / 1000);
-    const displayedEnd = Math.floor(Math.max(0, Number(endMs) || 0) / 1000);
-    if (displayedStart !== parsed.startSeconds || displayedEnd !== parsed.endSeconds) {
-      throw createSegmentError("当前区段的像素范围与页面时间标题不一致。", "region-range-mismatch");
-    }
-  }
-
   function getRegionNodeParts(node) {
     const regionId = normalizeText(node?.getAttribute?.("data-id"));
     const regionLabel = normalizeText(node?.getAttribute?.("data-region-label"));
-    const title = normalizeText(node?.getAttribute?.("title"));
     const left = readCssPixels(getStyleValue(node, "left"));
     const width = readCssPixels(getStyleValue(node, "width"));
     if (!regionId || !Number.isFinite(left) || left < 0 || !Number.isFinite(width) || width <= 0) {
       throw createSegmentError("当前区段缺少可用的波形位置或宽度。", "invalid-region-layout");
     }
-    return { regionId, regionLabel, title, left, width };
+    return { regionId, regionLabel, left, width };
   }
 
   function getSelectableRegionEntries(regions) {
@@ -379,7 +341,6 @@
     buildSegmentSnapshot,
     encodeWavBuffer,
     getRegionNodeParts,
-    parseRegionTitle,
   };
 
   globalThis.__ASREdgeAishellTechCantoneseSegmentAudioClipper = api;
