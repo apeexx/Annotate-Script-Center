@@ -121,7 +121,7 @@
 
 - Aishell 保持独立路由、独立脚本 ID；同平台的闽南语、粤语、越南语、泰语与中英短剧互斥启用，由 `platforms.aishellTech.activeScriptId` 控制生效脚本。
 - 闽南语助手继续保留自己的三阶段链路与词表资料目录。
-- 粤语助手固定为单阶段 Omni 原始听写：浏览器只裁剪当前带唯一纯数字编号的蓝色波形区段（可为稀疏编号）为 `16kHz` 单声道 WAV Data URL 后传入模型，绝不回退整段 OSS 音频；说话人覆盖层不参与裁剪；唯一业务结果为原样 `listenText`，不接词表、转换、比较、Fun-ASR 或语速字段。
+- 粤语助手固定为单阶段 Omni 原始听写：唯一纯数字编号的蓝色波形区段（可为稀疏编号）始终优先；仅当最小纯数字主段左侧存在数量、几何与位置均安全的严格说话人 S1–S4 前缀节点时，才按 CSS `left` 升序映射为缺失的全局前缀段。浏览器只裁剪当前安全区段为 `16kHz` 单声道 WAV Data URL 后传入模型，绝不回退整段 OSS 音频；映射失败段不发起 AI 且不阻断安全纯数字段。唯一业务结果为原样 `listenText`，不接词表、转换、比较、Fun-ASR 或语速字段。
 - 越南语助手固定为“单阶段 Omni 输出 `text + speed` 双字段，其中 `speed` 正式值为 `slow / normal / fast`”，不接词表、不做转换/比较双阶段。
 - 泰语助手固定为“单阶段 Omni 输出 `text + speed` 双字段，其中 `speed` 正式值为 `slow / normal / fast`”，不接词表、不做转换/比较双阶段。
 - Aishell 的 Omni 音频调用继续复用各脚本各自的 `dashscope-omni-client.js`，统一固定 `enable_thinking=false`。

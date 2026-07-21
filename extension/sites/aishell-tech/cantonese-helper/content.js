@@ -439,21 +439,49 @@
       batchStopRequested = false;
       panel.setStatus("正在准备" + batchMeta.label + "...", "info");
       try {
-        const tasks = await dataApi.getBatchSegmentsForCurrentAudio({
+        const batchPlan = await dataApi.getBatchSegmentPlanForCurrentAudio({
           mode: batchMeta.mode,
           timeoutMs: 12000,
         });
+        const tasks = Array.isArray(batchPlan?.tasks) ? batchPlan.tasks : [];
+        const preflightFailures = Array.isArray(batchPlan?.preflightFailures)
+          ? batchPlan.preflightFailures
+          : [];
+        const failures = preflightFailures.map(function (failure) {
+          return buildBatchFailureEntry({
+            task: failure,
+            stage: failure.stage || "segment_preflight",
+            message: failure.message || "蓝色区段预检失败。",
+            error: failure.error,
+          });
+        });
+        const totalSegmentCount = tasks.length + failures.length;
         if (!tasks.length) {
-          throw new Error(batchMeta.emptyMessage);
+          panel.updateBatch({
+            phaseText: batchMeta.label + "无可安全处理区段",
+            total: totalSegmentCount,
+            completed: failures.length,
+            failed: failures.length,
+            currentText: "",
+            failures: failures,
+            running: false,
+          });
+          panel.setStatus(
+            failures.length > 0
+              ? "当前分包没有可安全裁剪的区段，已跳过预检失败段且未发起 AI 请求。"
+              : batchMeta.emptyMessage,
+            "warning"
+          );
+          return;
         }
         const batchRunId = createBatchRunId();
         const batchConcurrency = Math.max(
           1,
           Number(config.aiQualifiedAutofillConcurrency || 5) || 5
         );
-        const failures = [];
         const batchSummaryAccumulator = createBatchSummaryAccumulator();
-        let consumedCount = 0;
+        let completedCount = failures.length;
+        let processedTaskCount = 0;
         let currentPhaseText = batchMeta.label + "开始";
         let currentDisplayText = tasks[0].displayName || "";
         let requestStream = null;
@@ -483,8 +511,8 @@
           const snapshot = requestStream.getSnapshot();
           panel.updateBatch({
             phaseText: currentPhaseText,
-            total: tasks.length,
-            completed: consumedCount,
+            total: totalSegmentCount,
+            completed: completedCount,
             failed: failures.length,
             currentText: currentDisplayText,
             failures: failures,
@@ -559,7 +587,7 @@
 
         const pendingEntriesByIndex = new Map();
         let nextSaveIndex = 0;
-        while (consumedCount < tasks.length) {
+        while (processedTaskCount < tasks.length) {
           if (batchStopRequested === true) {
             break;
           }
@@ -595,7 +623,8 @@
             true
           );
           if (entry.ok !== true) {
-            consumedCount += 1;
+            processedTaskCount += 1;
+            completedCount += 1;
             failures.push(
               buildBatchFailureEntry({
                 task: task,
@@ -609,7 +638,8 @@
           } else {
             batchSummaryAccumulator.addResult(entry.value);
             if (!String(entry.value?.listenText || "")) {
-              consumedCount += 1;
+              processedTaskCount += 1;
+              completedCount += 1;
               failures.push(
                 buildBatchFailureEntry({
                   task: task,
@@ -666,10 +696,12 @@
               if (saveResult?.ok === false) {
                 throw new Error(saveResult.message || "填入并保存失败。");
               }
-              consumedCount += 1;
+              processedTaskCount += 1;
+              completedCount += 1;
               updateBatchSnapshot(batchMeta.label + "已识别并保存", task.displayName, true);
             } catch (error) {
-              consumedCount += 1;
+              processedTaskCount += 1;
+              completedCount += 1;
               failures.push(
                 buildBatchFailureEntry({
                   task: task,

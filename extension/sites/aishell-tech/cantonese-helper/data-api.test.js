@@ -134,7 +134,7 @@ test("Aishell Cantonese binds an item key to the exact selected blue segment", f
   }
 });
 
-test("Aishell Cantonese batches every numbered blue segment in catalog order", async function () {
+test("Aishell Cantonese batches every safe numbered blue segment and returns preflight failures separately", async function () {
   const previousGlobals = {
     HTMLElement: globalThis.HTMLElement,
     HTMLInputElement: globalThis.HTMLInputElement,
@@ -169,6 +169,11 @@ test("Aishell Cantonese batches every numbered blue segment in catalog order", a
   }
 
   let selectedNumber = 1;
+  let preflightEnabled = false;
+  let preflightFailureSegmentNumber = 2;
+  let forceCalibration = false;
+  let calibrationErrorCode = "";
+  let safePrimarySegmentNumbers = [5];
   const catalog = Array.from({ length: 150 }, function (_value, index) {
     const number = index + 1;
     const startMs = number * 1000;
@@ -229,7 +234,27 @@ test("Aishell Cantonese batches every numbered blue segment in catalog order", a
   };
   globalThis.__ASREdgeAishellTechCantoneseSegmentAudioClipper = {
     getCurrentSegment() { return catalog[selectedNumber - 1]; },
-    getSegmentCatalog() { return catalog; },
+    getSegmentCatalog() {
+      if (forceCalibration && selectedNumber === 1) {
+        const error = new Error("当前区段无法校准波形时间比例。");
+        error.code = calibrationErrorCode;
+        throw error;
+      }
+      return catalog;
+    },
+    getSegmentPreflight() {
+      return {
+        selectedSegmentNumber: selectedNumber,
+        safePrimarySegmentNumbers: safePrimarySegmentNumbers,
+        failures: preflightEnabled ? [
+          {
+            segmentNumber: preflightFailureSegmentNumber,
+            message: "前缀说话人分段无法按波形位置安全映射。",
+            code: "invalid-speaker-prefix-mapping",
+          },
+        ] : [],
+      };
+    },
   };
 
   const harness = loadApi();
@@ -239,13 +264,73 @@ test("Aishell Cantonese batches every numbered blue segment in catalog order", a
     assert.equal(tasks[0].segmentNumber, 1);
     assert.equal(tasks[2].regionId, "region-3");
     assert.equal(tasks[149].segmentNumber, 150);
+
+    preflightEnabled = true;
+    const plan = await harness.api.createRuntime().getBatchSegmentPlanForCurrentAudio({ mode: "all" });
+    assert.equal(plan.tasks.length, 149);
+    assert.deepEqual(plan.tasks.slice(0, 3).map(function (task) { return task.segmentNumber; }), [1, 3, 4]);
+    assert.deepEqual(
+      plan.preflightFailures.map(function (failure) {
+        return [failure.segmentNumber, failure.stage, failure.message];
+      }),
+      [[2, "segment_preflight", "前缀说话人分段无法按波形位置安全映射。"]]
+    );
+
+    selectedNumber = 1;
+    preflightFailureSegmentNumber = 1;
+    forceCalibration = true;
+    const calibratedPlan = await harness.api.createRuntime().getBatchSegmentPlanForCurrentAudio({ mode: "all" });
+    assert.equal(selectedNumber, 5);
+    assert.equal(calibratedPlan.tasks[0].segmentNumber, 2);
+    assert.deepEqual(
+      calibratedPlan.preflightFailures.map(function (failure) { return failure.segmentNumber; }),
+      [1]
+    );
+
+    preflightEnabled = false;
+    selectedNumber = 1;
+    calibrationErrorCode = "missing-selected-duration";
+    safePrimarySegmentNumbers = [5];
+    const durationCalibratedPlan = await harness.api.createRuntime().getBatchSegmentPlanForCurrentAudio({ mode: "all" });
+    assert.equal(selectedNumber, 5);
+    assert.equal(durationCalibratedPlan.tasks.length, 150);
+
+    selectedNumber = 1;
+    calibrationErrorCode = "invalid-wave-scale";
+    safePrimarySegmentNumbers = [5];
+    const scaleCalibratedPlan = await harness.api.createRuntime().getBatchSegmentPlanForCurrentAudio({ mode: "all" });
+    assert.equal(selectedNumber, 5);
+    assert.equal(scaleCalibratedPlan.tasks.length, 150);
+
+    selectedNumber = 1;
+    calibrationErrorCode = "invalid-segment-range";
+    safePrimarySegmentNumbers = [];
+    const noSafeCalibrationPlan = await harness.api.createRuntime().getBatchSegmentPlanForCurrentAudio({ mode: "all" });
+    assert.deepEqual(noSafeCalibrationPlan.tasks, []);
+    assert.deepEqual(
+      noSafeCalibrationPlan.preflightFailures.map(function (failure) {
+        return [failure.segmentNumber, failure.error.code];
+      }),
+      [[1, "invalid-segment-range"]]
+    );
+
+    selectedNumber = 1;
+    calibrationErrorCode = "selected-segment-not-ready";
+    safePrimarySegmentNumbers = [5];
+    await assert.rejects(
+      function () {
+        return harness.api.createRuntime().getBatchSegmentPlanForCurrentAudio({ mode: "all" });
+      },
+      /当前区段无法校准波形时间比例/
+    );
+    assert.equal(selectedNumber, 1);
   } finally {
     harness.cleanup();
     Object.assign(globalThis, previousGlobals);
   }
 });
 
-test("Aishell Cantonese batches sparse catalog numbers through their matching buttons", async function () {
+test("Aishell Cantonese ignores S1/S2 speaker overlays while mapping sparse catalog numbers to their matching buttons", async function () {
   const previousGlobals = {
     HTMLElement: globalThis.HTMLElement,
     HTMLInputElement: globalThis.HTMLInputElement,
@@ -268,9 +353,9 @@ test("Aishell Cantonese batches sparse catalog numbers through their matching bu
     }
   }
   class FakeButton extends FakeElement {
-    constructor(number, parent) {
+    constructor(number, parent, label) {
       super();
-      this.textContent = String(number);
+      this.textContent = label || String(number);
       this.parentElement = parent;
       this.number = number;
     }
@@ -280,7 +365,7 @@ test("Aishell Cantonese batches sparse catalog numbers through their matching bu
     }
   }
 
-  let selectedNumber = 1;
+  let selectedNumber = 2;
   const clickedNumbers = [];
   const catalog = [1, 3].map(function (number) {
     const startMs = number * 1000;
@@ -294,9 +379,13 @@ test("Aishell Cantonese batches sparse catalog numbers through their matching bu
     };
   });
   const buttonContainer = { querySelectorAll: function () { return buttons; } };
-  const buttons = [1, 2, 3].map(function (number) {
-    return new FakeButton(number, buttonContainer);
-  });
+  const buttons = [
+    new FakeButton(1, buttonContainer, "说话人S1:1"),
+    new FakeButton(2, buttonContainer, "说话人S2:2"),
+    new FakeButton(1, buttonContainer),
+    new FakeButton(2, buttonContainer),
+    new FakeButton(3, buttonContainer),
+  ];
   const input = new FakeInput();
   const textRow = {
     textContent: "text",
@@ -322,7 +411,9 @@ test("Aishell Cantonese batches sparse catalog numbers through their matching bu
   };
   globalThis.document = {
     querySelector(selector) {
-      return selector === "button.regionSelected" ? buttons.find(function (button) { return button.number === selectedNumber; }) : null;
+      return selector === "button.regionSelected"
+        ? buttons.find(function (button) { return button.textContent === String(selectedNumber); })
+        : null;
     },
     querySelectorAll(selector) {
       if (selector === ".list .list-item, .list .list-item-selected, .list .list-item-finshed") return [listItem];
@@ -349,7 +440,7 @@ test("Aishell Cantonese batches sparse catalog numbers through their matching bu
     const tasks = await harness.api.createRuntime().getBatchSegmentsForCurrentAudio({ mode: "pending" });
     assert.deepEqual(tasks.map(function (task) { return task.segmentNumber; }), [1, 3]);
     assert.deepEqual(tasks.map(function (task) { return task.index; }), [0, 0]);
-    assert.deepEqual(clickedNumbers, [3]);
+    assert.deepEqual(clickedNumbers, [1, 3]);
   } finally {
     harness.cleanup();
     Object.assign(globalThis, previousGlobals);

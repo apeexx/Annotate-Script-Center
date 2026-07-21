@@ -46,27 +46,137 @@
     return { regionId, regionLabel, left, width };
   }
 
-  function getSelectableRegionEntries(regions) {
+  function isSpeakerPrefixRegionLabel(regionLabel) {
+    return /^说话人\s*S[1-4]\s*[:：]\s*[1-9]\d*$/i.test(normalizeText(regionLabel));
+  }
+
+  function createPreflightFailure(segmentNumber, message, code) {
+    return {
+      segmentNumber: Number(segmentNumber) || 0,
+      message: String(message || "蓝色区段预检失败。"),
+      code: String(code || "invalid-segment"),
+    };
+  }
+
+  function getSelectableRegionDirectory(regions) {
     const source = Array.isArray(regions) ? regions : [];
-    const bySegmentNumber = new Map();
+    const primaryCandidatesBySegmentNumber = new Map();
+    const speakerNodes = [];
     source.forEach(function (node) {
       const regionLabel = normalizeText(node?.getAttribute?.("data-region-label"));
-      if (!/^[1-9]\d*$/.test(regionLabel)) {
+      const isPrimary = /^[1-9]\d*$/.test(regionLabel);
+      if (isPrimary) {
+        const segmentNumber = Number(regionLabel);
+        const candidates = primaryCandidatesBySegmentNumber.get(segmentNumber) || [];
+        candidates.push({ node, segmentNumber, kind: "primary" });
+        primaryCandidatesBySegmentNumber.set(segmentNumber, candidates);
         return;
       }
-      const segmentNumber = Number(regionLabel);
-      if (bySegmentNumber.has(segmentNumber)) {
-        throw createSegmentError("可识别蓝色区段编号重复，已拒绝继续识别。", "duplicate-segment-number");
+      if (isSpeakerPrefixRegionLabel(regionLabel)) {
+        speakerNodes.push({ node, kind: "speaker-prefix" });
       }
-      bySegmentNumber.set(segmentNumber, { node, segmentNumber });
     });
-    const entries = Array.from(bySegmentNumber.values()).sort(function (left, right) {
+
+    const failuresBySegmentNumber = new Map();
+    function addFailure(segmentNumber, message, code) {
+      const number = Number(segmentNumber) || 0;
+      if (!failuresBySegmentNumber.has(number)) {
+        failuresBySegmentNumber.set(number, createPreflightFailure(number, message, code));
+      }
+    }
+
+    const entries = [];
+    const primaryPartsBySegmentNumber = new Map();
+    primaryCandidatesBySegmentNumber.forEach(function (candidates, segmentNumber) {
+      if (candidates.length !== 1) {
+        addFailure(segmentNumber, "可识别蓝色区段编号重复，已拒绝继续识别。", "duplicate-segment-number");
+        return;
+      }
+      try {
+        const parts = getRegionNodeParts(candidates[0].node);
+        const entry = Object.assign({}, candidates[0], { parts });
+        primaryPartsBySegmentNumber.set(segmentNumber, entry);
+        entries.push(entry);
+      } catch (error) {
+        addFailure(
+          segmentNumber,
+          error?.message || "当前区段缺少可用的波形位置或宽度。",
+          error?.code || "invalid-region-layout"
+        );
+      }
+    });
+
+    const firstPrimaryNumber = Array.from(primaryCandidatesBySegmentNumber.keys()).sort(function (left, right) {
+      return left - right;
+    })[0];
+    if (Number.isInteger(firstPrimaryNumber) && firstPrimaryNumber > 1) {
+      const anchor = primaryPartsBySegmentNumber.get(firstPrimaryNumber);
+      const speakerParts = [];
+      let hasInvalidSpeakerLayout = false;
+      speakerNodes.forEach(function (candidate) {
+        const speakerLeft = readCssPixels(getStyleValue(candidate.node, "left"));
+        if (!Number.isFinite(speakerLeft) || speakerLeft < 0) {
+          hasInvalidSpeakerLayout = true;
+          return;
+        }
+        if (!anchor || speakerLeft >= anchor.parts.left) {
+          return;
+        }
+        try {
+          const parts = getRegionNodeParts(candidate.node);
+          if (parts.left + parts.width > anchor.parts.left) {
+            hasInvalidSpeakerLayout = true;
+            return;
+          }
+          speakerParts.push(Object.assign({}, candidate, { parts }));
+        } catch (_error) {
+          hasInvalidSpeakerLayout = true;
+        }
+      });
+      const speakersBeforeAnchor = speakerParts;
+      const sortedSpeakers = speakersBeforeAnchor.slice().sort(function (left, right) {
+        return left.parts.left - right.parts.left;
+      });
+      const hasTiedLeft = sortedSpeakers.some(function (candidate, index) {
+        return index > 0 && candidate.parts.left === sortedSpeakers[index - 1].parts.left;
+      });
+      const canMapPrefix = Boolean(
+        anchor &&
+          !hasInvalidSpeakerLayout &&
+          speakersBeforeAnchor.length === firstPrimaryNumber - 1 &&
+          !hasTiedLeft
+      );
+      if (canMapPrefix) {
+        sortedSpeakers.forEach(function (candidate, index) {
+          entries.push({
+            node: candidate.node,
+            segmentNumber: index + 1,
+            kind: "speaker-prefix",
+            parts: candidate.parts,
+          });
+        });
+      } else {
+        for (let segmentNumber = 1; segmentNumber < firstPrimaryNumber; segmentNumber += 1) {
+          addFailure(
+            segmentNumber,
+            "前缀说话人分段无法按波形位置安全映射。",
+            "invalid-speaker-prefix-mapping"
+          );
+        }
+      }
+    }
+    entries.sort(function (left, right) {
       return left.segmentNumber - right.segmentNumber;
     });
-    if (!entries.length) {
-      throw createSegmentError("未读取到带数字编号的可识别蓝色区段。", "missing-numbered-segments");
-    }
-    return entries;
+    return {
+      entries,
+      failures: Array.from(failuresBySegmentNumber.values()).sort(function (left, right) {
+        return left.segmentNumber - right.segmentNumber;
+      }),
+      safePrimarySegmentNumbers: Array.from(primaryPartsBySegmentNumber.keys()).sort(function (left, right) {
+        return left - right;
+      }),
+    };
   }
 
   function buildSegmentSnapshot(node, segmentNumber, pixelsPerSecond) {
@@ -96,11 +206,17 @@
     const regions = Array.isArray(source.regions) ? source.regions : [];
     const selectedSegmentNumber = Math.round(toFiniteNumber(source.selectedSegmentNumber, 0));
     const selectedDurationMs = Math.round(toFiniteNumber(source.selectedDurationMs, 0));
-    const selectableRegions = getSelectableRegionEntries(regions);
-    const selectedEntry = selectableRegions.find(function (entry) {
+    const directory = getSelectableRegionDirectory(regions);
+    const selectedEntry = directory.entries.find(function (entry) {
       return entry.segmentNumber === selectedSegmentNumber;
     });
     if (!Number.isInteger(selectedSegmentNumber) || selectedSegmentNumber <= 0 || !selectedEntry) {
+      const failure = directory.failures.find(function (entry) {
+        return entry.segmentNumber === selectedSegmentNumber;
+      });
+      if (failure) {
+        throw createSegmentError(failure.message, failure.code);
+      }
       throw createSegmentError("未读取到当前选择的区段编号。", "missing-selected-segment");
     }
     if (!Number.isFinite(selectedDurationMs) || selectedDurationMs <= 0) {
@@ -154,9 +270,31 @@
     });
   }
 
+  function getSegmentPreflight(documentLike) {
+    const regions = getRegionNodes(documentLike);
+    const directory = getSelectableRegionDirectory(regions);
+    let selectedSegmentNumber = 0;
+    try {
+      selectedSegmentNumber = getSelectedSegmentNumber(documentLike);
+    } catch (_error) {
+      selectedSegmentNumber = 0;
+    }
+    return {
+      selectedSegmentNumber,
+      failures: directory.failures.map(function (failure) {
+        return Object.assign({}, failure);
+      }),
+      safePrimarySegmentNumbers: directory.safePrimarySegmentNumbers.slice(),
+    };
+  }
+
   function getSegmentCatalog(documentLike) {
     const regions = getRegionNodes(documentLike);
-    const selectableRegions = getSelectableRegionEntries(regions);
+    const directory = getSelectableRegionDirectory(regions);
+    const selectableRegions = directory.entries;
+    if (!selectableRegions.length) {
+      throw createSegmentError("未读取到带编号的可识别蓝色区段。", "missing-numbered-segments");
+    }
     const current = getCurrentSegment(documentLike);
     const selectedEntry = selectableRegions.find(function (entry) {
       return entry.segmentNumber === current.segmentNumber;
@@ -334,6 +472,7 @@
     createAudioClipSession,
     getCurrentSegment,
     getSegmentCatalog,
+    getSegmentPreflight,
     resolveSegmentSnapshot,
   };
 

@@ -16,6 +16,15 @@ test("Aishell Cantonese uses listenText and only fills a single item", function 
   assert.doesNotMatch(block, /fillAndSaveCurrent/);
 });
 
+test("Aishell Cantonese resolves the current segment before starting an AI request", function () {
+  const start = source.indexOf("async function handleRecommend()");
+  const end = source.indexOf("async function handleBatchStop()", start);
+  const block = source.slice(start, end);
+
+  assert.ok(block.indexOf("await dataApi.getCurrentItem()") < block.indexOf("segmentClipper.createAudioClipSession"));
+  assert.ok(block.indexOf("segmentClipper.createAudioClipSession") < block.indexOf("await aiClient.recommend"));
+});
+
 test("Aishell Cantonese single-item action fills raw listenText without saving", function () {
   const panelSource = fs.readFileSync(path.resolve(__dirname, "ui-panel.js"), "utf8");
   const start = panelSource.indexOf("function fillCurrentRecommendedText()");
@@ -58,10 +67,20 @@ test("Aishell Cantonese batches current-audio blue segments and crops before eac
   const batchStart = source.indexOf("async function runBatchRecommend(mode)");
   const batchBlock = source.slice(batchStart);
 
-  assert.match(batchBlock, /getBatchSegmentsForCurrentAudio/);
+  assert.match(batchBlock, /getBatchSegmentPlanForCurrentAudio/);
   assert.match(batchBlock, /createAudioClipSession/);
   assert.match(batchBlock, /buildCroppedSegmentItem\(/);
   assert.match(batchBlock, /selectSegmentByNumber\(task\.segmentNumber/);
+});
+
+test("Aishell Cantonese counts segment preflight failures before launching AI tasks", function () {
+  const start = source.indexOf("async function runBatchRecommend(mode)");
+  const block = source.slice(start);
+
+  assert.match(block, /getBatchSegmentPlanForCurrentAudio/);
+  assert.match(block, /preflightFailures/);
+  assert.match(block, /tasks:\s*tasks/);
+  assert.match(block, /tasks:\s*tasks,\s*concurrency:/);
 });
 
 test("Aishell Cantonese buffers out-of-order AI responses and saves blue segments in DOM order", function () {

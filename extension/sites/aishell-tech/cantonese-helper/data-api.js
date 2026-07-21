@@ -1185,6 +1185,27 @@
       return catalog;
     }
 
+    function getSegmentPreflight() {
+      const clipper = getSegmentClipper();
+      if (typeof clipper.getSegmentPreflight !== "function") {
+        return {
+          selectedSegmentNumber: 0,
+          failures: [],
+          safePrimarySegmentNumbers: [],
+        };
+      }
+      const source = clipper.getSegmentPreflight(document) || {};
+      return {
+        selectedSegmentNumber: Number(source.selectedSegmentNumber) || 0,
+        failures: Array.isArray(source.failures) ? source.failures : [],
+        safePrimarySegmentNumbers: Array.isArray(source.safePrimarySegmentNumbers)
+          ? source.safePrimarySegmentNumbers
+              .map(function (number) { return Number(number) || 0; })
+              .filter(function (number) { return Number.isInteger(number) && number > 0; })
+          : [],
+      };
+    }
+
     async function waitForSelectedSegment(expectedSegment, options) {
       const expected = expectedSegment && typeof expectedSegment === "object" ? expectedSegment : null;
       const timeoutMs = Math.max(1000, Number(options?.timeoutMs || 5000) || 5000);
@@ -1195,7 +1216,7 @@
           const current = getCurrentSegment();
           if (
             current.segmentNumber === Number(expected?.segmentNumber) &&
-            (!expected || isSameSegmentSelection(current, expected))
+            (!expected?.selectionKey || isSameSegmentSelection(current, expected))
           ) {
             return current;
           }
@@ -1235,6 +1256,27 @@
       }
     }
 
+    async function selectSegmentForCalibration(segmentNumber, options) {
+      const targetNumber = Number(segmentNumber) || 0;
+      const buttons = getSegmentButtons();
+      const matchingButtons = buttons.filter(function (button) {
+        return readSegmentButtonNumber(button) === targetNumber;
+      });
+      if (matchingButtons.length !== 1) {
+        return { ok: false, message: "未能唯一定位用于波形校准的数字区段按钮。" };
+      }
+      const selected = document.querySelector("button.regionSelected");
+      if (readSegmentButtonNumber(selected) !== targetNumber) {
+        matchingButtons[0].click();
+      }
+      try {
+        const segment = await waitForSelectedSegment({ segmentNumber: targetNumber }, options);
+        return { ok: true, message: "已切换到可安全校准的数字区段。", segment };
+      } catch (error) {
+        return { ok: false, message: error?.message || String(error) };
+      }
+    }
+
     async function getCurrentBaseItem() {
       const selectedIndex = getSelectedIndex();
       if (selectedIndex < 0) {
@@ -1265,15 +1307,88 @@
       );
     }
 
-    async function getBatchSegmentsForCurrentAudio(options) {
+    function createPreflightFailureTask(baseItem, failure) {
+      const source = failure && typeof failure === "object" ? failure : {};
+      const segmentNumber = Number(source.segmentNumber) || 0;
+      return {
+        taskItemId: normalizeText(baseItem?.taskItemId),
+        segmentNumber,
+        displayName: segmentNumber > 0 ? "第 " + String(segmentNumber) + " 段" : "前缀说话人区段",
+        stage: "segment_preflight",
+        message: normalizeText(source.message) || "蓝色区段预检失败。",
+        error: {
+          code: normalizeText(source.code) || "invalid-segment",
+          message: normalizeText(source.message) || "蓝色区段预检失败。",
+        },
+      };
+    }
+
+    function isRecoverableSegmentCalibrationError(error) {
+      return ["missing-selected-duration", "invalid-wave-scale", "invalid-segment-range"].includes(
+        normalizeText(error?.code)
+      );
+    }
+
+    async function getBatchSegmentPlanForCurrentAudio(options) {
       const mode = normalizeBatchTaskMode(options?.mode);
       const baseItem = await getCurrentBaseItem();
       if (!baseItem) {
-        return [];
+        return { tasks: [], preflightFailures: [] };
       }
-      const catalog = getSegmentCatalog();
+      const preflight = getSegmentPreflight();
+      let catalog;
+      try {
+        catalog = getSegmentCatalog();
+      } catch (error) {
+        const selectedHasPreflightFailure = preflight.failures.some(function (failure) {
+          return Number(failure?.segmentNumber) === Number(preflight.selectedSegmentNumber);
+        });
+        const calibrationSegmentNumber = preflight.safePrimarySegmentNumbers[0];
+        const canRecoverByCalibration =
+          selectedHasPreflightFailure || isRecoverableSegmentCalibrationError(error);
+        if (!canRecoverByCalibration) {
+          throw error;
+        }
+        if (!calibrationSegmentNumber) {
+          const preflightFailures = preflight.failures.map(function (failure) {
+            return createPreflightFailureTask(baseItem, failure);
+          });
+          if (!preflightFailures.some(function (failure) {
+            return Number(failure.segmentNumber) === Number(preflight.selectedSegmentNumber);
+          })) {
+            preflightFailures.push(
+              createPreflightFailureTask(baseItem, {
+                segmentNumber: preflight.selectedSegmentNumber,
+                message: error?.message || "当前区段无法校准波形时间比例。",
+                code: error?.code || "invalid-segment",
+              })
+            );
+          }
+          return { tasks: [], preflightFailures };
+        }
+        const calibration = await selectSegmentForCalibration(calibrationSegmentNumber, {
+          timeoutMs: options?.timeoutMs || 8000,
+        });
+        if (calibration?.ok !== true) {
+          throw createRequestError(calibration?.message || "未能切换到可安全校准的数字区段。");
+        }
+        catalog = getSegmentCatalog();
+      }
+      const failuresBySegmentNumber = new Map();
+      preflight.failures.forEach(function (failure) {
+        const segmentNumber = Number(failure?.segmentNumber) || 0;
+        if (segmentNumber > 0 && !failuresBySegmentNumber.has(segmentNumber)) {
+          failuresBySegmentNumber.set(segmentNumber, failure);
+        }
+      });
+      const preflightFailures = Array.from(failuresBySegmentNumber.values()).map(function (failure) {
+        return createPreflightFailureTask(baseItem, failure);
+      });
       const tasks = [];
       for (const segment of catalog) {
+        if (failuresBySegmentNumber.has(Number(segment?.segmentNumber))) {
+          continue;
+        }
         let existingText = "";
         if (mode === "pending") {
           const selected = await selectSegmentByNumber(segment.segmentNumber, {
@@ -1292,7 +1407,12 @@
         task.displayName = "第 " + String(segment.segmentNumber) + " 段";
         tasks.push(task);
       }
-      return tasks;
+      return { tasks, preflightFailures };
+    }
+
+    async function getBatchSegmentsForCurrentAudio(options) {
+      const plan = await getBatchSegmentPlanForCurrentAudio(options);
+      return plan.tasks;
     }
 
     async function getBatchTasksForPackage(options) {
@@ -1636,6 +1756,7 @@
       getCurrentItem,
       getCurrentInputValue,
       getCurrentInputDisplayValue,
+      getBatchSegmentPlanForCurrentAudio,
       getBatchSegmentsForCurrentAudio,
       getItemByIndex,
       getItemByTask,

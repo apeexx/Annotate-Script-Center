@@ -37,7 +37,7 @@ function createRegion(id, label, title, left, width) {
   };
 }
 
-test("Aishell Cantonese maps the selected region by DOM order and preserves millisecond boundaries", function () {
+test("Aishell Cantonese prioritizes the numeric primary region over speaker overlays and preserves millisecond boundaries", function () {
   const harness = loadApi();
   try {
     const segment = harness.api.resolveSegmentSnapshot({
@@ -167,6 +167,218 @@ test("Aishell Cantonese rejects numbered segments without usable CSS geometry", 
         /缺少可用的波形位置或宽度/
       );
     });
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test("Aishell Cantonese maps the real speaker prefix by CSS left instead of speaker-local labels", function () {
+  const harness = loadApi();
+  try {
+    const documentLike = createMarkDocument(
+      [
+        createRegion("speaker-s3-1", "说话人S3:1", "0:00-0:02", 66, 163),
+        createRegion("speaker-s4-1", "说话人S4:1", "0:01-0:02", 192, 44),
+        createRegion("speaker-s3-2", "说话人S3:2", "0:02-0:03", 257, 76),
+        createRegion("speaker-s2-1", "说话人S2:1", "0:03-0:03", 336, 53),
+        createRegion("region-5", "5", "0:04-0:09", 402, 540),
+      ],
+      3,
+      0.76
+    );
+
+    assert.deepEqual(harness.api.getCurrentSegment(documentLike), {
+      regionId: "speaker-s3-2",
+      regionLabel: "说话人S3:2",
+      segmentNumber: 3,
+      startMs: 2570,
+      endMs: 3330,
+      durationMs: 760,
+      selectionKey: "speaker-s3-2:2570-3330",
+    });
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test("Aishell Cantonese maps a valid speaker prefix and retains its numeric primary anchor", function () {
+  const harness = loadApi();
+  try {
+    const documentLike = createMarkDocument(
+      [
+        createRegion("speaker-s3-1", "说话人S3:1", "0:02-0:04", 200, 163),
+        createRegion("speaker-s2-2", "说话人 S2：2", "0:04-0:06", 400, 140),
+        createRegion("region-3", "3", "0:06-0:08", 600, 120),
+      ],
+      1,
+      1.63
+    );
+
+    assert.deepEqual(
+      harness.api.getSegmentCatalog(documentLike).map(function (segment) {
+        return [segment.segmentNumber, segment.regionId];
+      }),
+      [
+        [1, "speaker-s3-1"],
+        [2, "speaker-s2-2"],
+        [3, "region-3"],
+      ]
+    );
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test("Aishell Cantonese rejects a speaker prefix node that crosses the numeric anchor", function () {
+  const harness = loadApi();
+  try {
+    const documentLike = createMarkDocument(
+      [
+        createRegion("speaker-left", "说话人S1:7", "0:00-0:01", 40, 100),
+        createRegion("speaker-crossing", "说话人S2:4", "0:02-0:03", 250, 100),
+        createRegion("region-3", "3", "0:03-0:04", 300, 120),
+      ],
+      3,
+      1.2
+    );
+
+    assert.equal(harness.api.getCurrentSegment(documentLike).regionId, "region-3");
+    assert.deepEqual(
+      harness.api.getSegmentPreflight(documentLike).failures.map(function (failure) {
+        return failure.segmentNumber;
+      }),
+      [1, 2]
+    );
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test("Aishell Cantonese ignores an invalid speaker node wholly to the right of the numeric anchor", function () {
+  const harness = loadApi();
+  try {
+    const invalidRightSpeaker = createRegion("speaker-right-invalid", "说话人S4:9", "0:04-0:05", 350, 0);
+    const documentLike = createMarkDocument(
+      [
+        createRegion("speaker-second", "说话人S2:8", "0:01-0:02", 160, 80),
+        invalidRightSpeaker,
+        createRegion("region-3", "3", "0:03-0:04", 300, 120),
+        createRegion("speaker-first", "说话人S1:6", "0:00-0:01", 40, 80),
+      ],
+      1,
+      0.8
+    );
+
+    assert.deepEqual(
+      harness.api.getSegmentCatalog(documentLike).map(function (segment) {
+        return [segment.segmentNumber, segment.regionId];
+      }),
+      [
+        [1, "speaker-first"],
+        [2, "speaker-second"],
+        [3, "region-3"],
+      ]
+    );
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test("Aishell Cantonese maps an unordered speaker input array by CSS left", function () {
+  const harness = loadApi();
+  try {
+    const documentLike = createMarkDocument(
+      [
+        createRegion("speaker-third", "说话人S3:1", "0:02-0:03", 220, 60),
+        createRegion("region-4", "4", "0:04-0:05", 360, 120),
+        createRegion("speaker-first", "说话人S1:3", "0:00-0:01", 40, 60),
+        createRegion("speaker-second", "说话人S2:2", "0:01-0:02", 130, 60),
+      ],
+      2,
+      0.6
+    );
+
+    assert.equal(harness.api.getCurrentSegment(documentLike).regionId, "speaker-second");
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test("Aishell Cantonese rejects tied speaker left positions in a prefix", function () {
+  const harness = loadApi();
+  try {
+    const documentLike = createMarkDocument(
+      [
+        createRegion("speaker-one", "说话人S1:1", "0:00-0:01", 40, 60),
+        createRegion("speaker-two", "说话人S2:1", "0:00-0:01", 40, 60),
+        createRegion("region-3", "3", "0:03-0:04", 300, 120),
+      ],
+      3,
+      1.2
+    );
+
+    assert.deepEqual(
+      harness.api.getSegmentPreflight(documentLike).failures.map(function (failure) {
+        return failure.segmentNumber;
+      }),
+      [1, 2]
+    );
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test("Aishell Cantonese keeps a safe numeric primary segment when the speaker prefix is invalid", function () {
+  const harness = loadApi();
+  try {
+    const documentLike = createMarkDocument(
+      [
+        createRegion("speaker-s1-1", "说话人S1:1", "0:02-0:04", 200, 163),
+        createRegion("speaker-s2-1", "说话人S2:1", "0:04-0:06", 400, 163),
+        createRegion("region-5", "5", "0:06-0:08", 600, 120),
+      ],
+      5,
+      1.2
+    );
+
+    assert.equal(harness.api.getCurrentSegment(documentLike).regionId, "region-5");
+    assert.deepEqual(
+      harness.api.getSegmentCatalog(documentLike).map(function (segment) {
+        return segment.segmentNumber;
+      }),
+      [5]
+    );
+    assert.deepEqual(
+      harness.api.getSegmentPreflight(documentLike).failures.map(function (failure) {
+        return failure.segmentNumber;
+      }),
+      [1, 2, 3, 4]
+    );
+  } finally {
+    harness.cleanup();
+  }
+});
+
+test("Aishell Cantonese isolates a duplicate numeric primary to its own preflight failure", function () {
+  const harness = loadApi();
+  try {
+    const documentLike = createMarkDocument(
+      [
+        createRegion("region-1-a", "1", "0:00-0:01", 100, 80),
+        createRegion("region-1-b", "1", "0:01-0:02", 220, 80),
+        createRegion("region-5", "5", "0:04-0:05", 500, 120),
+      ],
+      5,
+      1.2
+    );
+
+    assert.equal(harness.api.getCurrentSegment(documentLike).regionId, "region-5");
+    assert.deepEqual(
+      harness.api.getSegmentPreflight(documentLike).failures.map(function (failure) {
+        return [failure.segmentNumber, failure.code];
+      }),
+      [[1, "duplicate-segment-number"]]
+    );
   } finally {
     harness.cleanup();
   }
