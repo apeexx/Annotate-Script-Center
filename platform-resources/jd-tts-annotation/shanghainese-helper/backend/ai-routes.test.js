@@ -25,6 +25,95 @@ test("JD TTS Shanghai registers health, defaults, recommend, and job lifecycle r
   ]);
 });
 
+test("JD TTS Shanghai keeps the legacy recommend path as the jobs creation alias", function () {
+  const handlers = {};
+  routes.createRecommendRouteRuntime().registerAiRoutes({
+    get: function () {},
+    post: function (route, handler) { handlers[route] = handler; },
+  });
+
+  assert.equal(
+    handlers["/api/jd-tts-annotation/shanghainese-helper/ai/recommend"],
+    handlers["/api/jd-tts-annotation/shanghainese-helper/ai/recommend/jobs"]
+  );
+});
+
+test("JD TTS Shanghai saves sanitized provider debug payload when a job fails", async function () {
+  const request = new EventEmitter();
+  const response = {};
+  const job = {
+    jobId: "jd-job-failure-1",
+    requestId: "request-failure",
+    routeKey: "/api/jd-tts-annotation/shanghainese-helper/ai/recommend",
+    status: "pending",
+    createdAt: 1,
+    updatedAt: 1,
+    startedAt: 0,
+    finishedAt: 0,
+    itemId: "4881635",
+    textId: "checksum",
+    responseBody: null,
+    errorBody: null,
+    hasDebugPayload: false,
+  };
+  let debugPayload = null;
+  const runtime = routes.createRecommendRouteRuntime({
+    normalizeRecommendRequest: function (body) { return body; },
+    jobStore: {
+      createJob: function () { return job; },
+      getJobSignal: function () { return new AbortController().signal; },
+      markJobRunning: function () { job.status = "running"; },
+      markJobSucceeded: function () {},
+      markJobFailed: function (_jobId, options) {
+        debugPayload = options.debugPayload;
+        job.status = "failed";
+        job.errorBody = options.errorBody;
+      },
+    },
+    pipeline: {
+      run: async function () {
+        const error = new Error("provider failed");
+        error.code = "provider-failed";
+        error.debugRawAiResponse = {
+          providerStatus: 502,
+          audioDataUrl: "data:audio/x-wav;base64,U0VDUkVU",
+          sourceUrl: "https://private.example.test/file.wav?signature=secret",
+          cookie: "private-cookie",
+          token: "private-token",
+        };
+        throw error;
+      },
+    },
+    buildRecommendCacheKey: function () { return "job-failure"; },
+    getCachedRecommendResult: function () { return null; },
+    setCachedRecommendResult: function () {},
+    sendJson: function (target, statusCode, body) {
+      target.statusCode = statusCode;
+      target.body = body;
+    },
+    setTimeout: function () { return {}; },
+    clearTimeout: function () {},
+  });
+
+  process.nextTick(function () {
+    request.emit("data", Buffer.from(JSON.stringify({
+      requestId: "request-failure",
+      utteranceId: "4881635",
+      checksum: "a".repeat(32),
+      audioDataUrl: "data:audio/x-wav;base64,UklGRg==",
+      aiOmni: { model: "qwen3.5-omni-plus", prompt: "only text", params: {} },
+    })));
+    request.emit("end");
+  });
+  await runtime.handleCreateRecommendJob({ request, response });
+  await new Promise(function (resolve) { setImmediate(resolve); });
+
+  const serialized = JSON.stringify(debugPayload);
+  assert.equal(response.statusCode, 202);
+  assert.equal(debugPayload.providerStatus, 502);
+  assert.doesNotMatch(serialized, /data:audio|private\.example|signature=|private-cookie|private-token/i);
+});
+
 test("JD TTS Shanghai debug sanitizer redacts audio data and source URLs", function () {
   const sanitized = routes.sanitizeDebugPayload({
     audioDataUrl: "data:audio/x-wav;base64,UklGRg==",

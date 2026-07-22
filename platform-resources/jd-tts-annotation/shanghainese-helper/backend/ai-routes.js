@@ -225,7 +225,7 @@ function createRecommendRouteRuntime(overrides) {
           appendLog({ createdAt: new Date().toISOString(), requestId, normalizedRequest: parsed.normalized, result });
         } catch (error) {
           const errorBody = deps.buildRecommendErrorBody({ error: Object.assign({}, error, { meta: { requestId } }) });
-          deps.jobStore.markJobFailed(job.jobId, { errorBody, debugPayload: sanitizeDebugPayload(error?.rawAiDebug || error?.meta || {}) });
+          deps.jobStore.markJobFailed(job.jobId, { errorBody, debugPayload: sanitizeDebugPayload(error?.debugRawAiResponse || error?.rawAiDebug || error?.meta || {}) });
           appendLog({ createdAt: new Date().toISOString(), requestId, error: buildSafeLogError(error) });
         } finally {
           deps.clearTimeout(timer);
@@ -264,7 +264,7 @@ function createRecommendRouteRuntime(overrides) {
   function registerAiRoutes(router) {
     router.get(AI_BASE_PATH + "/health", handleHealth);
     router.get(AI_BASE_PATH + "/defaults", handleDefaults);
-    router.post(AI_BASE_PATH, handleRecommend);
+    router.post(AI_BASE_PATH, handleCreateRecommendJob);
     router.post(AI_BASE_PATH + "/jobs", handleCreateRecommendJob);
     router.get(AI_BASE_PATH + "/jobs/:jobId", handleGetRecommendJobStatus);
     router.get(AI_BASE_PATH + "/jobs/:jobId/debug", handleGetRecommendJobDebug);
