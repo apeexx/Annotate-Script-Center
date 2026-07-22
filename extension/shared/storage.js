@@ -2207,41 +2207,36 @@
   function normalizeJdTtsShanghaineseConfig(config, defaults) {
     const source = isPlainObject(config) ? config : {};
     const defaultConfig = isPlainObject(defaults) ? defaults : {};
-    const result = deepMerge(defaultConfig, source);
     const constants = getConstants();
-    result.id = constants.JD_TTS_SHANGHAINESE_SCRIPT_ID || "jdTtsShanghaineseAssistant";
-    result.enabled = result.enabled === true;
-    result.aiRecommendEnabled = result.aiRecommendEnabled === true;
-    result.aiRecommendEndpoint = normalizeJdTtsShanghaineseAiEndpoint(
-      result.aiRecommendEndpoint,
-      defaultConfig.aiRecommendEndpoint
-    );
-    result.aiRecommendRequestTimeoutMs = normalizeDataBakerTimeout(
-      result.aiRecommendRequestTimeoutMs,
-      defaultConfig.aiRecommendRequestTimeoutMs || DEFAULT_AI_REQUEST_TIMEOUT_MS
-    );
-    result.aiRecommendSingleModel = normalizeDataBakerOmniModel(
-      result.aiRecommendSingleModel,
-      defaultConfig.aiRecommendSingleModel || "qwen3.5-omni-plus",
-      constants
-    );
-    result.aiRecommendSinglePrompt = normalizeJudgementAiPrompt(result.aiRecommendSinglePrompt);
-    result.aiRecommendEnableThinking = false;
+    const result = {
+      id: constants.JD_TTS_SHANGHAINESE_SCRIPT_ID || "jdTtsShanghaineseAssistant",
+      enabled: source.enabled === true,
+      aiRecommendEnabled: source.aiRecommendEnabled === true,
+      aiRecommendEndpoint: normalizeJdTtsShanghaineseAiEndpoint(
+        source.aiRecommendEndpoint,
+        defaultConfig.aiRecommendEndpoint
+      ),
+      aiRecommendRequestTimeoutMs: normalizeDataBakerTimeout(
+        source.aiRecommendRequestTimeoutMs,
+        defaultConfig.aiRecommendRequestTimeoutMs || DEFAULT_AI_REQUEST_TIMEOUT_MS
+      ),
+      aiRecommendSingleModel: normalizeDataBakerOmniModel(
+        source.aiRecommendSingleModel,
+        defaultConfig.aiRecommendSingleModel || "qwen3.5-omni-plus",
+        constants
+      ),
+      aiRecommendSinglePrompt: normalizeJudgementAiPrompt(source.aiRecommendSinglePrompt),
+      aiRecommendTemperature: source.aiRecommendTemperature,
+      aiRecommendTopP: source.aiRecommendTopP,
+      aiRecommendMaxTokens: source.aiRecommendMaxTokens,
+      aiRecommendMaxCompletionTokens: source.aiRecommendMaxCompletionTokens,
+      aiRecommendPresencePenalty: source.aiRecommendPresencePenalty,
+      aiRecommendFrequencyPenalty: source.aiRecommendFrequencyPenalty,
+      aiRecommendSeed: source.aiRecommendSeed,
+      aiRecommendStopSequences: source.aiRecommendStopSequences,
+      aiRecommendEnableThinking: false,
+    };
     normalizeAishellTechStageParams(result, "aiRecommend");
-    [
-      "aiOmni",
-      "audio",
-      "audioUrl",
-      "audioDataUrl",
-      "sourceUrl",
-      "url",
-      "cookie",
-      "authorization",
-      "jobId",
-      "jobIds",
-    ].forEach(function (key) {
-      delete result[key];
-    });
     return result;
   }
 

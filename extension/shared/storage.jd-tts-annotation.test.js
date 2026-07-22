@@ -113,6 +113,71 @@ test("JD TTS storage uses only whitelisted flat AI fields and keeps an empty pro
   }
 });
 
+test("JD TTS storage rebuilds its helper from the allowlist and discards sensitive or legacy fields", async function () {
+  const harness = loadStorageApi({
+    platforms: {
+      jdTtsAnnotation: {
+        enabled: true,
+        activeScriptId: "jdTtsShanghaineseAssistant",
+        scripts: {
+          shanghaineseHelper: {
+            id: "attacker-controlled-id",
+            enabled: true,
+            aiRecommendEnabled: true,
+            aiRecommendEndpoint:
+              "http://127.0.0.1:3333/api/jd-tts-annotation/shanghainese-helper/ai/recommend",
+            aiRecommendSingleModel: "qwen3.5-omni-flash",
+            aiRecommendSinglePrompt: "safe prompt",
+            aiRecommendTemperature: "0.2",
+            aiRecommendTopP: "0.8",
+            Authorization: "must-not-persist",
+            Cookie: "must-not-persist",
+            audioBuffer: "must-not-persist",
+            signedUrl: "must-not-persist",
+            jobID: "must-not-persist",
+            requestHeaders: { Authorization: "must-not-persist", Cookie: "must-not-persist" },
+            nested: { audioBuffer: "must-not-persist", signedUrl: "must-not-persist" },
+            aiRecommendListenModel: "must-not-persist",
+            aiRecommendConvertPrompt: "must-not-persist",
+            stages: { recognize: { model: "must-not-persist" } },
+            shortcuts: { fill: "must-not-persist" },
+          },
+        },
+      },
+    },
+  });
+  try {
+    const config = (await harness.storage.getSettings()).platforms.jdTtsAnnotation.scripts.shanghaineseHelper;
+    assert.deepEqual(Object.keys(config).sort(), [
+      "aiRecommendEnableThinking",
+      "aiRecommendEnabled",
+      "aiRecommendEndpoint",
+      "aiRecommendFrequencyPenalty",
+      "aiRecommendMaxCompletionTokens",
+      "aiRecommendMaxTokens",
+      "aiRecommendPresencePenalty",
+      "aiRecommendRequestTimeoutMs",
+      "aiRecommendSeed",
+      "aiRecommendSingleModel",
+      "aiRecommendSinglePrompt",
+      "aiRecommendStopSequences",
+      "aiRecommendTemperature",
+      "aiRecommendTopP",
+      "enabled",
+      "id",
+    ].sort());
+    assert.equal(config.id, "jdTtsShanghaineseAssistant");
+    assert.equal(config.aiRecommendSingleModel, "qwen3.5-omni-flash");
+    assert.equal(config.aiRecommendSinglePrompt, "safe prompt");
+    assert.equal(Object.hasOwn(config, "Authorization"), false);
+    assert.equal(Object.hasOwn(config, "requestHeaders"), false);
+    assert.equal(Object.hasOwn(config, "aiRecommendListenModel"), false);
+    assert.equal(Object.hasOwn(config, "stages"), false);
+  } finally {
+    harness.cleanup();
+  }
+});
+
 test("JD TTS enablement does not enable unrelated platforms", async function () {
   const harness = loadStorageApi({
     platforms: {
