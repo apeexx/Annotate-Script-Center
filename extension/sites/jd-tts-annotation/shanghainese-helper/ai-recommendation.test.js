@@ -43,3 +43,22 @@ test("JD Shanghai recommendation preserves raw listenText and never exposes a jo
   assert.equal(result.listenText, " 原样 文本 ");
   assert.equal(Object.prototype.hasOwnProperty.call(result, "jobId"), false);
 });
+
+test("JD Shanghai recommendation resolves the unified server or local backend and saved aiOmni on every request", async function () {
+  const calls = [];
+  const settings = [
+    { meta: { backendEndpointMode: "server" }, platforms: { jdTtsAnnotation: { scripts: { shanghaineseHelper: { aiOmni: { model: "qwen3.5-omni-plus", prompt: "server prompt", params: { temperature: 0.1 } } } } } } },
+    { meta: { backendEndpointMode: "local" }, platforms: { jdTtsAnnotation: { scripts: { shanghaineseHelper: { aiOmni: { model: "qwen3.5-omni-flash", prompt: "local prompt", params: { top_p: 0.2 } } } } } } },
+  ];
+  const runtime = recommendation.createRuntime({
+    constants: { buildBackendUrl(path, currentSettings) { return (currentSettings.meta.backendEndpointMode === "local" ? "http://127.0.0.1:3335" : "https://server.example.test") + path; } },
+    getSettings: async function () { return settings.shift(); },
+    jobClient: { runJobLifecycle: async function (input) { calls.push(input); return { data: { utteranceId: input.body.utteranceId, checksum: input.body.checksum, listenText: "ok", needHumanReview: false } }; } },
+  });
+  const snapshot = { utteranceId: "42", checksum: "a".repeat(32), audioDataUrl: "data:audio/x-wav;base64,UklGRg==" };
+  await runtime.recommend(snapshot);
+  await runtime.recommend(snapshot);
+  assert.deepEqual(calls.map(function (call) { return call.endpoint; }), ["https://server.example.test/api/jd-tts-annotation/shanghainese-helper/ai/recommend", "http://127.0.0.1:3335/api/jd-tts-annotation/shanghainese-helper/ai/recommend"]);
+  assert.deepEqual(calls.map(function (call) { return call.body.aiOmni; }), [{ model: "qwen3.5-omni-plus", prompt: "server prompt", params: { temperature: 0.1 } }, { model: "qwen3.5-omni-flash", prompt: "local prompt", params: { top_p: 0.2 } }]);
+  assert.equal(calls.some(function (call) { return /^\//.test(call.endpoint); }), false);
+});

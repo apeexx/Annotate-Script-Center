@@ -37,3 +37,73 @@ test("JD Shanghai content does not fill after cancellation, identity change, or 
   await runtime.handleRecommend({ signal: controller.signal });
   assert.equal(writes.length, 0);
 });
+
+test("JD Shanghai content keeps a newer request busy when an aborted older request finishes late", async function () {
+  let resolveFirst;
+  let recommendCount = 0;
+  const busy = [];
+  const runtime = content.createRuntime({
+    location: { hash: "#/annotation/dataset/annotate" }, isEnabled: async function () { return true; },
+    createPanel: function () { return { ensureMounted() {}, setBusy(value) { busy.push(value); }, setStatus() {}, fillRecommendedText() {}, remove() {} }; },
+    createDataApi: function () { return { start() {}, stop() {}, getCurrentAudio: async function () { return { utteranceId: "1", checksum: "a".repeat(32), audioDataUrl: "data:audio/wav;base64,UklGRg==" }; }, isCurrentSnapshot() { return true; } }; },
+    createAiClient: function () { return { recommend: function () { recommendCount += 1; return recommendCount === 1 ? new Promise(function (resolve) { resolveFirst = resolve; }) : new Promise(function () {}); } }; },
+  });
+  await runtime.evaluatePage();
+  const first = runtime.handleRecommend();
+  await Promise.resolve();
+  await Promise.resolve();
+  runtime.stop();
+  await runtime.evaluatePage();
+  void runtime.handleRecommend();
+  resolveFirst({ utteranceId: "1", checksum: "a".repeat(32), listenText: "late", needHumanReview: false, meta: {} });
+  await first;
+  assert.equal(busy.at(-1), true);
+  runtime.stop();
+});
+
+test("JD Shanghai content ignores an older enabled evaluation after a newer route exit", async function () {
+  let resolveEnabled;
+  let mounted = 0;
+  const runtime = content.createRuntime({
+    location: { hash: "#/annotation/dataset/annotate" }, isEnabled: function () { return new Promise(function (resolve) { resolveEnabled = resolve; }); },
+    createPanel: function () { return { ensureMounted() { mounted += 1; }, remove() {} }; }, createDataApi: function () { return { start() {}, stop() {} }; }, createAiClient: function () { return {}; },
+  });
+  const oldEvaluation = runtime.evaluatePage();
+  runtime.location.hash = "#/annotation/dataset/list";
+  assert.equal(await runtime.evaluatePage(), false);
+  resolveEnabled(true);
+  assert.equal(await oldEvaluation, false);
+  assert.equal(mounted, 0);
+});
+
+test("JD Shanghai content watches only the text field container and removes sensitive error values", async function () {
+  const priorObserver = globalThis.MutationObserver;
+  let observedTarget = null;
+  globalThis.MutationObserver = class { observe(target) { observedTarget = target; } disconnect() {} };
+  try {
+    const textContainer = { id: "text-container" };
+    const runtime = content.createRuntime({
+      document: { documentElement: { id: "document-root" } }, location: { hash: "#/annotation/dataset/annotate" }, isEnabled: async function () { return true; },
+      createPanel: function () { return { ensureMounted() {}, getMountTarget() { return textContainer; }, remove() {} }; }, createDataApi: function () { return { start() {}, stop() {} }; }, createAiClient: function () { return {}; },
+    });
+    await runtime.evaluatePage();
+    assert.equal(observedTarget, textContainer);
+    const message = content.sanitizeError({ message: "data:audio/x-wav;base64,SECRET cookie=COOKIE authorization: Bearer TOKEN signature=SIG https://host.example/file?token=TOKEN secretKey=KEY" });
+    assert.equal(/SECRET|COOKIE|TOKEN|SIG|KEY|host\.example/i.test(message), false);
+  } finally { globalThis.MutationObserver = priorObserver; }
+});
+
+test("JD Shanghai content reports an API failure safely and never fills text", async function () {
+  const status = [];
+  let writes = 0;
+  const runtime = content.createRuntime({
+    location: { hash: "#/annotation/dataset/annotate" }, isEnabled: async function () { return true; },
+    createPanel: function () { return { ensureMounted() {}, setBusy() {}, setStatus(value) { status.push(value); }, fillRecommendedText() { writes += 1; }, remove() {} }; },
+    createDataApi: function () { return { start() {}, stop() {}, getCurrentAudio: async function () { return { utteranceId: "1", checksum: "a".repeat(32), audioDataUrl: "data:audio/wav;base64,UklGRg==" }; }, isCurrentSnapshot() { return true; } }; },
+    createAiClient: function () { return { recommend: async function () { throw new Error("authorization=PRIVATE data:audio/x-wav;base64,PRIVATE"); } }; },
+  });
+  await runtime.evaluatePage();
+  await runtime.handleRecommend();
+  assert.equal(writes, 0);
+  assert.equal(/PRIVATE/i.test(status.join(" ")), false);
+});

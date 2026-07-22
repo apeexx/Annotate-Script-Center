@@ -2,7 +2,7 @@
   "use strict";
 
   const BUTTON_TEXT = "上海话识别";
-  const RUNNING_TEXT = "识别中";
+  const RUNNING_TEXT = "识别中…";
 
   function normalizeText(value) { return String(value || ""); }
 
@@ -16,12 +16,11 @@
     let onRecommend = typeof config.onRecommend === "function" ? config.onRecommend : null;
 
     function findTextField() {
-      const labelSpan = Array.from(documentRef?.querySelectorAll("span") || []).find(function (span) {
-        return normalizeText(span.textContent).trim() === "文本:";
-      });
-      if (!labelSpan) { return null; }
-      const field = labelSpan.nextElementSibling.querySelector("textarea.el-textarea__inner");
-      return field || null;
+      const label = documentRef?.querySelector?.("div.cell > span:first-child");
+      if (!label || normalizeText(label.textContent).trim() !== "文本:") { return null; }
+      const container = label.nextElementSibling;
+      const textarea = container?.querySelector?.("textarea.el-textarea__inner");
+      return textarea ? { container, textarea } : null;
     }
 
     function setBusy(busy) {
@@ -35,8 +34,14 @@
     }
 
     function ensureMounted() {
-      targetTextarea = findTextField();
-      if (!targetTextarea || button) { return !!targetTextarea; }
+      const field = findTextField();
+      if (!field) { return false; }
+      if (button && (button.isConnected === false || targetTextarea !== field.textarea)) {
+        button.remove?.();
+        button = null;
+      }
+      targetTextarea = field.textarea;
+      if (button) { return true; }
       button = documentRef.createElement("button");
       button.type = "button";
       button.textContent = BUTTON_TEXT;
@@ -45,10 +50,12 @@
         if (button.disabled || typeof onRecommend !== "function") { return; }
         Promise.resolve(onRecommend()).catch(function (error) { setStatus(error?.message || "识别失败。"); });
       });
-      targetTextarea.parentElement?.insertAdjacentElement?.("afterend", button);
-      if (!button.parentElement) { targetTextarea.insertAdjacentElement?.("afterend", button); }
+      field.container?.insertAdjacentElement?.("afterend", button);
+      if (!button.parentElement) { targetTextarea.parentElement?.insertAdjacentElement?.("afterend", button); }
       return true;
     }
+
+    function getMountTarget() { return findTextField()?.container || null; }
 
     function fillRecommendedText(result, isCurrent) {
       const listenText = typeof result?.listenText === "string" ? result.listenText : "";
@@ -64,7 +71,7 @@
 
     function remove() { button?.remove?.(); button = null; targetTextarea = null; }
     function setOnRecommend(handler) { onRecommend = typeof handler === "function" ? handler : null; }
-    return { ensureMounted, setBusy, setStatus, fillRecommendedText, remove, setOnRecommend };
+    return { ensureMounted, getMountTarget, setBusy, setStatus, fillRecommendedText, remove, setOnRecommend };
   }
 
   const api = { createRuntime };
