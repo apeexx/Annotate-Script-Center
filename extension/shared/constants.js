@@ -51,6 +51,7 @@
   const ABAKA_AI_PLATFORM_ID = "abakaAi";
   const HAITIAN_UTRANS_PLATFORM_ID = "haitianUtrans";
   const AISHELL_TECH_PLATFORM_ID = "aishellTech";
+  const JD_TTS_ANNOTATION_PLATFORM_ID = "jdTtsAnnotation";
   const TRANSCRIPTION_PROJECT_ID = "transcription";
   const JUDGEMENT_PROJECT_ID = "judgement";
   const LIGHTWHEEL_VIEW_PANEL_SCRIPT_ID = "lightwheelViewPanel";
@@ -64,6 +65,7 @@
   const AISHELL_TECH_THAI_SCRIPT_ID = "aishellTechThaiAssistant";
   const AISHELL_TECH_CANTONESE_SCRIPT_ID = "aishellTechCantoneseAssistant";
   const AISHELL_TECH_CN_EN_SHORT_DRAMA_SCRIPT_ID = "aishellTechCnEnShortDrama";
+  const JD_TTS_SHANGHAINESE_SCRIPT_ID = "jdTtsShanghaineseAssistant";
   const BACKEND_ENDPOINT_MODE_SERVER = "server";
   const BACKEND_ENDPOINT_MODE_LOCAL = "local";
   const BUILD_META = globalThis.ASREdgeBuildMeta || {};
@@ -106,6 +108,8 @@
     "/api/aishell-tech/thai-helper/ai/recommend";
   const AISHELL_TECH_CANTONESE_AI_RECOMMEND_PATH =
     "/api/aishell-tech/cantonese-helper/ai/recommend";
+  const JD_TTS_SHANGHAINESE_AI_RECOMMEND_PATH =
+    "/api/jd-tts-annotation/shanghainese-helper/ai/recommend";
   const TRANSCRIPTION_STATS_UPLOAD_PATH = "/api/alibaba-labelx/asr-transcription/statistics/upload";
   const TRANSCRIPTION_STATS_DOWNLOAD_PATH =
     "/api/alibaba-labelx/asr-transcription/statistics/download";
@@ -159,6 +163,10 @@
     BACKEND_ENDPOINTS.server + AISHELL_TECH_CANTONESE_AI_RECOMMEND_PATH;
   const AISHELL_TECH_CANTONESE_AI_RECOMMEND_LOCAL_ENDPOINT =
     BACKEND_ENDPOINTS.local + AISHELL_TECH_CANTONESE_AI_RECOMMEND_PATH;
+  const JD_TTS_SHANGHAINESE_AI_RECOMMEND_SERVER_ENDPOINT =
+    BACKEND_ENDPOINTS.server + JD_TTS_SHANGHAINESE_AI_RECOMMEND_PATH;
+  const JD_TTS_SHANGHAINESE_AI_RECOMMEND_LOCAL_ENDPOINT =
+    BACKEND_ENDPOINTS.local + JD_TTS_SHANGHAINESE_AI_RECOMMEND_PATH;
   const DATABAKER_PAGE_SIZE_OPTIONS = ["5条/页", "10条/页", "20条/页", "50条/页", "100条/页"];
   const DATABAKER_AI_PIPELINE_MODE_OPTIONS = [
     { value: "two_stage", label: "双模型：听音模型 + 比较模型" },
@@ -759,6 +767,13 @@
     matches: ["https://mark.aishelltech.com/*"],
   };
 
+  const JD_TTS_ANNOTATION_PLATFORM = {
+    id: "jd-tts-annotation",
+    label: "京东 TTS 标注",
+    host: "tts-biaozhu-pub.jd.com",
+    matches: ["https://tts-biaozhu-pub.jd.com/*"],
+  };
+
   const PAGE_OPTIONS = [
     "1 条/页",
     "2 条/页",
@@ -1234,6 +1249,14 @@
       runtimeBridge: "aishell-tech-assistants",
       description: "希尔贝壳标注页语言助手平台（闽南语/越南语/泰语）。",
     },
+    jdTtsAnnotation: {
+      id: JD_TTS_ANNOTATION_PLATFORM_ID,
+      label: "京东 TTS 标注",
+      host: JD_TTS_ANNOTATION_PLATFORM.host,
+      matches: clone(JD_TTS_ANNOTATION_PLATFORM.matches),
+      runtimeBridge: "jd-tts-shanghainese-helper",
+      description: "京东 TTS 标注页当前文本框上海话识别与回填助手。",
+    },
   };
 
   const SCRIPT_LIBRARY = {
@@ -1391,6 +1414,19 @@
       host: AISHELL_TECH_PLATFORM.host,
       matchUrl:
         "https://mark.aishelltech.com/mytask/mark?taskId=...&packageId=...",
+    },
+    jdTtsShanghaineseAssistant: {
+      id: JD_TTS_SHANGHAINESE_SCRIPT_ID,
+      platformId: JD_TTS_ANNOTATION_PLATFORM_ID,
+      label: "上海话助手",
+      shortLabel: "上海话助手",
+      description: "识别当前音频并仅回填当前文本框，不保存或提交。",
+      note: "仅识别并填入当前文本框，不保存或提交。",
+      capabilityScope: "current-audio-ai-recommend-text",
+      statusLabel: "上海话助手",
+      detailView: "jd-tts-shanghainese-helper",
+      host: JD_TTS_ANNOTATION_PLATFORM.host,
+      matchUrl: "https://tts-biaozhu-pub.jd.com/#/annotation/dataset/annotate",
     },
     aishellTechCantoneseAssistant: {
       id: AISHELL_TECH_CANTONESE_SCRIPT_ID,
@@ -1943,6 +1979,33 @@
     };
   }
 
+  function createDefaultJdTtsAnnotationPlatformSettings() {
+    return {
+      enabled: false,
+      activeScriptId: "",
+      scripts: {
+        shanghaineseHelper: {
+          id: JD_TTS_SHANGHAINESE_SCRIPT_ID,
+          enabled: false,
+          aiRecommendEnabled: false,
+          aiRecommendEndpoint: JD_TTS_SHANGHAINESE_AI_RECOMMEND_SERVER_ENDPOINT,
+          aiRecommendRequestTimeoutMs: DEFAULT_AI_REQUEST_TIMEOUT_MS,
+          aiRecommendSingleModel: "qwen3.5-omni-plus",
+          aiRecommendSinglePrompt: "",
+          aiRecommendTemperature: "",
+          aiRecommendTopP: "",
+          aiRecommendMaxTokens: "",
+          aiRecommendMaxCompletionTokens: "",
+          aiRecommendPresencePenalty: "",
+          aiRecommendFrequencyPenalty: "",
+          aiRecommendSeed: "",
+          aiRecommendStopSequences: "",
+          aiRecommendEnableThinking: false,
+        },
+      },
+    };
+  }
+
   const DEFAULT_SETTINGS = {
     stage: STAGE_ID,
     scriptCenter: {
@@ -2055,6 +2118,7 @@
       abakaAi: createDefaultAbakaAiPlatformSettings(),
       haitianUtrans: createDefaultHaitianUtransPlatformSettings(),
       aishellTech: createDefaultAishellTechPlatformSettings(),
+      jdTtsAnnotation: createDefaultJdTtsAnnotationPlatformSettings(),
     },
     asr: clone(DEFAULT_ASR_CONFIG),
     debug: {
@@ -2167,6 +2231,16 @@
       );
     }
 
+    if (script.platformId === JD_TTS_ANNOTATION_PLATFORM_ID) {
+      return Boolean(
+        settings?.platforms?.jdTtsAnnotation?.enabled === true &&
+          settings?.platforms?.jdTtsAnnotation?.activeScriptId ===
+            JD_TTS_SHANGHAINESE_SCRIPT_ID &&
+          settings?.platforms?.jdTtsAnnotation?.scripts?.shanghaineseHelper?.enabled === true &&
+          settings?.platforms?.jdTtsAnnotation?.scripts?.shanghaineseHelper?.aiRecommendEnabled === true
+      );
+    }
+
     if (script.platformId === MAGIC_DATA_PLATFORM_ID) {
       const activeScriptId = String(settings?.platforms?.magicData?.activeScriptId || "").trim();
       const scriptKey =
@@ -2206,6 +2280,7 @@
     MAGIC_DATA_PLATFORM: MAGIC_DATA_PLATFORM,
     ABAKA_AI_PLATFORM: ABAKA_AI_PLATFORM,
     AISHELL_TECH_PLATFORM: AISHELL_TECH_PLATFORM,
+    JD_TTS_ANNOTATION_PLATFORM: JD_TTS_ANNOTATION_PLATFORM,
     PLATFORM_LIBRARY: clone(PLATFORM_LIBRARY),
     MESSAGE_TYPES: MESSAGE_TYPES,
     PAGE_OPTIONS: PAGE_OPTIONS,
@@ -2226,6 +2301,7 @@
     ABAKA_AI_PLATFORM_ID: ABAKA_AI_PLATFORM_ID,
     HAITIAN_UTRANS_PLATFORM_ID: HAITIAN_UTRANS_PLATFORM_ID,
     AISHELL_TECH_PLATFORM_ID: AISHELL_TECH_PLATFORM_ID,
+    JD_TTS_ANNOTATION_PLATFORM_ID: JD_TTS_ANNOTATION_PLATFORM_ID,
     DATA_BAKER_ROUND_ONE_QUALITY_SCRIPT_ID: DATA_BAKER_ROUND_ONE_QUALITY_SCRIPT_ID,
     MAGIC_DATA_ANNOTATOR_SCRIPT_ID: MAGIC_DATA_ANNOTATOR_SCRIPT_ID,
     MAGIC_DATA_MINNAN_SCRIPT_ID: MAGIC_DATA_MINNAN_SCRIPT_ID,
@@ -2237,6 +2313,7 @@
     AISHELL_TECH_THAI_SCRIPT_ID: AISHELL_TECH_THAI_SCRIPT_ID,
     AISHELL_TECH_CANTONESE_SCRIPT_ID: AISHELL_TECH_CANTONESE_SCRIPT_ID,
     AISHELL_TECH_CN_EN_SHORT_DRAMA_SCRIPT_ID: AISHELL_TECH_CN_EN_SHORT_DRAMA_SCRIPT_ID,
+    JD_TTS_SHANGHAINESE_SCRIPT_ID: JD_TTS_SHANGHAINESE_SCRIPT_ID,
     DATABAKER_AI_RECOMMEND_SERVER_ENDPOINT: DATABAKER_AI_RECOMMEND_SERVER_ENDPOINT,
     DATABAKER_AI_RECOMMEND_LOCAL_ENDPOINT: DATABAKER_AI_RECOMMEND_LOCAL_ENDPOINT,
     DATABAKER_AI_RECOMMEND_PATH: DATABAKER_AI_RECOMMEND_PATH,
@@ -2254,6 +2331,7 @@
     AISHELL_TECH_VIETNAMESE_AI_RECOMMEND_PATH: AISHELL_TECH_VIETNAMESE_AI_RECOMMEND_PATH,
     AISHELL_TECH_THAI_AI_RECOMMEND_PATH: AISHELL_TECH_THAI_AI_RECOMMEND_PATH,
     AISHELL_TECH_CANTONESE_AI_RECOMMEND_PATH: AISHELL_TECH_CANTONESE_AI_RECOMMEND_PATH,
+    JD_TTS_SHANGHAINESE_AI_RECOMMEND_PATH: JD_TTS_SHANGHAINESE_AI_RECOMMEND_PATH,
     TRANSCRIPTION_STATS_UPLOAD_PATH: TRANSCRIPTION_STATS_UPLOAD_PATH,
     TRANSCRIPTION_STATS_DOWNLOAD_PATH: TRANSCRIPTION_STATS_DOWNLOAD_PATH,
     PROJECT_DATA_DOWNLOAD_OPTIONS_PATH: PROJECT_DATA_DOWNLOAD_OPTIONS_PATH,
@@ -2287,6 +2365,10 @@
       AISHELL_TECH_CANTONESE_AI_RECOMMEND_SERVER_ENDPOINT,
     AISHELL_TECH_CANTONESE_AI_RECOMMEND_LOCAL_ENDPOINT:
       AISHELL_TECH_CANTONESE_AI_RECOMMEND_LOCAL_ENDPOINT,
+    JD_TTS_SHANGHAINESE_AI_RECOMMEND_SERVER_ENDPOINT:
+      JD_TTS_SHANGHAINESE_AI_RECOMMEND_SERVER_ENDPOINT,
+    JD_TTS_SHANGHAINESE_AI_RECOMMEND_LOCAL_ENDPOINT:
+      JD_TTS_SHANGHAINESE_AI_RECOMMEND_LOCAL_ENDPOINT,
     normalizeBackendEndpointMode: normalizeBackendEndpointMode,
     normalizeBackendBaseUrl: normalizeBackendBaseUrl,
     normalizeReleaseChannel: normalizeReleaseChannel,
@@ -2358,6 +2440,7 @@
     DEFAULT_ABAKA_AI_PLATFORM_SETTINGS: createDefaultAbakaAiPlatformSettings(),
     DEFAULT_HAITIAN_UTRANS_PLATFORM_SETTINGS: createDefaultHaitianUtransPlatformSettings(),
     DEFAULT_AISHELL_TECH_PLATFORM_SETTINGS: createDefaultAishellTechPlatformSettings(),
+    DEFAULT_JD_TTS_ANNOTATION_PLATFORM_SETTINGS: createDefaultJdTtsAnnotationPlatformSettings(),
     DEFAULT_SETTINGS: clone(DEFAULT_SETTINGS),
     LEGACY_ROOT_DEBUG_KEY: LEGACY_ROOT_DEBUG_KEY,
     LEGACY_ROOT_CACHE_KEYS: Object.assign({}, LEGACY_ROOT_CACHE_KEYS),

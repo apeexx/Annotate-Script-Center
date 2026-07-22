@@ -94,3 +94,131 @@ test("Aishell popup recognizes the enabled Cantonese assistant on the mark page"
     Object.assign(globalThis, previous);
   }
 });
+
+test("JD TTS popup recognizes the enabled Shanghai assistant on the annotation hash route", async function () {
+  const previous = {
+    ASREdgeConstants: globalThis.ASREdgeConstants,
+    ASREdgeStorage: globalThis.ASREdgeStorage,
+    chrome: globalThis.chrome,
+    document: globalThis.document,
+  };
+  const elements = {
+    "extension-name": createElement(),
+    "stage-label": createElement(),
+    "detected-title": createElement(),
+    "detected-description": createElement(),
+    "open-script-settings": createElement(),
+    "detected-status-pill": createElement(),
+    "popup-status": createElement(),
+  };
+  let onDomContentLoaded = null;
+  globalThis.ASREdgeConstants = {
+    JD_TTS_SHANGHAINESE_SCRIPT_ID: "jdTtsShanghaineseAssistant",
+    JD_TTS_ANNOTATION_PLATFORM: { host: "tts-biaozhu-pub.jd.com" },
+    EXTENSION_NAME: "Script Center",
+    STAGE_LABEL: "Script Center",
+    SCRIPT_LIBRARY: {
+      jdTtsShanghaineseAssistant: { label: "Shanghai assistant" },
+    },
+    isScriptRuntimeAccessible(scriptId) {
+      return scriptId === "jdTtsShanghaineseAssistant";
+    },
+  };
+  globalThis.ASREdgeStorage = {
+    async getSettings() {
+      return {
+        platforms: {
+          jdTtsAnnotation: {
+            enabled: true,
+            activeScriptId: "jdTtsShanghaineseAssistant",
+            scripts: { shanghaineseHelper: { enabled: true, aiRecommendEnabled: true } },
+          },
+        },
+      };
+    },
+  };
+  globalThis.chrome = {
+    tabs: {
+      query(_queryInfo, callback) {
+        callback([{ url: "https://tts-biaozhu-pub.jd.com/#/annotation/dataset/annotate" }]);
+      },
+      create() {},
+    },
+    runtime: { getURL(value) { return value; } },
+  };
+  globalThis.document = {
+    title: "",
+    getElementById(id) { return elements[id]; },
+    addEventListener(name, callback) {
+      if (name === "DOMContentLoaded") onDomContentLoaded = callback;
+    },
+  };
+
+  delete require.cache[popupPath];
+  try {
+    require(popupPath);
+    await onDomContentLoaded();
+    assert.equal(elements["detected-title"].textContent, "Shanghai assistant");
+    assert.equal(elements["open-script-settings"].disabled, false);
+  } finally {
+    delete require.cache[popupPath];
+    Object.assign(globalThis, previous);
+  }
+});
+
+test("JD TTS popup does not show the Shanghai assistant before it is enabled", async function () {
+  const previous = {
+    ASREdgeConstants: globalThis.ASREdgeConstants,
+    ASREdgeStorage: globalThis.ASREdgeStorage,
+    chrome: globalThis.chrome,
+    document: globalThis.document,
+  };
+  const elements = {
+    "extension-name": createElement(),
+    "stage-label": createElement(),
+    "detected-title": createElement(),
+    "detected-description": createElement(),
+    "open-script-settings": createElement(),
+    "detected-status-pill": createElement(),
+    "popup-status": createElement(),
+  };
+  let onDomContentLoaded = null;
+  globalThis.ASREdgeConstants = {
+    JD_TTS_SHANGHAINESE_SCRIPT_ID: "jdTtsShanghaineseAssistant",
+    JD_TTS_ANNOTATION_PLATFORM: { host: "tts-biaozhu-pub.jd.com" },
+    SCRIPT_LIBRARY: { jdTtsShanghaineseAssistant: { label: "Shanghai assistant" } },
+    isScriptRuntimeAccessible() { return false; },
+  };
+  globalThis.ASREdgeStorage = {
+    async getSettings() {
+      return { platforms: { jdTtsAnnotation: { enabled: false } } };
+    },
+  };
+  globalThis.chrome = {
+    tabs: {
+      query(_queryInfo, callback) {
+        callback([{ url: "https://tts-biaozhu-pub.jd.com/#/annotation/dataset/annotate" }]);
+      },
+      create() {},
+    },
+    runtime: { getURL(value) { return value; } },
+  };
+  globalThis.document = {
+    title: "",
+    getElementById(id) { return elements[id]; },
+    addEventListener(name, callback) {
+      if (name === "DOMContentLoaded") onDomContentLoaded = callback;
+    },
+  };
+
+  delete require.cache[popupPath];
+  try {
+    require(popupPath);
+    await onDomContentLoaded();
+    assert.equal(elements["detected-title"].textContent, "当前页面未命中脚本");
+    assert.equal(elements["open-script-settings"].disabled, true);
+  } finally {
+    delete require.cache[popupPath];
+    Object.assign(globalThis, previous);
+  }
+});

@@ -38,6 +38,8 @@
     constants.ABAKA_AI_TASK_PAGE_CAPTURE_SCRIPT_ID || "abakaAiTaskPageCapture";
   const haitianUtransAudioDownloadHelperScriptId =
     constants.HAITIAN_UTRANS_AUDIO_DOWNLOAD_HELPER_SCRIPT_ID || "haitianUtransAudioDownloadHelper";
+  const jdTtsShanghaineseScriptId =
+    constants.JD_TTS_SHANGHAINESE_SCRIPT_ID || "jdTtsShanghaineseAssistant";
   const backendModeServer = constants.BACKEND_ENDPOINT_MODE_SERVER || "server";
   const backendModeLocal = constants.BACKEND_ENDPOINT_MODE_LOCAL || "local";
   const backendModeBeta = constants.BACKEND_ENDPOINT_MODE_BETA || "beta";
@@ -975,6 +977,10 @@
     aishellTechVietnameseAssistant: "/api/aishell-tech/vietnamese-helper/ai/recommend/defaults",
     aishellTechThaiAssistant: "/api/aishell-tech/thai-helper/ai/recommend/defaults",
     aishellTechCantoneseAssistant: "/api/aishell-tech/cantonese-helper/ai/recommend/defaults",
+    jdTtsShanghaineseAssistant: "/api/jd-tts-annotation/shanghainese-helper/ai/recommend/defaults",
+  };
+  const asrVoiceAiHealthPaths = {
+    jdTtsShanghaineseAssistant: "/api/jd-tts-annotation/shanghainese-helper/ai/recommend/health",
   };
   let projectDataDownloadDatasets = [];
   let aiCallLogDownloadDatasets = [];
@@ -4458,6 +4464,10 @@
     return scriptId === aishellTechThaiScriptId;
   }
 
+  function isJdTtsShanghaineseScript(scriptId) {
+    return scriptId === jdTtsShanghaineseScriptId;
+  }
+
   function isAishellTechCantoneseScript(scriptId) {
     return scriptId === aishellTechCantoneseScriptId;
   }
@@ -4474,6 +4484,7 @@
       scriptId === dataBakerCvpcLiuzhouScriptId ||
       isBytedanceAidpScript(scriptId) ||
       isMagicDataScript(scriptId) ||
+      isJdTtsShanghaineseScript(scriptId) ||
       (isAishellTechScript(scriptId) && !isAishellTechCnEnShortDramaScript(scriptId))
     );
   }
@@ -4508,6 +4519,9 @@
           : isAishellTechCantoneseScript(scriptId)
             ? "aishell-tech-cantonese-status"
         : "aishell-tech-status";
+    }
+    if (isJdTtsShanghaineseScript(scriptId)) {
+      return "jd-tts-shanghainese-status";
     }
     return "detail-status";
   }
@@ -4589,8 +4603,18 @@
     if (scriptId === aishellTechCantoneseScriptId) {
       return asrVoiceAiDefaultsPaths.aishellTechCantoneseAssistant;
     }
+    if (scriptId === jdTtsShanghaineseScriptId) {
+      return asrVoiceAiDefaultsPaths.jdTtsShanghaineseAssistant;
+    }
     return "";
   }
+
+  function getAsrVoiceAiHealthPath(scriptId) {
+    return isJdTtsShanghaineseScript(scriptId)
+      ? asrVoiceAiHealthPaths.jdTtsShanghaineseAssistant
+      : "";
+  }
+
 
   function buildFallbackAsrVoiceAiDefaults(scriptId) {
     const isBytedanceAidpJinhua =
@@ -4604,11 +4628,13 @@
       scriptId === bytedanceAidpSuzhouScriptId ||
       isBytedanceAidpJinhua ||
       isMagicDataScript(scriptId) ||
-      isAishellTechScript(scriptId);
+      isAishellTechScript(scriptId) ||
+      isJdTtsShanghaineseScript(scriptId);
     const useDataBakerPromptDefaults =
       scriptId === dataBakerRoundOneQualityScriptId ||
       scriptId === dataBakerCvpcLiuzhouScriptId ||
-      isAishellTechScript(scriptId);
+      isAishellTechScript(scriptId) ||
+      isJdTtsShanghaineseScript(scriptId);
     const baseDefaults = {
       listenModel: "qwen3.5-omni-flash",
       listenModelOptions:
@@ -4715,6 +4741,23 @@
         loadedFromBackend: false,
         error: "",
       };
+    }
+    if (isJdTtsShanghaineseScript(scriptId)) {
+      baseDefaults.pipelineMode = "omni_single";
+      baseDefaults.singleModel = "qwen3.5-omni-plus";
+      baseDefaults.singleModelOptions = [
+        { value: "qwen3.5-omni-plus", label: "qwen3.5-omni-plus" },
+        { value: "qwen3.5-omni-flash", label: "qwen3.5-omni-flash" },
+      ];
+      baseDefaults.singlePrompt = "";
+      baseDefaults.stages = {
+        recognize: {
+          model: baseDefaults.singleModel,
+          modelOptions: clone(baseDefaults.singleModelOptions),
+          prompt: baseDefaults.singlePrompt,
+        },
+      };
+      return { defaults: baseDefaults, supportedParams: supportedParams, loadedFromBackend: false, error: "" };
     }
     if (scriptId === aishellTechCantoneseScriptId) {
       baseDefaults.pipelineMode = "omni_single";
@@ -4862,7 +4905,45 @@
     const normalizedDefaults = Object.assign({}, fallback.defaults, defaults, {
       enableThinking: false,
     });
-    if (isAishellTechCantoneseScript(scriptId)) {
+    if (isJdTtsShanghaineseScript(scriptId)) {
+      const aiOmni = defaults.aiOmni && typeof defaults.aiOmni === "object" ? defaults.aiOmni : {};
+      const params = aiOmni.params && typeof aiOmni.params === "object" ? aiOmni.params : {};
+      normalizedDefaults.pipelineMode = "omni_single";
+      normalizedDefaults.singleModel = normalizeDataBakerSingleModel(
+        aiOmni.model,
+        fallback.defaults.singleModel || "qwen3.5-omni-plus"
+      );
+      normalizedDefaults.singlePrompt =
+        normalizePromptText(aiOmni.prompt) || fallback.defaults.singlePrompt || "";
+      normalizedDefaults.temperature = params.temperature ?? fallback.defaults.temperature;
+      normalizedDefaults.top_p = params.top_p ?? fallback.defaults.top_p;
+      normalizedDefaults.max_tokens = params.max_tokens ?? fallback.defaults.max_tokens;
+      normalizedDefaults.max_completion_tokens =
+        params.max_completion_tokens ?? fallback.defaults.max_completion_tokens;
+      normalizedDefaults.presence_penalty =
+        params.presence_penalty ?? fallback.defaults.presence_penalty;
+      normalizedDefaults.frequency_penalty =
+        params.frequency_penalty ?? fallback.defaults.frequency_penalty;
+      normalizedDefaults.seed = params.seed ?? fallback.defaults.seed;
+      normalizedDefaults.stop = params.stop ?? fallback.defaults.stop;
+      normalizedDefaults.stages = Object.assign({}, fallback.defaults.stages || {});
+      normalizedDefaults.stages.recognize = Object.assign(
+        {},
+        fallback.defaults.stages?.recognize || {},
+        {
+          model: normalizedDefaults.singleModel,
+          prompt: normalizedDefaults.singlePrompt,
+          temperature: normalizedDefaults.temperature,
+          top_p: normalizedDefaults.top_p,
+          max_tokens: normalizedDefaults.max_tokens,
+          max_completion_tokens: normalizedDefaults.max_completion_tokens,
+          presence_penalty: normalizedDefaults.presence_penalty,
+          frequency_penalty: normalizedDefaults.frequency_penalty,
+          seed: normalizedDefaults.seed,
+          stop: normalizedDefaults.stop,
+        }
+      );
+    } else if (isAishellTechCantoneseScript(scriptId)) {
       const aiOmni = defaults.aiOmni && typeof defaults.aiOmni === "object" ? defaults.aiOmni : {};
       const params = aiOmni.params && typeof aiOmni.params === "object" ? aiOmni.params : {};
       normalizedDefaults.pipelineMode = "omni_single";
@@ -4980,6 +5061,19 @@
     const request = (async function () {
       const pathCandidates = [path];
       try {
+        const healthPath = getAsrVoiceAiHealthPath(scriptId);
+        if (healthPath) {
+          const healthResponse = await fetch(
+            buildBackendUrl(healthPath, settings || currentSettings || {}),
+            { method: "GET" }
+          );
+          const healthPayload = await healthResponse.json().catch(function () {
+            return null;
+          });
+          if (!healthResponse.ok || !healthPayload || healthPayload.success !== true) {
+            throw new Error("health-check-failed");
+          }
+        }
         for (const candidatePath of pathCandidates) {
           const endpoint = buildBackendUrl(candidatePath, settings || currentSettings || {});
           const response = await fetch(endpoint, { method: "GET" });
@@ -5007,7 +5101,9 @@
                 ? scriptId === bytedanceAidpJinhuaScriptId
                   ? "ByteDance AIDP 金华话后端默认配置读取失败，已回退到本地两阶段默认值。"
                   : "ByteDance AIDP 苏州话后端默认配置读取失败，已回退到本地两阶段默认值。"
-              : "后端默认配置读取失败，已使用本地默认值。";
+              : isJdTtsShanghaineseScript(scriptId)
+                ? "京东 TTS 上海话后端默认配置或健康检查读取失败，已使用本地默认值。"
+                : "后端默认配置读取失败，已使用本地默认值。";
         asrVoiceAiDefaultsCache[key] = fallback;
         return fallback;
       } finally {
@@ -7566,6 +7662,45 @@
     panel.classList.remove("hidden");
   }
 
+  function getJdTtsShanghaineseConfig(settings) {
+    const defaults =
+      constants.DEFAULT_SETTINGS?.platforms?.jdTtsAnnotation?.scripts?.shanghaineseHelper || {};
+    const current = settings?.platforms?.jdTtsAnnotation?.scripts?.shanghaineseHelper || {};
+    const config = Object.assign(
+      {
+        id: jdTtsShanghaineseScriptId,
+        enabled: false,
+        aiRecommendEnabled: false,
+        aiRecommendRequestTimeoutMs: DEFAULT_AI_REQUEST_TIMEOUT_MS,
+        aiRecommendSingleModel: "qwen3.5-omni-plus",
+        aiRecommendSinglePrompt: "",
+        aiRecommendTemperature: "",
+        aiRecommendTopP: "",
+        aiRecommendMaxTokens: "",
+        aiRecommendMaxCompletionTokens: "",
+        aiRecommendPresencePenalty: "",
+        aiRecommendFrequencyPenalty: "",
+        aiRecommendSeed: "",
+        aiRecommendStopSequences: "",
+      },
+      defaults,
+      current
+    );
+    config.id = jdTtsShanghaineseScriptId;
+    config.enabled = config.enabled === true;
+    config.aiRecommendEnabled = config.aiRecommendEnabled === true;
+    config.aiRecommendRequestTimeoutMs = DEFAULT_AI_REQUEST_TIMEOUT_MS;
+    config.aiRecommendSingleModel = normalizeDataBakerSingleModel(
+      config.aiRecommendSingleModel,
+      "qwen3.5-omni-plus"
+    );
+    config.aiRecommendSinglePrompt = normalizePromptText(config.aiRecommendSinglePrompt || "");
+    normalizeAishellTechStageParamFields(config, "aiRecommend");
+    config.aiRecommendEnableThinking = false;
+    delete config.aiOmni;
+    return config;
+  }
+
   function renderAishellTechCantoneseAiSettingsSection(panel, headerHtml, defaultsTipId) {
     panel.innerHTML = [
       '<div class="asr-ai-panel">',
@@ -7583,6 +7718,36 @@
       '</div><div class="asr-ai-grid three">' +
         buildAishellTechStageParamFieldsMarkup("single", false) +
         "</div></div>",
+      "</div>",
+    ].join("");
+    syncOptionsCustomSelects(panel);
+    panel.classList.remove("hidden");
+  }
+
+  function renderJdTtsShanghaineseAiSettingsSection(panel, headerHtml, defaultsTipId) {
+    const parameterFields = aishellTechStageParamDefinitions
+      .map(function (definition) {
+        const id = "jd-tts-ai-single-" + definition.domSuffix;
+        const type = definition.type === "stop" ? "textarea" : "input";
+        const control =
+          type === "textarea"
+            ? '<textarea id="' + id + '" maxlength="960"></textarea>'
+            : '<input id="' + id + '" type="number" />';
+        return '<label class="asr-ai-field"><span>' + definition.apiKey + "</span>" + control + "</label>";
+      })
+      .join("");
+    panel.innerHTML = [
+      '<div class="asr-ai-panel">',
+      headerHtml,
+      '<div class="asr-ai-note" id="' + defaultsTipId + '"></div>',
+      '<div class="asr-ai-block"><strong>基础设置</strong><div class="asr-ai-grid two">',
+      '<label class="asr-ai-field"><span>启用 AI 识别</span><label class="asr-ai-boolean"><input id="jd-tts-ai-recommend-enabled" type="checkbox" /><span>仅识别并填入当前文本框，不保存或提交</span></label></label>',
+      '<div class="asr-ai-field"><span>请求超时时间</span><span class="asr-ai-help">60000ms（固定）</span></div>',
+      '</div></div>',
+      '<div class="asr-ai-block"><strong>单阶段 Omni 上海话识别</strong><div class="asr-ai-grid two">',
+      '<label class="asr-ai-field"><span>识别模型</span><select id="jd-tts-ai-single-model-select" data-options-custom-select="true"></select></label>',
+      '<label class="asr-ai-field"><span>识别 Prompt（可选）</span><textarea id="jd-tts-ai-single-prompt" maxlength="8000"></textarea><span class="asr-ai-help">留空时使用后端默认 Prompt。</span></label>',
+      '</div><div class="asr-ai-grid three">' + parameterFields + "</div></div>",
       "</div>",
     ].join("");
     syncOptionsCustomSelects(panel);
@@ -13006,6 +13171,10 @@
       "hidden",
       scriptId !== aishellTechCantoneseScriptId
     );
+    getElement("detail-jd-tts-shanghainese-helper-panel").classList.toggle(
+      "hidden",
+      scriptId !== jdTtsShanghaineseScriptId
+    );
     getElement("detail-aishell-tech-cn-en-short-drama-panel").classList.toggle(
       "hidden",
       scriptId !== aishellTechCnEnShortDramaScriptId
@@ -13048,6 +13217,8 @@
           applyBytedanceAidpForm(currentSettings || settings || {}, scriptId);
         } else if (isAishellTechScript(scriptId)) {
           applyAishellTechForm(currentSettings || settings || {}, scriptId);
+        } else if (isJdTtsShanghaineseScript(scriptId)) {
+          applyJdTtsShanghaineseForm(currentSettings || settings || {});
         } else if (isMagicDataScript(scriptId)) {
           applyMagicDataSettingsForm(currentSettings || settings || {}, scriptId);
         } else if (isHaitianUtransScript(scriptId)) {
@@ -13118,6 +13289,15 @@
           : isAishellTechThaiScript(scriptId)
             ? "希尔贝壳泰语助手使用单阶段 Omni 同时输出文本与语速；批量模式只处理当前分包，并保持 AI 并发请求 + 页面串行保存，不自动提交任务。"
             : "希尔贝壳批量模式只处理当前分包、从当前选中条开始、跳过已完成条目；每条会先对齐到目标条，再调用平台原生保存接口，不自动提交任务。"
+      );
+      return;
+    }
+
+    if (isJdTtsShanghaineseScript(scriptId)) {
+      applyJdTtsShanghaineseForm(settings);
+      setStatus(
+        "jd-tts-shanghainese-status",
+        "仅识别并填入当前文本框，不保存或提交。"
       );
       return;
     }
@@ -13645,6 +13825,11 @@
       applyAishellTechThaiForm(settings);
       return;
     }
+
+    if (isJdTtsShanghaineseScript(scriptId)) {
+      renderJdTtsShanghaineseAiSettingsSection(panel, headerHtml, defaultsTipId);
+      return;
+    }
     if (isAishellTechCantoneseScript(scriptId)) {
       applyAishellTechCantoneseForm(settings);
       return;
@@ -13690,6 +13875,32 @@
       );
     }
     renderAishellTechShortcutGrid();
+  }
+
+  function applyJdTtsShanghaineseForm(settings) {
+    const config = getJdTtsShanghaineseConfig(settings);
+    const aiDefaults = getAsrVoiceAiDefaultsCached(jdTtsShanghaineseScriptId).defaults || {};
+    const enabled = getElement("jd-tts-ai-recommend-enabled");
+    if (!enabled) return;
+    enabled.checked = config.aiRecommendEnabled === true;
+    renderFixedModelOptions(
+      "jd-tts-ai-single-model-select",
+      [
+        { value: "qwen3.5-omni-plus", label: "qwen3.5-omni-plus" },
+        { value: "qwen3.5-omni-flash", label: "qwen3.5-omni-flash" },
+      ],
+      config.aiRecommendSingleModel
+    );
+    getElement("jd-tts-ai-single-prompt").value = String(
+      getAsrVoiceAiEffectiveText(config.aiRecommendSinglePrompt, aiDefaults.singlePrompt)
+    );
+    aishellTechStageParamDefinitions.forEach(function (definition) {
+      const node = getElement("jd-tts-ai-single-" + definition.domSuffix);
+      if (!node) return;
+      const key = "aiRecommend" + definition.suffix;
+      node.value = String(config[key] || aiDefaults[definition.apiKey] || "");
+    });
+    syncOptionsCustomSelects(getElement("detail-shared-asr-ai-panel"));
   }
 
   async function saveDataBakerSettings() {
@@ -14916,6 +15127,63 @@
     }
   }
 
+  async function saveJdTtsShanghaineseSettings() {
+    if (!storage || typeof storage.patchSettings !== "function") {
+      setStatus("jd-tts-shanghainese-status", "当前扩展版本不支持保存京东 TTS 上海话设置。");
+      return false;
+    }
+    const config = getJdTtsShanghaineseConfig(currentSettings || {});
+    const aiDefaults = getAsrVoiceAiDefaultsCached(jdTtsShanghaineseScriptId).defaults || {};
+    const model = normalizeDataBakerSingleModel(
+      getElement("jd-tts-ai-single-model-select")?.value,
+      "qwen3.5-omni-plus"
+    );
+    const prompt = normalizePromptText(getElement("jd-tts-ai-single-prompt")?.value || "");
+    const stageOverrides = {};
+    aishellTechStageParamDefinitions.forEach(function (definition) {
+      const value = getElement("jd-tts-ai-single-" + definition.domSuffix)?.value || "";
+      const key = "aiRecommend" + definition.suffix;
+      if (definition.type === "number") {
+        stageOverrides[key] = normalizeOptionalNumberText(value, definition.min, definition.max, definition.precision);
+      } else if (definition.type === "integer") {
+        stageOverrides[key] = normalizeOptionalIntegerText(value, definition.min, definition.max);
+      } else {
+        stageOverrides[key] = normalizeStopSequencesText(value);
+      }
+    });
+    setStatus("jd-tts-shanghainese-status", "正在保存京东 TTS 上海话设置...");
+    try {
+      currentSettings = await storage.patchSettings({
+        platforms: {
+          jdTtsAnnotation: {
+            enabled: true,
+            activeScriptId: jdTtsShanghaineseScriptId,
+            scripts: {
+              shanghaineseHelper: Object.assign(
+                {
+                  id: jdTtsShanghaineseScriptId,
+                  enabled: true,
+                  aiRecommendEnabled: getElement("jd-tts-ai-recommend-enabled")?.checked === true,
+                  aiRecommendRequestTimeoutMs: DEFAULT_AI_REQUEST_TIMEOUT_MS,
+                  aiRecommendSingleModel: model,
+                  aiRecommendSinglePrompt: prompt,
+                  aiRecommendEnableThinking: false,
+                },
+                stageOverrides
+              ),
+            },
+          },
+        },
+      });
+      applyJdTtsShanghaineseForm(currentSettings);
+      setStatus("jd-tts-shanghainese-status", "京东 TTS 上海话设置已保存。");
+      return true;
+    } catch (error) {
+      setStatus("jd-tts-shanghainese-status", "保存失败：" + (error?.message || String(error)));
+      return false;
+    }
+  }
+
   async function saveAishellTechSettings(scriptId) {
     const resolvedScriptId = scriptId || getCurrentDetailScriptId();
     return isAishellTechVietnameseScript(resolvedScriptId)
@@ -15596,6 +15864,15 @@
     if (saveAishellCantoneseSettingsButton) {
       saveAishellCantoneseSettingsButton.addEventListener("click", function () {
         void saveAishellTechSettings(getCurrentDetailScriptId());
+      });
+    }
+
+    const saveJdTtsShanghaineseSettingsButton = getElement(
+      "save-jd-tts-shanghainese-settings"
+    );
+    if (saveJdTtsShanghaineseSettingsButton) {
+      saveJdTtsShanghaineseSettingsButton.addEventListener("click", function () {
+        void saveJdTtsShanghaineseSettings();
       });
     }
 

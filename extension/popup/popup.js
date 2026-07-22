@@ -24,6 +24,8 @@
   const abakaScriptId = constants.ABAKA_AI_TASK_PAGE_CAPTURE_SCRIPT_ID || "abakaAiTaskPageCapture";
   const haitianScriptId =
     constants.HAITIAN_UTRANS_AUDIO_DOWNLOAD_HELPER_SCRIPT_ID || "haitianUtransAudioDownloadHelper";
+  const jdTtsShanghaineseScriptId =
+    constants.JD_TTS_SHANGHAINESE_SCRIPT_ID || "jdTtsShanghaineseAssistant";
   let currentScriptId = "";
   let currentSettings = null;
 
@@ -141,6 +143,13 @@
 
     if (url.hostname === constants.HAITIAN_UTRANS_PLATFORM?.host) {
       return haitianScriptId;
+    }
+
+    if (url.hostname === constants.JD_TTS_ANNOTATION_PLATFORM?.host) {
+      return String(url.hash || "").toLowerCase().startsWith("#/annotation/dataset/annotate") &&
+        isScriptEnabled(settings, jdTtsShanghaineseScriptId)
+        ? jdTtsShanghaineseScriptId
+        : "";
     }
 
     return "";

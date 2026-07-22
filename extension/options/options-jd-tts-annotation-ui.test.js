@@ -1,0 +1,46 @@
+"use strict";
+
+const assert = require("node:assert/strict");
+const fs = require("node:fs");
+const path = require("node:path");
+const test = require("node:test");
+
+test("JD TTS options provide a dedicated flat single-stage settings panel", function () {
+  const script = fs.readFileSync(path.resolve(__dirname, "options.js"), "utf8");
+  const html = fs.readFileSync(path.resolve(__dirname, "options.html"), "utf8");
+
+  assert.match(html, /detail-jd-tts-shanghainese-helper-panel/);
+  assert.match(html, /save-jd-tts-shanghainese-settings/);
+  assert.match(script, /const jdTtsShanghaineseScriptId =/);
+  assert.match(script, /jdTtsShanghaineseAssistant: "\/api\/jd-tts-annotation\/shanghainese-helper\/ai\/recommend\/defaults"/);
+  assert.match(script, /jdTtsShanghaineseAssistant: "\/api\/jd-tts-annotation\/shanghainese-helper\/ai\/recommend\/health"/);
+  assert.match(script, /function getJdTtsShanghaineseConfig\(/);
+  assert.match(script, /function applyJdTtsShanghaineseForm\(/);
+  assert.match(script, /async function saveJdTtsShanghaineseSettings\(/);
+  assert.match(script, /qwen3\.5-omni-plus/);
+  assert.match(script, /qwen3\.5-omni-flash/);
+});
+
+test("JD TTS options map backend aiOmni defaults to flat persisted fields", function () {
+  const script = fs.readFileSync(path.resolve(__dirname, "options.js"), "utf8");
+  const start = script.indexOf("if (isJdTtsShanghaineseScript(scriptId)) {");
+  const end = script.indexOf("    } else if", start);
+  const block = start >= 0 && end > start ? script.slice(start, end) : "";
+
+  assert.ok(block);
+  assert.match(block, /defaults\.aiOmni/);
+  assert.match(block, /normalizedDefaults\.singleModel/);
+  assert.match(block, /normalizedDefaults\.singlePrompt/);
+  assert.doesNotMatch(block, /normalizedDefaults\.stages\.(convert|listen|compare)/);
+});
+
+test("JD TTS defaults loader keeps the defaults endpoint separate from its status target", function () {
+  const script = fs.readFileSync(path.resolve(__dirname, "options.js"), "utf8");
+  const start = script.indexOf("function getAsrVoiceAiDefaultsPath(scriptId) {");
+  const end = script.indexOf("  function getAsrVoiceAiHealthPath", start);
+  const block = start >= 0 && end > start ? script.slice(start, end) : "";
+
+  assert.ok(block);
+  assert.match(block, /return asrVoiceAiDefaultsPaths\.jdTtsShanghaineseAssistant/);
+  assert.doesNotMatch(block, /jd-tts-shanghainese-status/);
+});

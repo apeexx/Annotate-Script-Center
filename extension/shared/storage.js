@@ -137,6 +137,8 @@
       MAGIC_DATA_MINNAN_SCRIPT_ID: "magicDataMinnanAssistant",
       AISHELL_TECH_PLATFORM_ID: "aishellTech",
       AISHELL_TECH_MINNAN_SCRIPT_ID: "aishellTechMinnanAssistant",
+      JD_TTS_ANNOTATION_PLATFORM_ID: "jdTtsAnnotation",
+      JD_TTS_SHANGHAINESE_SCRIPT_ID: "jdTtsShanghaineseAssistant",
       ABAKA_AI_PLATFORM_ID: "abakaAi",
       ABAKA_AI_TASK_PAGE_CAPTURE_SCRIPT_ID: "abakaAiTaskPageCapture",
       HAITIAN_UTRANS_PLATFORM_ID: "haitianUtrans",
@@ -149,6 +151,10 @@
         "https://script.aisiyunling.com/api/aishell-tech/minnan-helper/ai/recommend",
       AISHELL_TECH_AI_RECOMMEND_LOCAL_ENDPOINT:
         "http://127.0.0.1:3333/api/aishell-tech/minnan-helper/ai/recommend",
+      JD_TTS_SHANGHAINESE_AI_RECOMMEND_SERVER_ENDPOINT:
+        "https://script.aisiyunling.com/api/jd-tts-annotation/shanghainese-helper/ai/recommend",
+      JD_TTS_SHANGHAINESE_AI_RECOMMEND_LOCAL_ENDPOINT:
+        "http://127.0.0.1:3333/api/jd-tts-annotation/shanghainese-helper/ai/recommend",
       TRANSCRIPTION_STATS_SERVER_ENDPOINT:
         "https://script.aisiyunling.com/api/alibaba-labelx/asr-transcription/statistics/upload",
       TRANSCRIPTION_STATS_LOCAL_ENDPOINT:
@@ -1199,6 +1205,24 @@
     return fallbackEndpoint;
   }
 
+  function normalizeJdTtsShanghaineseAiEndpoint(value, fallback) {
+    const constants = getConstants();
+    const serverEndpoint =
+      constants.JD_TTS_SHANGHAINESE_AI_RECOMMEND_SERVER_ENDPOINT ||
+      "https://script.aisiyunling.com/api/jd-tts-annotation/shanghainese-helper/ai/recommend";
+    const localEndpoint =
+      constants.JD_TTS_SHANGHAINESE_AI_RECOMMEND_LOCAL_ENDPOINT ||
+      "http://127.0.0.1:3333/api/jd-tts-annotation/shanghainese-helper/ai/recommend";
+    const normalized = normalizeDataBakerAiEndpointUrl(value);
+    const fallbackEndpoint =
+      normalizeDataBakerAiEndpointUrl(fallback) === normalizeDataBakerAiEndpointUrl(localEndpoint)
+        ? localEndpoint
+        : serverEndpoint;
+    if (normalized === normalizeDataBakerAiEndpointUrl(localEndpoint)) return localEndpoint;
+    if (normalized === normalizeDataBakerAiEndpointUrl(serverEndpoint)) return serverEndpoint;
+    return fallbackEndpoint;
+  }
+
   function normalizeDataBakerAiEndpointUrl(value) {
     try {
       const url = new URL(String(value || "").trim());
@@ -2176,6 +2200,47 @@
       result[action.key] = hasOwn(source, action.key)
         ? normalizeNullableShortcut(source[action.key], base[action.key] || null)
         : normalizeNullableShortcut(base[action.key] || null, null);
+    });
+    return result;
+  }
+
+  function normalizeJdTtsShanghaineseConfig(config, defaults) {
+    const source = isPlainObject(config) ? config : {};
+    const defaultConfig = isPlainObject(defaults) ? defaults : {};
+    const result = deepMerge(defaultConfig, source);
+    const constants = getConstants();
+    result.id = constants.JD_TTS_SHANGHAINESE_SCRIPT_ID || "jdTtsShanghaineseAssistant";
+    result.enabled = result.enabled === true;
+    result.aiRecommendEnabled = result.aiRecommendEnabled === true;
+    result.aiRecommendEndpoint = normalizeJdTtsShanghaineseAiEndpoint(
+      result.aiRecommendEndpoint,
+      defaultConfig.aiRecommendEndpoint
+    );
+    result.aiRecommendRequestTimeoutMs = normalizeDataBakerTimeout(
+      result.aiRecommendRequestTimeoutMs,
+      defaultConfig.aiRecommendRequestTimeoutMs || DEFAULT_AI_REQUEST_TIMEOUT_MS
+    );
+    result.aiRecommendSingleModel = normalizeDataBakerOmniModel(
+      result.aiRecommendSingleModel,
+      defaultConfig.aiRecommendSingleModel || "qwen3.5-omni-plus",
+      constants
+    );
+    result.aiRecommendSinglePrompt = normalizeJudgementAiPrompt(result.aiRecommendSinglePrompt);
+    result.aiRecommendEnableThinking = false;
+    normalizeAishellTechStageParams(result, "aiRecommend");
+    [
+      "aiOmni",
+      "audio",
+      "audioUrl",
+      "audioDataUrl",
+      "sourceUrl",
+      "url",
+      "cookie",
+      "authorization",
+      "jobId",
+      "jobIds",
+    ].forEach(function (key) {
+      delete result[key];
     });
     return result;
   }
@@ -3725,6 +3790,48 @@
     }
   }
 
+  function ensureJdTtsAnnotationRoot(settings) {
+    const constants = getConstants();
+    const defaults = clone(constants.DEFAULT_SETTINGS || {});
+    const defaultPlatform =
+      defaults?.platforms?.jdTtsAnnotation ||
+      constants.DEFAULT_JD_TTS_ANNOTATION_PLATFORM_SETTINGS || {
+        enabled: false,
+        activeScriptId: "",
+        scripts: {
+          shanghaineseHelper: {
+            id: constants.JD_TTS_SHANGHAINESE_SCRIPT_ID || "jdTtsShanghaineseAssistant",
+            enabled: false,
+            aiRecommendEnabled: false,
+            aiRecommendEndpoint:
+              constants.JD_TTS_SHANGHAINESE_AI_RECOMMEND_SERVER_ENDPOINT ||
+              "https://script.aisiyunling.com/api/jd-tts-annotation/shanghainese-helper/ai/recommend",
+            aiRecommendRequestTimeoutMs: DEFAULT_AI_REQUEST_TIMEOUT_MS,
+            aiRecommendSingleModel: "qwen3.5-omni-plus",
+            aiRecommendSinglePrompt: "",
+          },
+        },
+      };
+    if (!isPlainObject(settings.platforms)) settings.platforms = {};
+    settings.platforms.jdTtsAnnotation = deepMerge(
+      defaultPlatform,
+      settings.platforms.jdTtsAnnotation || {}
+    );
+    if (!isPlainObject(settings.platforms.jdTtsAnnotation.scripts)) {
+      settings.platforms.jdTtsAnnotation.scripts = {};
+    }
+    const platform = settings.platforms.jdTtsAnnotation;
+    const scriptId = constants.JD_TTS_SHANGHAINESE_SCRIPT_ID || "jdTtsShanghaineseAssistant";
+    platform.enabled = platform.enabled === true;
+    platform.scripts.shanghaineseHelper = normalizeJdTtsShanghaineseConfig(
+      platform.scripts.shanghaineseHelper,
+      defaultPlatform.scripts?.shanghaineseHelper || {}
+    );
+    platform.activeScriptId =
+      platform.enabled && platform.scripts.shanghaineseHelper.enabled ? scriptId : "";
+    return platform;
+  }
+
   function normalizeSettings(input) {
     const constants = getConstants();
     const defaults = clone(constants.DEFAULT_SETTINGS || {});
@@ -3738,6 +3845,7 @@
     ensureMagicDataRoot(settings);
     ensureAbakaAiRoot(settings);
     ensureHaitianUtransRoot(settings);
+    ensureJdTtsAnnotationRoot(settings);
     ensureGlobalBackendEndpointMode(settings, input || {}, defaults);
     ensureGlobalBackendBaseUrls(settings, input || {}, defaults);
 
@@ -4181,6 +4289,24 @@
                   constants.HAITIAN_UTRANS_AUDIO_DOWNLOAD_HELPER_SCRIPT_ID ||
                   "haitianUtransAudioDownloadHelper",
                 enabled: nextEnabled,
+              },
+            },
+          },
+        },
+      });
+    }
+
+    if (scriptId === constants.JD_TTS_SHANGHAINESE_SCRIPT_ID) {
+      return patchSettings({
+        platforms: {
+          jdTtsAnnotation: {
+            enabled: nextEnabled,
+            activeScriptId: nextEnabled ? scriptId : "",
+            scripts: {
+              shanghaineseHelper: {
+                id: constants.JD_TTS_SHANGHAINESE_SCRIPT_ID || "jdTtsShanghaineseAssistant",
+                enabled: nextEnabled,
+                aiRecommendEnabled: nextEnabled,
               },
             },
           },
