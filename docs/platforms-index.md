@@ -42,3 +42,10 @@
 
 - 运行时代码：`extension/sites/haitian-utrans/audio-download-helper/`
 - 平台资料：`platform-resources/haitian-utrans/README.md`
+
+## 京东 TTS 标注
+
+- 运行时代码：`extension/sites/jd-tts-annotation/shanghainese-helper/`
+- 平台资料：`platform-resources/jd-tts-annotation/README.md`
+- 上海话助手资料：`platform-resources/jd-tts-annotation/shanghainese-helper/README.md`
+- 后端说明：`platform-resources/jd-tts-annotation/shanghainese-helper/backend/README.md`
