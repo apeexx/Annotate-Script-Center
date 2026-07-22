@@ -16,6 +16,10 @@ function createHarness() {
     focus() { throw new Error("must not focus platform textarea"); },
     blur() { throw new Error("must not blur platform textarea"); },
     click() { throw new Error("must not click platform textarea"); },
+    change() { throw new Error("must not change platform textarea"); },
+    save() { throw new Error("must not save platform textarea"); },
+    submit() { throw new Error("must not submit platform textarea"); },
+    reserve() { throw new Error("must not reserve platform textarea"); },
   };
   const textContainer = {
     querySelector(selector) { assert.equal(selector, "textarea.el-textarea__inner"); return textarea; },
@@ -51,6 +55,10 @@ test("JD Shanghai panel refuses readonly or stale writes without touching pinyin
   const harness = createHarness();
   const runtime = panel.createRuntime({ document: harness.document, HTMLTextAreaElement: harness.Textarea, InputEvent: harness.InputEvent });
   runtime.ensureMounted();
+  assert.equal(runtime.fillRecommendedText({ listenText: "" }, function () { return true; }), false);
+  harness.textarea.disabled = true;
+  assert.equal(runtime.fillRecommendedText({ listenText: "不应写入" }, function () { return true; }), false);
+  harness.textarea.disabled = false;
   harness.textarea.readOnly = true;
   assert.equal(runtime.fillRecommendedText({ listenText: "不应写入" }, function () { return true; }), false);
   harness.textarea.readOnly = false;

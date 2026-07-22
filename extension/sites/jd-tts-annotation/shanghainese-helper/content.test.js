@@ -107,3 +107,22 @@ test("JD Shanghai content reports an API failure safely and never fills text", a
   assert.equal(writes, 0);
   assert.equal(/PRIVATE/i.test(status.join(" ")), false);
 });
+
+test("JD Shanghai content never fills a late result after the active request is aborted", async function () {
+  let resolveRecommendation;
+  let writes = 0;
+  const runtime = content.createRuntime({
+    location: { hash: "#/annotation/dataset/annotate" }, isEnabled: async function () { return true; },
+    createPanel: function () { return { ensureMounted() {}, setBusy() {}, setStatus() {}, fillRecommendedText() { writes += 1; }, remove() {} }; },
+    createDataApi: function () { return { start() {}, stop() {}, getCurrentAudio: async function () { return { utteranceId: "1", checksum: "a".repeat(32), audioDataUrl: "data:audio/wav;base64,UklGRg==" }; }, isCurrentSnapshot() { return true; } }; },
+    createAiClient: function () { return { recommend: function () { return new Promise(function (resolve) { resolveRecommendation = resolve; }); } }; },
+  });
+  await runtime.evaluatePage();
+  const pending = runtime.handleRecommend();
+  await Promise.resolve();
+  await Promise.resolve();
+  runtime.stop();
+  resolveRecommendation({ utteranceId: "1", checksum: "a".repeat(32), listenText: "late", needHumanReview: false, meta: {} });
+  await pending;
+  assert.equal(writes, 0);
+});

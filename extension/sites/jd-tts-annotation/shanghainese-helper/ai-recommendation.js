@@ -30,6 +30,47 @@
     };
   }
 
+  function normalizeOptionalNumber(value, min, max) {
+    if (value === undefined || value === null || value === "") { return undefined; }
+    const number = Number(value);
+    return Number.isFinite(number) && number >= min && number <= max ? number : undefined;
+  }
+
+  function normalizeOptionalInteger(value, min, max) {
+    if (value === undefined || value === null || value === "") { return undefined; }
+    const number = Math.floor(Number(value));
+    return Number.isFinite(number) && number >= min && number <= max ? number : undefined;
+  }
+
+  function normalizeStopSequences(value) {
+    const values = Array.isArray(value) ? value : typeof value === "string" ? value.split(/\r?\n/) : [];
+    return values.reduce(function (result, item) {
+      const text = String(item || "").trim().slice(0, 80);
+      if (text && result.indexOf(text) < 0 && result.length < 8) { result.push(text); }
+      return result;
+    }, []);
+  }
+
+  function buildFlatParams(source) {
+    const params = {};
+    const definitions = [
+      ["Temperature", "temperature", normalizeOptionalNumber, 0, 2],
+      ["TopP", "top_p", normalizeOptionalNumber, 0, 1],
+      ["MaxTokens", "max_tokens", normalizeOptionalInteger, 1, 8192],
+      ["MaxCompletionTokens", "max_completion_tokens", normalizeOptionalInteger, 1, 8192],
+      ["PresencePenalty", "presence_penalty", normalizeOptionalNumber, -2, 2],
+      ["FrequencyPenalty", "frequency_penalty", normalizeOptionalNumber, -2, 2],
+      ["Seed", "seed", normalizeOptionalInteger, 0, 2147483647],
+    ];
+    definitions.forEach(function (definition) {
+      const value = definition[2](source["aiRecommend" + definition[0]], definition[3], definition[4]);
+      if (value !== undefined) { params[definition[1]] = value; }
+    });
+    const stop = normalizeStopSequences(source.aiRecommendStopSequences);
+    if (stop.length > 0) { params.stop = stop; }
+    return params;
+  }
+
   function buildSafeMeta(value) {
     const source = value && typeof value === "object" ? value : {};
     return {
@@ -83,22 +124,46 @@
     };
   }
 
-  function resolveEndpoint(constants, settings, configuredEndpoint) {
-    const explicit = normalizeText(configuredEndpoint);
-    if (/^https?:\/\//i.test(explicit)) { return explicit; }
+  function getBackendMode(settings) {
+    return normalizeText(settings?.meta?.backendEndpointMode).toLowerCase() === "local" ? "local" : "server";
+  }
+
+  function resolveEndpointForMode(constants, settings, mode) {
+    const endpointSettings = Object.assign({}, settings || {}, {
+      meta: Object.assign({}, settings?.meta || {}, { backendEndpointMode: mode }),
+    });
     if (typeof constants?.buildBackendUrl === "function") {
-      const endpoint = normalizeText(constants.buildBackendUrl(RECOMMEND_PATH, settings || {}));
+      const endpoint = normalizeText(constants.buildBackendUrl(RECOMMEND_PATH, endpointSettings));
       if (/^https?:\/\//i.test(endpoint)) { return endpoint; }
     }
-    const mode = normalizeText(settings?.meta?.backendEndpointMode).toLowerCase() === "local" ? "local" : "server";
     const baseUrl = normalizeText(constants?.DEFAULT_BACKEND_BASE_URLS?.[mode]);
     if (/^https?:\/\//i.test(baseUrl)) { return baseUrl.replace(/\/+$/, "") + RECOMMEND_PATH; }
     throw createError("未配置统一后端地址。", { code: "backend-endpoint-unavailable" });
   }
 
+  function resolveEndpoint(constants, settings, configuredEndpoint) {
+    const explicit = normalizeText(configuredEndpoint);
+    if (/^https?:\/\//i.test(explicit)) { return explicit; }
+    return resolveEndpointForMode(constants, settings, getBackendMode(settings));
+  }
+
   function getSavedAiOmni(settings, fallback) {
     const saved = settings?.platforms?.jdTtsAnnotation?.scripts?.shanghaineseHelper?.aiOmni;
+    const script = settings?.platforms?.jdTtsAnnotation?.scripts?.shanghaineseHelper || {};
+    if (Object.prototype.hasOwnProperty.call(script, "aiRecommendSingleModel") || Object.prototype.hasOwnProperty.call(script, "aiRecommendSinglePrompt")) {
+      return {
+        model: normalizeText(script.aiRecommendSingleModel),
+        prompt: typeof script.aiRecommendSinglePrompt === "string" ? script.aiRecommendSinglePrompt.trim() : "",
+        params: buildFlatParams(script),
+      };
+    }
     return normalizeAiOmni(saved && typeof saved === "object" ? saved : fallback);
+  }
+
+  function buildHealthEndpoint(endpoint) { return normalizeText(endpoint).replace(/\/+$/, "") + "/health"; }
+
+  function isNetworkError(error) {
+    return error?.name === "TypeError" || error?.code === "network-error" || /network|failed to fetch/i.test(String(error?.message || error));
   }
 
   function createRuntime(options) {
@@ -133,6 +198,38 @@
       return mapSuccess(result?.data);
     }
 
+    async function probeHealth(endpoint, signal) {
+      const healthEndpoint = buildHealthEndpoint(endpoint);
+      if (!healthEndpoint || typeof fetchImpl !== "function") { return { ok: false, endpoint: healthEndpoint, reason: "health-probe-unavailable" }; }
+      const controller = typeof AbortController === "function" ? new AbortController() : null;
+      const abort = function () { controller?.abort?.(); };
+      if (signal?.aborted) { abort(); } else { signal?.addEventListener?.("abort", abort, { once: true }); }
+      const timer = controller ? globalThis.setTimeout(abort, 8000) : null;
+      try {
+        const response = await fetchImpl(healthEndpoint, { method: "GET", signal: controller ? controller.signal : signal || undefined });
+        const body = await response.json().catch(function () { return null; });
+        return { ok: response.ok === true && body?.success === true, endpoint: healthEndpoint, statusCode: Number(response.status) || 0 };
+      } catch (error) {
+        return { ok: false, endpoint: healthEndpoint, errorName: normalizeText(error?.name) };
+      } finally {
+        if (timer) { globalThis.clearTimeout(timer); }
+        signal?.removeEventListener?.("abort", abort);
+      }
+    }
+
+    function createNetworkError(primaryEndpoint, fallbackEndpoint, healthCheck) {
+      return createError("后端连接中断，请稍后重试。", {
+        code: "network-disconnected",
+        rawResponse: {
+          type: "client-network-error",
+          endpoint: primaryEndpoint,
+          fallbackEndpoint,
+          fallbackAttempted: Boolean(fallbackEndpoint),
+          healthCheck: { ok: healthCheck?.ok === true, statusCode: Number(healthCheck?.statusCode) || 0 },
+        },
+      });
+    }
+
     async function recommend(snapshot, requestOptions) {
       const settings = await getSettings();
       const endpoint = resolveEndpoint(constants, settings, config.endpoint);
@@ -140,10 +237,26 @@
         aiUsageOperatorName: normalizeText(settings?.meta?.aiUsageOperatorName) || config?.requestMeta?.aiUsageOperatorName,
       });
       const body = buildRequestBody(snapshot, { aiOmni: getSavedAiOmni(settings, config.aiOmni), requestMeta });
-      return run(endpoint, body, requestOptions?.signal);
+      const signal = requestOptions?.signal;
+      try {
+        return await run(endpoint, body, signal);
+      } catch (error) {
+        if (signal?.aborted || error?.name === "AbortError" || !isNetworkError(error)) { throw error; }
+        const healthCheck = await probeHealth(endpoint, signal);
+        if (signal?.aborted || healthCheck.ok === true) { throw createNetworkError(endpoint, "", healthCheck); }
+        const fallbackMode = getBackendMode(settings) === "local" ? "server" : "local";
+        const fallbackEndpoint = resolveEndpointForMode(constants, settings, fallbackMode);
+        if (fallbackEndpoint === endpoint) { throw createNetworkError(endpoint, "", healthCheck); }
+        try {
+          return await run(fallbackEndpoint, body, signal);
+        } catch (fallbackError) {
+          if (signal?.aborted || fallbackError?.name === "AbortError" || !isNetworkError(fallbackError)) { throw fallbackError; }
+          throw createNetworkError(endpoint, fallbackEndpoint, healthCheck);
+        }
+      }
     }
 
-    return { recommend, buildRequestBody: function (snapshot) { return buildRequestBody(snapshot, config); } };
+    return { recommend, probeHealth: function (endpoint, signal) { return probeHealth(endpoint, signal); }, buildRequestBody: function (snapshot) { return buildRequestBody(snapshot, config); } };
   }
 
   const api = { createRuntime, mapSuccess, buildRequestBody, resolveEndpoint };
