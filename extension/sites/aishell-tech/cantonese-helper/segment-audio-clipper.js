@@ -22,7 +22,7 @@
   }
 
   function readCssPixels(value) {
-    const matched = String(value || "").match(/(-?\d+(?:\.\d+)?)px/i);
+    const matched = String(value || "").match(/^\s*(-?\d+(?:\.\d+)?)px\s*$/i);
     return matched ? Number(matched[1]) : NaN;
   }
 
@@ -51,9 +51,11 @@
   }
 
   function isUnsavedHandDrawnRegionNode(node, regionLabel) {
+    const rawRegionId = node?.getAttribute?.("data-id");
     return (
       !normalizeText(regionLabel) &&
-      /^wavesurfer_[A-Za-z0-9_-]+$/.test(normalizeText(node?.getAttribute?.("data-id")))
+      typeof rawRegionId === "string" &&
+      /^wavesurfer_[A-Za-z0-9_-]+$/.test(rawRegionId)
     );
   }
 

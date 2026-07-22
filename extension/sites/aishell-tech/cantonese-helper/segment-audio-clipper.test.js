@@ -22,10 +22,13 @@ function loadApi() {
 }
 
 function createRegion(id, label, title, left, width) {
+  const toCssPixels = function (value) {
+    return typeof value === "string" ? value : String(value) + "px";
+  };
   return {
     style: {
-      left: String(left) + "px",
-      width: String(width) + "px",
+      left: toCssPixels(left),
+      width: toCssPixels(width),
     },
     getAttribute: function (name) {
       return {
@@ -216,6 +219,10 @@ test("Aishell Cantonese rejects unsafe unsaved waveform labels and IDs", functio
   const invalidCases = [
     ["non-empty unknown label", createRegion("wavesurfer_valid", "未识别标签", "0:01-0:02", 250, 100)],
     ["non-Wavesurfer ID", createRegion("temporary-region", "", "0:01-0:02", 250, 100)],
+    ["Wavesurfer ID with whitespace", createRegion(" wavesurfer_spaced ", "", "0:01-0:02", 250, 100)],
+    ["CSS calc left", createRegion("wavesurfer_calc_left", "", "0:01-0:02", "calc(100% - 20px)", 100)],
+    ["CSS pixel suffix", createRegion("wavesurfer_pixel_suffix", "", "0:01-0:02", "20px-extra", 100)],
+    ["CSS non-pixel width", createRegion("wavesurfer_em_width", "", "0:01-0:02", 250, "5em")],
     ["zero-width Wavesurfer region", createRegion("wavesurfer_zero_width", "", "0:01-0:02", 250, 0)],
     ["negative-left Wavesurfer region", createRegion("wavesurfer_negative_left", "", "0:01-0:02", -1, 100)],
     [
