@@ -3808,22 +3808,23 @@
         },
       };
     if (!isPlainObject(settings.platforms)) settings.platforms = {};
-    settings.platforms.jdTtsAnnotation = deepMerge(
-      defaultPlatform,
-      settings.platforms.jdTtsAnnotation || {}
-    );
-    if (!isPlainObject(settings.platforms.jdTtsAnnotation.scripts)) {
-      settings.platforms.jdTtsAnnotation.scripts = {};
-    }
-    const platform = settings.platforms.jdTtsAnnotation;
+    const sourcePlatform = isPlainObject(settings.platforms.jdTtsAnnotation)
+      ? settings.platforms.jdTtsAnnotation
+      : {};
     const scriptId = constants.JD_TTS_SHANGHAINESE_SCRIPT_ID || "jdTtsShanghaineseAssistant";
-    platform.enabled = platform.enabled === true;
-    platform.scripts.shanghaineseHelper = normalizeJdTtsShanghaineseConfig(
-      platform.scripts.shanghaineseHelper,
-      defaultPlatform.scripts?.shanghaineseHelper || {}
-    );
+    const platform = {
+      enabled: sourcePlatform.enabled === true,
+      activeScriptId: "",
+      scripts: {
+        shanghaineseHelper: normalizeJdTtsShanghaineseConfig(
+          sourcePlatform.scripts?.shanghaineseHelper,
+          defaultPlatform.scripts?.shanghaineseHelper || {}
+        ),
+      },
+    };
     platform.activeScriptId =
       platform.enabled && platform.scripts.shanghaineseHelper.enabled ? scriptId : "";
+    settings.platforms.jdTtsAnnotation = platform;
     return platform;
   }
 

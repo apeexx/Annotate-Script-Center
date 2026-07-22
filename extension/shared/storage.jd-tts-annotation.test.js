@@ -178,6 +178,35 @@ test("JD TTS storage rebuilds its helper from the allowlist and discards sensiti
   }
 });
 
+test("JD TTS storage rebuilds the platform root and rejects extra scripts", async function () {
+  const harness = loadStorageApi({
+    platforms: {
+      jdTtsAnnotation: {
+        enabled: true,
+        activeScriptId: "jdTtsShanghaineseAssistant",
+        Authorization: "must-not-persist",
+        signedUrl: "must-not-persist",
+        nested: { Cookie: "must-not-persist" },
+        scripts: {
+          shanghaineseHelper: { enabled: true, aiRecommendEnabled: true },
+          evil: { audioBuffer: "must-not-persist", jobID: "must-not-persist" },
+        },
+      },
+    },
+  });
+  try {
+    const platform = (await harness.storage.getSettings()).platforms.jdTtsAnnotation;
+    assert.deepEqual(Object.keys(platform).sort(), ["activeScriptId", "enabled", "scripts"]);
+    assert.deepEqual(Object.keys(platform.scripts), ["shanghaineseHelper"]);
+    assert.equal(Object.hasOwn(platform, "Authorization"), false);
+    assert.equal(Object.hasOwn(platform, "signedUrl"), false);
+    assert.equal(Object.hasOwn(platform, "nested"), false);
+    assert.equal(platform.activeScriptId, "jdTtsShanghaineseAssistant");
+  } finally {
+    harness.cleanup();
+  }
+});
+
 test("JD TTS enablement does not enable unrelated platforms", async function () {
   const harness = loadStorageApi({
     platforms: {
