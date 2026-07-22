@@ -19,6 +19,7 @@ const {
 const {
   registerRoutes: registerAishellTechThaiRoutes,
 } = require("../aishell-tech/thai-helper/backend");
+const { registerRoutes: registerJdTtsShanghaineseRoutes } = require("../jd-tts-annotation/shanghainese-helper/backend");
 const { registerRoutes: registerAdminSessionRoutes } = require("./admin-session");
 const { registerRoutes: registerAdminDashboardRoutes } = require("./admin-dashboard");
 const { registerRoutes: registerAdminDownloadCenterRoutes } = require("./admin-download-center");
@@ -69,6 +70,7 @@ function registerProjectRoutes(router, options) {
   registerAishellTechCantoneseRoutes(router, config.aishellTechCantoneseHelper || {});
   registerAishellTechVietnameseRoutes(router, config.aishellTechVietnameseHelper || {});
   registerAishellTechThaiRoutes(router, config.aishellTechThaiHelper || {});
+  registerJdTtsShanghaineseRoutes(router, config.jdTtsShanghaineseHelper || {});
   registerAdminSessionRoutes(router, config.adminSession || {});
   registerAdminDashboardRoutes(router, {
     projectDataDownload: config.projectDataDownload || {},
