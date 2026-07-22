@@ -12,6 +12,7 @@ test("JD Shanghai recommendation sends only the safe current audio snapshot to j
     endpoint: "https://backend.example.test/api/jd-tts-annotation/shanghainese-helper/ai/recommend",
     aiOmni: { model: "qwen3.5-omni-plus", prompt: "识别", params: { temperature: 0.1 } },
     requestMeta: { aiUsageOperatorName: "tester", platformUserName: "annotator" },
+    fetchImpl: async function () { return { ok: true, status: 200, json: async function () { return { success: true }; } }; },
     jobClient: {
       runJobLifecycle: async function (input) {
         received = input;
@@ -37,6 +38,7 @@ test("JD Shanghai recommendation sends only the safe current audio snapshot to j
 test("JD Shanghai recommendation preserves raw listenText and never exposes a job id", async function () {
   const runtime = recommendation.createRuntime({
     endpoint: "https://backend.example.test/api/jd-tts-annotation/shanghainese-helper/ai/recommend",
+    fetchImpl: async function () { return { ok: true, status: 200, json: async function () { return { success: true }; } }; },
     jobClient: { runJobLifecycle: async function () { return { data: { utteranceId: "7", checksum: "b".repeat(32), listenText: " 原样 文本 ", needHumanReview: true, meta: { jobId: "hidden" } }, job: { jobId: "hidden" } }; } },
   });
   const result = await runtime.recommend({ utteranceId: "7", checksum: "b".repeat(32), audioDataUrl: "data:audio/wav;base64,UklGRg==" });
@@ -52,6 +54,7 @@ test("JD Shanghai recommendation maps saved flat single-stage settings on every 
   const runtime = recommendation.createRuntime({
     constants: { buildBackendUrl(path, currentSettings) { return (currentSettings.meta.backendEndpointMode === "local" ? "http://127.0.0.1:3335" : "https://server.example.test") + path; } },
     getSettings: async function () { return settings; },
+    fetchImpl: async function () { return { ok: true, status: 200, json: async function () { return { success: true }; } }; },
     jobClient: { runJobLifecycle: async function (input) { calls.push(input); return { data: { utteranceId: input.body.utteranceId, checksum: input.body.checksum, listenText: "ok", needHumanReview: false } }; } },
   });
   const snapshot = { utteranceId: "42", checksum: "a".repeat(32), audioDataUrl: "data:audio/x-wav;base64,UklGRg==" };
@@ -66,18 +69,30 @@ test("JD Shanghai recommendation maps saved flat single-stage settings on every 
   assert.equal(calls.some(function (call) { return /^\//.test(call.endpoint); }), false);
 });
 
-test("JD Shanghai recommendation probes the primary backend then uses the opposite mode once for a network failure", async function () {
+test("JD Shanghai recommendation selects a healthy alternate backend before exactly one jobs creation", async function () {
   const endpoints = [];
   const healthCalls = [];
   const runtime = recommendation.createRuntime({
     constants: { buildBackendUrl(path, settings) { return (settings.meta.backendEndpointMode === "local" ? "http://127.0.0.1:3335" : "https://server.example.test") + path; } },
     getSettings: async function () { return { meta: { backendEndpointMode: "server" }, platforms: { jdTtsAnnotation: { scripts: { shanghaineseHelper: { aiRecommendSingleModel: "qwen3.5-omni-plus", aiRecommendSinglePrompt: "prompt" } } } } }; },
-    fetchImpl: async function (url, init) { healthCalls.push([url, init.method]); return { ok: false, status: 503, json: async function () { return { success: false }; } }; },
-    jobClient: { runJobLifecycle: async function (input) { endpoints.push(input.endpoint); if (endpoints.length === 1) { throw new TypeError("Failed to fetch"); } return { data: { utteranceId: "42", checksum: "a".repeat(32), listenText: "ok", needHumanReview: false } }; } },
+    fetchImpl: async function (url, init) { healthCalls.push([url, init.method]); const local = url.indexOf("127.0.0.1") >= 0; return { ok: local, status: local ? 200 : 503, json: async function () { return { success: local }; } }; },
+    jobClient: { runJobLifecycle: async function (input) { endpoints.push(input.endpoint); if (input.endpoint.indexOf("127.0.0.1") < 0) { throw new TypeError("create network failure"); } return { data: { utteranceId: "42", checksum: "a".repeat(32), listenText: "ok", needHumanReview: false } }; } },
   });
   await runtime.recommend({ utteranceId: "42", checksum: "a".repeat(32), audioDataUrl: "data:audio/x-wav;base64,UklGRg==" });
-  assert.deepEqual(endpoints, ["https://server.example.test/api/jd-tts-annotation/shanghainese-helper/ai/recommend", "http://127.0.0.1:3335/api/jd-tts-annotation/shanghainese-helper/ai/recommend"]);
-  assert.deepEqual(healthCalls, [["https://server.example.test/api/jd-tts-annotation/shanghainese-helper/ai/recommend/health", "GET"]]);
+  assert.deepEqual(endpoints, ["http://127.0.0.1:3335/api/jd-tts-annotation/shanghainese-helper/ai/recommend"]);
+  assert.deepEqual(healthCalls, [["https://server.example.test/api/jd-tts-annotation/shanghainese-helper/ai/recommend/health", "GET"], ["http://127.0.0.1:3335/api/jd-tts-annotation/shanghainese-helper/ai/recommend/health", "GET"]]);
+});
+
+test("JD Shanghai recommendation never creates a second job after a selected endpoint poll network failure", async function () {
+  const endpoints = [];
+  const runtime = recommendation.createRuntime({
+    constants: { buildBackendUrl(path, settings) { return (settings.meta.backendEndpointMode === "local" ? "http://127.0.0.1:3335" : "https://server.example.test") + path; } },
+    getSettings: async function () { return { meta: { backendEndpointMode: "server" }, platforms: { jdTtsAnnotation: { scripts: { shanghaineseHelper: { aiRecommendSingleModel: "qwen3.5-omni-plus", aiRecommendSinglePrompt: "prompt" } } } } }; },
+    fetchImpl: async function (url) { const local = url.indexOf("127.0.0.1") >= 0; return { ok: local, status: local ? 200 : 503, json: async function () { return { success: local }; } }; },
+    jobClient: { runJobLifecycle: async function (input) { endpoints.push(input.endpoint); throw new TypeError("poll network failure"); } },
+  });
+  await assert.rejects(runtime.recommend({ utteranceId: "42", checksum: "a".repeat(32), audioDataUrl: "data:audio/x-wav;base64,UklGRg==" }), function (error) { return error?.code === "network-disconnected"; });
+  assert.deepEqual(endpoints, ["http://127.0.0.1:3335/api/jd-tts-annotation/shanghainese-helper/ai/recommend"]);
 });
 
 test("JD Shanghai recommendation classifies a network failure without fallback when primary health is available", async function () {

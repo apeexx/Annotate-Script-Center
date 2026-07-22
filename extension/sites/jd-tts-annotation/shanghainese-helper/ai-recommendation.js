@@ -230,29 +230,36 @@
       });
     }
 
+    async function selectEndpointBeforeJob(primaryEndpoint, fallbackEndpoint, signal) {
+      const primaryHealth = await probeHealth(primaryEndpoint, signal);
+      if (signal?.aborted || primaryHealth.ok === true || primaryHealth.reason === "health-probe-unavailable" || !fallbackEndpoint || fallbackEndpoint === primaryEndpoint) {
+        return { endpoint: primaryEndpoint, primaryHealth, fallbackSelected: false };
+      }
+      const fallbackHealth = await probeHealth(fallbackEndpoint, signal);
+      if (fallbackHealth.ok === true) {
+        return { endpoint: fallbackEndpoint, primaryHealth, fallbackSelected: true };
+      }
+      return { endpoint: primaryEndpoint, primaryHealth, fallbackSelected: false };
+    }
+
     async function recommend(snapshot, requestOptions) {
       const settings = await getSettings();
       const endpoint = resolveEndpoint(constants, settings, config.endpoint);
+      const fallbackMode = getBackendMode(settings) === "local" ? "server" : "local";
+      let fallbackEndpoint = "";
+      try { fallbackEndpoint = resolveEndpointForMode(constants, settings, fallbackMode); } catch (_error) { fallbackEndpoint = ""; }
       const requestMeta = Object.assign({}, config.requestMeta || {}, {
         aiUsageOperatorName: normalizeText(settings?.meta?.aiUsageOperatorName) || config?.requestMeta?.aiUsageOperatorName,
       });
       const body = buildRequestBody(snapshot, { aiOmni: getSavedAiOmni(settings, config.aiOmni), requestMeta });
       const signal = requestOptions?.signal;
+      const selection = await selectEndpointBeforeJob(endpoint, fallbackEndpoint, signal);
+      if (signal?.aborted) { throw createError("请求已取消。", { code: "user-aborted" }); }
       try {
-        return await run(endpoint, body, signal);
+        return await run(selection.endpoint, body, signal);
       } catch (error) {
         if (signal?.aborted || error?.name === "AbortError" || !isNetworkError(error)) { throw error; }
-        const healthCheck = await probeHealth(endpoint, signal);
-        if (signal?.aborted || healthCheck.ok === true) { throw createNetworkError(endpoint, "", healthCheck); }
-        const fallbackMode = getBackendMode(settings) === "local" ? "server" : "local";
-        const fallbackEndpoint = resolveEndpointForMode(constants, settings, fallbackMode);
-        if (fallbackEndpoint === endpoint) { throw createNetworkError(endpoint, "", healthCheck); }
-        try {
-          return await run(fallbackEndpoint, body, signal);
-        } catch (fallbackError) {
-          if (signal?.aborted || fallbackError?.name === "AbortError" || !isNetworkError(fallbackError)) { throw fallbackError; }
-          throw createNetworkError(endpoint, fallbackEndpoint, healthCheck);
-        }
+        throw createNetworkError(endpoint, selection.fallbackSelected ? selection.endpoint : "", selection.primaryHealth);
       }
     }
 
