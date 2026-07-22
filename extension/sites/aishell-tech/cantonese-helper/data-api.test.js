@@ -330,6 +330,143 @@ test("Aishell Cantonese batches every safe numbered blue segment and returns pre
   }
 });
 
+test("Aishell Cantonese requires an exact 1-to-N button mapping for mixed speaker and unsaved hand-drawn segments", async function () {
+  const previousGlobals = {
+    HTMLElement: globalThis.HTMLElement,
+    HTMLInputElement: globalThis.HTMLInputElement,
+    document: globalThis.document,
+    fetch: globalThis.fetch,
+    location: globalThis.location,
+    window: globalThis.window,
+    __ASREdgeAishellTechCantoneseSegmentAudioClipper: globalThis.__ASREdgeAishellTechCantoneseSegmentAudioClipper,
+  };
+  class FakeElement {
+    constructor() {
+      this.classList = { contains: function () { return false; } };
+    }
+  }
+  class FakeInput extends FakeElement {
+    constructor() {
+      super();
+      this.tagName = "INPUT";
+      this.value = "";
+    }
+  }
+  class FakeButton extends FakeElement {
+    constructor(number, parent) {
+      super();
+      this.textContent = String(number);
+      this.parentElement = parent;
+      this.number = number;
+    }
+    click() {
+      selectedNumber = this.number;
+    }
+  }
+
+  let selectedNumber = 1;
+  const catalog = [
+    { regionId: "speaker-1", regionLabel: "说话人S1:1", sourceKind: "speaker-transient", segmentNumber: 1, startMs: 0, endMs: 1000, durationMs: 1000, selectionKey: "speaker-1:0-1000" },
+    { regionId: "wavesurfer_9d32a7", regionLabel: "", sourceKind: "speaker-transient", segmentNumber: 2, startMs: 800, endMs: 1800, durationMs: 1000, selectionKey: "wavesurfer_9d32a7:800-1800" },
+    { regionId: "speaker-3", regionLabel: "说话人S1:2", sourceKind: "speaker-transient", segmentNumber: 3, startMs: 1900, endMs: 2900, durationMs: 1000, selectionKey: "speaker-3:1900-2900" },
+  ];
+  const buttonContainer = { querySelectorAll: function () { return buttons; } };
+  const buttons = [1, 2, 3].map(function (number) {
+    return new FakeButton(number, buttonContainer);
+  });
+  function setButtonNumbers(numbers) {
+    buttons.splice.apply(
+      buttons,
+      [0, buttons.length].concat(numbers.map(function (number) {
+        return new FakeButton(number, buttonContainer);
+      }))
+    );
+  }
+  const input = new FakeInput();
+  const textRow = {
+    textContent: "文本",
+    querySelector(selector) {
+      if (selector === "label[for]") {
+        return { textContent: "文本", getAttribute(attribute) { return attribute === "for" ? "text" : null; } };
+      }
+      return selector === "input.el-input__inner[type='text']" ? input : null;
+    },
+  };
+  const listItem = new FakeElement();
+  listItem.textContent = "1: sample.wav";
+  listItem.classList = { contains: function (name) { return name === "list-item-selected"; } };
+  listItem.querySelector = function () { return new FakeElement(); };
+
+  globalThis.HTMLElement = FakeElement;
+  globalThis.HTMLInputElement = FakeInput;
+  globalThis.location = { hostname: "mark.aishelltech.com", pathname: "/mytask/mark", search: "?taskId=task-1&packageId=package-1" };
+  globalThis.window = {
+    localStorage: { length: 1, key() { return "token"; }, getItem() { return "a.b.c"; } },
+    sessionStorage: { length: 0, key() { return null; }, getItem() { return null; } },
+    setTimeout: globalThis.setTimeout,
+  };
+  globalThis.document = {
+    querySelector(selector) {
+      return selector === "button.regionSelected" ? buttons[selectedNumber - 1] : null;
+    },
+    querySelectorAll(selector) {
+      if (selector === ".list .list-item, .list .list-item-selected, .list .list-item-finshed") return [listItem];
+      if (selector === ".mark-area .el-form-item") return [textRow];
+      return [];
+    },
+  };
+  globalThis.fetch = async function (url) {
+    if (String(url).endsWith("/api/task/detail/task-1")) {
+      return { ok: true, status: 200, json: async function () { return { data: { result: { project: { dataRoot: "https://audio.example.test" } } } }; } };
+    }
+    if (String(url).endsWith("/api/taskItem/packageItemList/package-1")) {
+      return { ok: true, status: 200, json: async function () { return { data: { result: { items: [{ id: "item-1", fileName: "sample.wav", url: "/sample.wav" }] } } }; } };
+    }
+    throw new Error("unexpected request: " + url);
+  };
+  globalThis.__ASREdgeAishellTechCantoneseSegmentAudioClipper = {
+    getCurrentSegment() { return catalog[selectedNumber - 1]; },
+    getSegmentCatalog() { return catalog; },
+    getSegmentPreflight() { return { selectedSegmentNumber: selectedNumber, safePrimarySegmentNumbers: [], failures: [] }; },
+  };
+
+  const harness = loadApi();
+  try {
+    const runtime = harness.api.createRuntime();
+    const tasks = await runtime.getBatchSegmentsForCurrentAudio({ mode: "all" });
+    assert.deepEqual(tasks.map(function (task) { return task.segmentNumber; }), [1, 2, 3]);
+    selectedNumber = 2;
+    assert.equal((await runtime.getCurrentItem()).regionId, "wavesurfer_9d32a7");
+
+    setButtonNumbers([1, 2, 3, 4]);
+    await assert.rejects(function () {
+      return runtime.getBatchSegmentsForCurrentAudio({ mode: "all" });
+    }, /全说话人分段/);
+    await assert.rejects(function () {
+      return runtime.getCurrentItem();
+    }, /全说话人分段/);
+
+    setButtonNumbers([1, 1, 2]);
+    await assert.rejects(function () {
+      return runtime.getBatchSegmentsForCurrentAudio({ mode: "all" });
+    }, /按钮编号重复/);
+
+    setButtonNumbers([1, 2, 4]);
+    await assert.rejects(function () {
+      return runtime.getBatchSegmentsForCurrentAudio({ mode: "all" });
+    }, /全说话人分段/);
+
+    catalog[2].segmentNumber = 4;
+    setButtonNumbers([1, 2, 3]);
+    await assert.rejects(function () {
+      return runtime.getBatchSegmentsForCurrentAudio({ mode: "all" });
+    }, /全说话人分段/);
+  } finally {
+    harness.cleanup();
+    Object.assign(globalThis, previousGlobals);
+  }
+});
+
 test("Aishell Cantonese ignores S1/S2 speaker overlays while mapping sparse catalog numbers to their matching buttons", async function () {
   const previousGlobals = {
     HTMLElement: globalThis.HTMLElement,

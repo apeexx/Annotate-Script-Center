@@ -1142,11 +1142,23 @@
       return buttons;
     }
 
+    function isPositionMappedSegmentCatalog(segments) {
+      return (
+        Array.isArray(segments) &&
+        segments.length > 0 &&
+        segments.every(function (segment) {
+          const sourceKind = normalizeText(segment?.sourceKind);
+          return sourceKind === "speaker-only" || sourceKind === "speaker-transient";
+        })
+      );
+    }
+
     function assertSegmentButtonMapping(catalog) {
       const segments = Array.isArray(catalog) ? catalog : [];
       const buttons = getSegmentButtons();
       const segmentNumbers = new Set();
       const buttonsBySegmentNumber = new Map();
+      const isPositionMapped = isPositionMappedSegmentCatalog(segments);
       if (!segments.length) {
         throw createRequestError("未读取到带数字编号的可识别蓝色区段。");
       }
@@ -1157,8 +1169,21 @@
         }
         segmentNumbers.add(segmentNumber);
       });
+      if (isPositionMapped) {
+        for (let segmentNumber = 1; segmentNumber <= segments.length; segmentNumber += 1) {
+          if (!segmentNumbers.has(segmentNumber)) {
+            throw createRequestError("全说话人分段编号无法精确映射为 1 到 N，已拒绝继续识别。");
+          }
+        }
+        if (buttons.length !== segments.length) {
+          throw createRequestError("全说话人分段与选择按钮数量不一致，已拒绝继续识别。");
+        }
+      }
       buttons.forEach(function (button) {
         const segmentNumber = readSegmentButtonNumber(button);
+        if (isPositionMapped && (!Number.isInteger(segmentNumber) || segmentNumber < 1 || segmentNumber > segments.length)) {
+          throw createRequestError("全说话人分段的选择按钮必须精确为 1 到 N，已拒绝继续识别。");
+        }
         if (!segmentNumbers.has(segmentNumber)) {
           return;
         }
@@ -1176,7 +1201,19 @@
     }
 
     function getCurrentSegment() {
-      return getSegmentClipper().getCurrentSegment(document);
+      const clipper = getSegmentClipper();
+      const current = clipper.getCurrentSegment(document);
+      if (isPositionMappedSegmentCatalog([current])) {
+        const catalog = clipper.getSegmentCatalog(document);
+        assertSegmentButtonMapping(catalog);
+        const mappedCurrent = catalog.find(function (segment) {
+          return Number(segment?.segmentNumber) === Number(current.segmentNumber);
+        });
+        if (!mappedCurrent || !isSameSegmentSelection(mappedCurrent, current)) {
+          throw createRequestError("当前选择的全说话人分段未能与波形目录保持一致，已拒绝继续识别。");
+        }
+      }
+      return current;
     }
 
     function getSegmentCatalog() {

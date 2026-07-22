@@ -50,6 +50,13 @@
     return /^说话人\s*S[1-4]\s*[:：]\s*[1-9]\d*$/i.test(normalizeText(regionLabel));
   }
 
+  function isUnsavedHandDrawnRegionNode(node, regionLabel) {
+    return (
+      !normalizeText(regionLabel) &&
+      /^wavesurfer_[A-Za-z0-9_-]+$/.test(normalizeText(node?.getAttribute?.("data-id")))
+    );
+  }
+
   function createPreflightFailure(segmentNumber, message, code) {
     return {
       segmentNumber: Number(segmentNumber) || 0,
@@ -58,22 +65,34 @@
     };
   }
 
+  function sortSpeakerCandidatesByWavePosition(candidates) {
+    return candidates.slice().sort(function (left, right) {
+      const leftDifference = left.parts.left - right.parts.left;
+      return leftDifference || left.domIndex - right.domIndex;
+    });
+  }
+
   function getSelectableRegionDirectory(regions) {
     const source = Array.isArray(regions) ? regions : [];
     const primaryCandidatesBySegmentNumber = new Map();
     const speakerNodes = [];
-    source.forEach(function (node) {
+    const transientNodes = [];
+    source.forEach(function (node, domIndex) {
       const regionLabel = normalizeText(node?.getAttribute?.("data-region-label"));
       const isPrimary = /^[1-9]\d*$/.test(regionLabel);
       if (isPrimary) {
         const segmentNumber = Number(regionLabel);
         const candidates = primaryCandidatesBySegmentNumber.get(segmentNumber) || [];
-        candidates.push({ node, segmentNumber, kind: "primary" });
+        candidates.push({ node, segmentNumber, kind: "primary", domIndex });
         primaryCandidatesBySegmentNumber.set(segmentNumber, candidates);
         return;
       }
       if (isSpeakerPrefixRegionLabel(regionLabel)) {
-        speakerNodes.push({ node, kind: "speaker-prefix" });
+        speakerNodes.push({ node, kind: "speaker-prefix", domIndex });
+        return;
+      }
+      if (isUnsavedHandDrawnRegionNode(node, regionLabel)) {
+        transientNodes.push({ node, kind: "speaker-transient", domIndex });
       }
     });
 
@@ -106,6 +125,61 @@
       }
     });
 
+    if (primaryCandidatesBySegmentNumber.size === 0 && source.length > 0) {
+      const addSpeakerOnlyFailures = function (message, code) {
+        for (let segmentNumber = 1; segmentNumber <= source.length; segmentNumber += 1) {
+          addFailure(segmentNumber, message, code);
+        }
+      };
+      const positionMappedNodes = speakerNodes.concat(transientNodes);
+      if (positionMappedNodes.length !== source.length) {
+        addSpeakerOnlyFailures(
+          "全说话人分段包含无法识别的波形标签，无法按位置安全映射。",
+          "invalid-speaker-only-mapping"
+        );
+      } else {
+        const positionMappedParts = [];
+        const regionIds = new Set();
+        let invalidSpeakerLayout = false;
+        let duplicateRegionId = false;
+        positionMappedNodes.forEach(function (candidate) {
+          try {
+            const parts = getRegionNodeParts(candidate.node);
+            if (regionIds.has(parts.regionId)) {
+              duplicateRegionId = true;
+              return;
+            }
+            regionIds.add(parts.regionId);
+            positionMappedParts.push(Object.assign({}, candidate, { parts }));
+          } catch (_error) {
+            invalidSpeakerLayout = true;
+          }
+        });
+        if (duplicateRegionId) {
+          addSpeakerOnlyFailures(
+            "全说话人分段包含重复的波形区段标识，无法按位置安全映射。",
+            "duplicate-speaker-only-region-id"
+          );
+        } else if (invalidSpeakerLayout) {
+          addSpeakerOnlyFailures(
+            "全说话人分段缺少可用的波形位置或宽度，无法按位置安全映射。",
+            "invalid-speaker-only-layout"
+          );
+        } else {
+          const sortedSpeakers = sortSpeakerCandidatesByWavePosition(positionMappedParts);
+          const sourceKind = transientNodes.length > 0 ? "speaker-transient" : "speaker-only";
+          sortedSpeakers.forEach(function (candidate, index) {
+            entries.push({
+              node: candidate.node,
+              segmentNumber: index + 1,
+              kind: sourceKind,
+              parts: candidate.parts,
+            });
+          });
+        }
+      }
+    }
+
     const firstPrimaryNumber = Array.from(primaryCandidatesBySegmentNumber.keys()).sort(function (left, right) {
       return left - right;
     })[0];
@@ -134,17 +208,11 @@
         }
       });
       const speakersBeforeAnchor = speakerParts;
-      const sortedSpeakers = speakersBeforeAnchor.slice().sort(function (left, right) {
-        return left.parts.left - right.parts.left;
-      });
-      const hasTiedLeft = sortedSpeakers.some(function (candidate, index) {
-        return index > 0 && candidate.parts.left === sortedSpeakers[index - 1].parts.left;
-      });
+      const sortedSpeakers = sortSpeakerCandidatesByWavePosition(speakersBeforeAnchor);
       const canMapPrefix = Boolean(
         anchor &&
           !hasInvalidSpeakerLayout &&
-          speakersBeforeAnchor.length === firstPrimaryNumber - 1 &&
-          !hasTiedLeft
+          speakersBeforeAnchor.length === firstPrimaryNumber - 1
       );
       if (canMapPrefix) {
         sortedSpeakers.forEach(function (candidate, index) {
@@ -179,7 +247,7 @@
     };
   }
 
-  function buildSegmentSnapshot(node, segmentNumber, pixelsPerSecond) {
+  function buildSegmentSnapshot(node, segmentNumber, pixelsPerSecond, sourceKind) {
     const parts = getRegionNodeParts(node);
     const scale = Number(pixelsPerSecond);
     if (!Number.isFinite(scale) || scale <= 0) {
@@ -190,7 +258,7 @@
     if (!Number.isInteger(Number(segmentNumber)) || Number(segmentNumber) <= 0 || endMs <= startMs) {
       throw createSegmentError("当前区段的开始/结束时间无效。", "invalid-segment-range");
     }
-    return {
+    const snapshot = {
       regionId: parts.regionId,
       regionLabel: parts.regionLabel,
       segmentNumber: Number(segmentNumber),
@@ -199,6 +267,10 @@
       durationMs: endMs - startMs,
       selectionKey: parts.regionId + ":" + startMs + "-" + endMs,
     };
+    if (sourceKind === "speaker-only" || sourceKind === "speaker-transient") {
+      snapshot.sourceKind = sourceKind;
+    }
+    return snapshot;
   }
 
   function resolveSegmentSnapshot(input) {
@@ -227,7 +299,7 @@
     if (!Number.isFinite(pixelsPerSecond) || pixelsPerSecond < 10 || pixelsPerSecond > 2000) {
       throw createSegmentError("当前波形的时间比例无效。", "invalid-wave-scale");
     }
-    return buildSegmentSnapshot(selectedEntry.node, selectedSegmentNumber, pixelsPerSecond);
+    return buildSegmentSnapshot(selectedEntry.node, selectedSegmentNumber, pixelsPerSecond, selectedEntry.kind);
   }
 
   function getRegionNodes(documentLike) {
@@ -305,7 +377,7 @@
     const selectedParts = getRegionNodeParts(selectedEntry.node);
     const pixelsPerSecond = selectedParts.width / (current.durationMs / 1000);
     return selectableRegions.map(function (entry) {
-      return buildSegmentSnapshot(entry.node, entry.segmentNumber, pixelsPerSecond);
+      return buildSegmentSnapshot(entry.node, entry.segmentNumber, pixelsPerSecond, entry.kind);
     });
   }
 
