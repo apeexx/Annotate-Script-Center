@@ -359,7 +359,10 @@
         "shared/storage.js",
         "shared/ai-usage-meta.js",
         "shared/ai-job-client.js",
-        "sites/jd-tts-annotation/shanghainese-helper/data-api.js"
+        "sites/jd-tts-annotation/shanghainese-helper/data-api.js",
+        "sites/jd-tts-annotation/shanghainese-helper/ai-recommendation.js",
+        "sites/jd-tts-annotation/shanghainese-helper/ui-panel.js",
+        "sites/jd-tts-annotation/shanghainese-helper/content.js"
       ],
       "all_frames": false,
       "run_at": "document_start",
