@@ -11157,7 +11157,7 @@
           "workspace-ai-usage-operator-status",
           verification.storageStatus === "extension-context-invalidated"
             ? "扩展已重新加载，请刷新当前标注页后重新打开扩展首页再保存。"
-            : "无法读取当前扩展实例的存储；请重新打开扩展首页，并确认浏览器只保留一个 0.4.3 扩展实例。"
+            : "无法读取当前扩展实例的存储；请重新打开扩展首页，并确认浏览器只保留一个 0.4.4 扩展实例。"
         );
         return false;
       }
@@ -11172,7 +11172,7 @@
       }
       setStatus(
         "workspace-ai-usage-operator-status",
-        "未能确认 AI 调用使用人已写入当前扩展实例；请仅保留一个 0.4.3 扩展实例，保存后刷新当前标注页。"
+        "未能确认 AI 调用使用人已写入当前扩展实例；请仅保留一个 0.4.4 扩展实例，保存后刷新当前标注页。"
       );
       return false;
     } catch (error) {
