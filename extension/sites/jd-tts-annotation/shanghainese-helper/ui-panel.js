@@ -12,6 +12,7 @@
     const TextareaCtor = config.HTMLTextAreaElement || globalThis.HTMLTextAreaElement;
     const InputEventCtor = config.InputEvent || globalThis.InputEvent;
     let button = null;
+    let mountTarget = null;
     let targetTextarea = null;
     let onRecommend = typeof config.onRecommend === "function" ? config.onRecommend : null;
 
@@ -21,6 +22,23 @@
       const container = label.nextElementSibling;
       const textarea = container?.querySelector?.("textarea.el-textarea__inner");
       return textarea ? { container, textarea } : null;
+    }
+
+    function findToolbarAutoAnnotateButton() {
+      const buttons = Array.from(documentRef?.querySelectorAll?.("button") || []);
+      return buttons.find(function (candidate) {
+        return normalizeText(candidate?.textContent).trim() === "自动标注";
+      }) || null;
+    }
+
+    function mountButton(nextButton, field) {
+      const nativeAutoAnnotate = findToolbarAutoAnnotateButton();
+      if (nativeAutoAnnotate?.insertAdjacentElement) {
+        nativeAutoAnnotate.insertAdjacentElement("afterend", nextButton);
+      }
+      if (!nextButton.parentElement) {
+        field.container?.insertAdjacentElement?.("afterend", nextButton);
+      }
     }
 
     function setBusy(busy) {
@@ -39,6 +57,7 @@
       if (button && (button.isConnected === false || targetTextarea !== field.textarea)) {
         button.remove?.();
         button = null;
+        mountTarget = null;
       }
       targetTextarea = field.textarea;
       if (button) { return true; }
@@ -46,16 +65,26 @@
       button.type = "button";
       button.textContent = BUTTON_TEXT;
       button.className = "asc-jd-tts-shanghai-recommend";
+      button.title = "扩展功能：识别当前音频并仅填入文本";
+      if (button.style) {
+        button.style.marginLeft = "8px";
+        button.style.padding = "6px 12px";
+        button.style.border = "1px solid #6d28d9";
+        button.style.borderRadius = "4px";
+        button.style.background = "#7c3aed";
+        button.style.color = "#ffffff";
+        button.style.cursor = "pointer";
+      }
       button.addEventListener("click", function () {
         if (button.disabled || typeof onRecommend !== "function") { return; }
         Promise.resolve(onRecommend()).catch(function (error) { setStatus(error?.message || "识别失败。"); });
       });
-      field.container?.insertAdjacentElement?.("afterend", button);
-      if (!button.parentElement) { targetTextarea.parentElement?.insertAdjacentElement?.("afterend", button); }
+      mountButton(button, field);
+      mountTarget = button.parentElement || field.container || null;
       return true;
     }
 
-    function getMountTarget() { return findTextField()?.container || null; }
+    function getMountTarget() { return mountTarget || findTextField()?.container || null; }
 
     function fillRecommendedText(result, isCurrent) {
       const listenText = typeof result?.listenText === "string" ? result.listenText : "";
@@ -69,7 +98,7 @@
       return true;
     }
 
-    function remove() { button?.remove?.(); button = null; targetTextarea = null; }
+    function remove() { button?.remove?.(); button = null; mountTarget = null; targetTextarea = null; }
     function setOnRecommend(handler) { onRecommend = typeof handler === "function" ? handler : null; }
     return { ensureMounted, getMountTarget, setBusy, setStatus, fillRecommendedText, remove, setOnRecommend };
   }

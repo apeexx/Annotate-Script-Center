@@ -5,7 +5,8 @@ const path = require("node:path");
 const test = require("node:test");
 const panel = require(path.resolve(__dirname, "ui-panel.js"));
 
-function createHarness() {
+function createHarness(options) {
+  const config = options || {};
   const events = [];
   const pinyin = {};
   Object.defineProperty(pinyin, "value", { get() { throw new Error("must not access pinyin value"); }, set() { throw new Error("must not write pinyin value"); } });
@@ -22,16 +23,49 @@ function createHarness() {
     reserve() { throw new Error("must not reserve platform textarea"); },
   };
   const textContainer = {
+    insertions: [],
     querySelector(selector) { assert.equal(selector, "textarea.el-textarea__inner"); return textarea; },
-    insertAdjacentElement(_position, button) { button.parentElement = this; button.isConnected = true; },
+    insertAdjacentElement(position, button) {
+      this.insertions.push([position, button]);
+      button.parentElement = this;
+      button.isConnected = true;
+    },
   };
   textarea.parentElement = textContainer;
   const label = { textContent: "文本:", nextElementSibling: textContainer };
   const buttons = [];
+  const toolbar = { id: "toolbar" };
+  const secondToolbar = { id: "second-toolbar" };
+  function createNativeAutoAnnotate(parentElement) {
+    return {
+      textContent: "自动标注",
+      parentElement,
+      clickCalls: 0,
+      insertAdjacentElement(position, button) {
+        assert.equal(position, "afterend");
+        button.parentElement = parentElement;
+        button.isConnected = true;
+        this.nextSibling = button;
+      },
+    };
+  }
+  const nativeAutoAnnotate = createNativeAutoAnnotate(toolbar);
+  const secondNativeAutoAnnotate = createNativeAutoAnnotate(secondToolbar);
+  const toolbarButtons = [nativeAutoAnnotate];
   const document = {
     querySelector(selector) { assert.equal(selector, "div.cell > span:first-child"); return label; },
+    querySelectorAll(selector) {
+      assert.equal(selector, "button");
+      return config.withToolbar === false ? [] : toolbarButtons;
+    },
     createElement() {
-      const button = { disabled: false, isConnected: false, addEventListener() {}, remove() { this.isConnected = false; this.parentElement = null; } };
+      const button = {
+        disabled: false,
+        isConnected: false,
+        style: {},
+        addEventListener() {},
+        remove() { this.isConnected = false; this.parentElement = null; },
+      };
       buttons.push(button);
       return button;
     },
@@ -39,8 +73,48 @@ function createHarness() {
   function Textarea() {}
   Object.defineProperty(Textarea.prototype, "value", { set(value) { this._nativeValue = value; }, get() { return this._nativeValue; } });
   function InputEvent(type, init) { this.type = type; Object.assign(this, init); }
-  return { document, textarea, pinyin, textContainer, buttons, events, Textarea, InputEvent };
+  function replaceToolbarAutoAnnotate() {
+    toolbarButtons.splice(0, toolbarButtons.length, secondNativeAutoAnnotate);
+  }
+  return { document, textarea, pinyin, textContainer, toolbar, secondToolbar, nativeAutoAnnotate, secondNativeAutoAnnotate, replaceToolbarAutoAnnotate, buttons, events, Textarea, InputEvent };
 }
+
+test("JD Shanghai panel mounts its distinct recognition button after the native auto-annotation button", function () {
+  const harness = createHarness();
+  const runtime = panel.createRuntime({ document: harness.document, HTMLTextAreaElement: harness.Textarea, InputEvent: harness.InputEvent });
+
+  assert.equal(runtime.ensureMounted(), true);
+  assert.equal(harness.buttons.length, 1);
+  assert.equal(harness.nativeAutoAnnotate.nextSibling, harness.buttons[0]);
+  assert.equal(harness.buttons[0].textContent, "上海话识别");
+  assert.equal(harness.buttons[0].title, "扩展功能：识别当前音频并仅填入文本");
+  assert.equal(harness.nativeAutoAnnotate.clickCalls, 0);
+});
+
+test("JD Shanghai panel falls back to the text field when the native toolbar is unavailable", function () {
+  const harness = createHarness({ withToolbar: false });
+  const runtime = panel.createRuntime({ document: harness.document, HTMLTextAreaElement: harness.Textarea, InputEvent: harness.InputEvent });
+
+  assert.equal(runtime.ensureMounted(), true);
+  assert.equal(harness.textContainer.insertions.length, 1);
+  assert.equal(harness.textContainer.insertions[0][0], "afterend");
+  assert.equal(harness.buttons[0].textContent, "上海话识别");
+});
+
+test("JD Shanghai panel remounts into a replaced toolbar and reports that toolbar as its mount target", function () {
+  const harness = createHarness();
+  const runtime = panel.createRuntime({ document: harness.document, HTMLTextAreaElement: harness.Textarea, InputEvent: harness.InputEvent });
+
+  runtime.ensureMounted();
+  harness.buttons[0].isConnected = false;
+  harness.replaceToolbarAutoAnnotate();
+  runtime.ensureMounted();
+
+  assert.equal(harness.buttons.length, 2);
+  assert.equal(harness.buttons[0].isConnected, false);
+  assert.equal(harness.secondNativeAutoAnnotate.nextSibling, harness.buttons[1]);
+  assert.equal(runtime.getMountTarget(), harness.secondToolbar);
+});
 
 test("JD Shanghai panel selects only the textarea after the exact text label and dispatches input only", function () {
   const harness = createHarness();
