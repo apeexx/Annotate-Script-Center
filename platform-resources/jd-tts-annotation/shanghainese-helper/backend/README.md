@@ -14,6 +14,12 @@
 
 根路径和 `/jobs` 均只创建异步任务并返回 `202`；运行时使用 `/jobs`。任务从创建起最长 60 秒。
 
+任务完成后的状态响应以外层 `data` 承载一次完整成功响应体，实际业务字段位于 `data.data`；前端须解包后校验 `utteranceId + checksum`，不使用外层任务字段或 `jobId` 回填文本。
+
+## 本地验收
+
+在仓库根目录运行 `node platform-resources/backend/server.js` 后，`GET /api/jd-tts-annotation/shanghainese-helper/ai/recommend/health` 应在本机 `http://127.0.0.1:3333` 返回 `200`。扩展只会在 health 成功后调用 `/jobs`；若 health 为 `404`、失败或无法连接，应由前端停在健康检查阶段，不创建识别任务。
+
 ## 请求与响应
 
 - 归一后的输入仅接受数字字符串 `utteranceId`、`checksum`、WAV Base64 `audioDataUrl`、`clientRequestId`、受白名单约束的 `aiOmni` 和脱敏用途元数据。

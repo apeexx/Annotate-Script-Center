@@ -279,3 +279,108 @@ test("JD Shanghai recommendation reports the job creation and polling stages to 
 
   assert.deepEqual(stages, ["health", "create", "poll"]);
 });
+
+test("JD Shanghai recommendation uses the healthy local backend when the server health route returns 404", async function () {
+  const endpoints = [];
+  const runtime = recommendation.createRuntime({
+    constants: { buildBackendUrl(path, settings) { return (settings.meta.backendEndpointMode === "local" ? "http://127.0.0.1:3333" : "https://server.example.test") + path; } },
+    requestMeta: { aiUsageOperatorName: "tester" },
+    getSettings: async function () { return { meta: { backendEndpointMode: "server", aiUsageOperatorName: "tester" }, platforms: { jdTtsAnnotation: { scripts: { shanghaineseHelper: {} } } } }; },
+    fetchImpl: async function (url) {
+      const local = url.indexOf("127.0.0.1") >= 0;
+      return { ok: local, status: local ? 200 : 404, json: async function () { return { success: local }; } };
+    },
+    jobClient: { runJobLifecycle: async function (input) { endpoints.push(input.endpoint); return { data: { utteranceId: "42", checksum: "a".repeat(32), listenText: "ok", needHumanReview: false } }; } },
+  });
+
+  await runtime.recommend({ utteranceId: "42", checksum: "a".repeat(32), audioDataUrl: "data:audio/x-wav;base64,UklGRg==" });
+
+  assert.deepEqual(endpoints, ["http://127.0.0.1:3333/api/jd-tts-annotation/shanghainese-helper/ai/recommend"]);
+});
+
+test("JD Shanghai recommendation stops at health checks when neither backend is healthy", async function () {
+  let jobCalls = 0;
+  const runtime = recommendation.createRuntime({
+    constants: { buildBackendUrl(path, settings) { return (settings.meta.backendEndpointMode === "local" ? "http://127.0.0.1:3333" : "https://server.example.test") + path; } },
+    requestMeta: { aiUsageOperatorName: "tester" },
+    getSettings: async function () { return { meta: { backendEndpointMode: "server", aiUsageOperatorName: "tester" }, platforms: { jdTtsAnnotation: { scripts: { shanghaineseHelper: {} } } } }; },
+    fetchImpl: async function () { return { ok: false, status: 404, json: async function () { return { success: false }; } }; },
+    jobClient: { runJobLifecycle: async function () { jobCalls += 1; throw new Error("must not create a job"); } },
+  });
+
+  const error = await runtime.recommend({ utteranceId: "42", checksum: "a".repeat(32), audioDataUrl: "data:audio/x-wav;base64,UklGRg==" }).catch(function (reason) { return reason; });
+
+  assert.equal(error?.code, "backend-health-check-failed");
+  assert.equal(error?.stage, "health");
+  assert.equal(jobCalls, 0);
+});
+
+test("JD Shanghai recommendation maps a jobs creation 404 to the Shanghai route diagnostic", async function () {
+  const runtime = recommendation.createRuntime({
+    endpoint: "http://127.0.0.1:3333/api/jd-tts-annotation/shanghainese-helper/ai/recommend",
+    requestMeta: { aiUsageOperatorName: "tester" },
+    getSettings: async function () { return { meta: { backendEndpointMode: "local", aiUsageOperatorName: "tester" }, platforms: { jdTtsAnnotation: { scripts: { shanghaineseHelper: {} } } } }; },
+    fetchImpl: async function () { return { ok: true, status: 200, json: async function () { return { success: true }; } }; },
+    jobClient: {
+      runJobLifecycle: async function () {
+        const error = new Error("Not Found");
+        error.code = "request-error";
+        error.statusCode = 404;
+        error.phase = "create";
+        throw error;
+      },
+    },
+  });
+
+  const error = await runtime.recommend({ utteranceId: "42", checksum: "a".repeat(32), audioDataUrl: "data:audio/x-wav;base64,UklGRg==" }).catch(function (reason) { return reason; });
+
+  assert.equal(error?.code, "shanghainese-route-not-deployed");
+  assert.equal(error?.stage, "create");
+  assert.doesNotMatch(JSON.stringify(error?.rawResponse || {}), /127\.0\.0\.1|recommend/i);
+});
+
+test("JD Shanghai recommendation unwraps the completed jobs response before it validates the returned identity", async function () {
+  const actualJobClient = require(path.resolve(__dirname, "../../../shared/ai-job-client.js"));
+  const runtime = recommendation.createRuntime({
+    endpoint: "https://backend.example.test/api/jd-tts-annotation/shanghainese-helper/ai/recommend",
+    requestMeta: { aiUsageOperatorName: "tester" },
+    getSettings: async function () {
+      return { meta: { backendEndpointMode: "server", aiUsageOperatorName: "tester" }, platforms: { jdTtsAnnotation: { scripts: { shanghaineseHelper: {} } } } };
+    },
+    jobClient: actualJobClient,
+    fetchImpl: async function (url) {
+      const body = /\/health$/.test(url)
+        ? { success: true }
+        : {
+            success: true,
+            jobId: "job-1",
+            status: "succeeded",
+            data: {
+              success: true,
+              data: { utteranceId: "42", checksum: "a".repeat(32), listenText: "侬好", needHumanReview: false },
+              meta: { requestId: "request-1" },
+            },
+          };
+      return {
+        ok: true,
+        status: /\/health$/.test(url) ? 200 : 202,
+        json: async function () { return body; },
+        text: async function () { return JSON.stringify(body); },
+      };
+    },
+  });
+
+  const result = await runtime.recommend({
+    utteranceId: "42",
+    checksum: "a".repeat(32),
+    audioDataUrl: "data:audio/x-wav;base64,UklGRg==",
+  });
+
+  assert.deepEqual(result, {
+    utteranceId: "42",
+    checksum: "a".repeat(32),
+    listenText: "侬好",
+    needHumanReview: false,
+    meta: { requestId: "request-1" },
+  });
+});

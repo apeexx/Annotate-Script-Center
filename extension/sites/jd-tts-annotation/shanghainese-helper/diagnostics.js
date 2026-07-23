@@ -59,7 +59,8 @@
     ];
   }
 
-  function defaultSuggestion(code) {
+  function defaultSuggestion(code, rawResponse) {
+    const backendMode = normalizeText(rawResponse?.backendMode).toLowerCase() === "local" ? "local" : "server";
     if (code === "missing-ai-usage-operator-name") {
       return "当前标注页所属的同一个扩展实例未读取到 AI 调用使用人；请在同一个扩展首页填写并保存后刷新当前标注页。";
     }
@@ -68,6 +69,18 @@
     }
     if (code === "ai-usage-operator-storage-unavailable") {
       return "当前扩展实例无法读取使用人配置；请重新打开扩展首页，并确认浏览器只保留一个 0.4.3 扩展实例。";
+    }
+    if (code === "backend-health-check-failed") {
+      if (backendMode === "local") {
+        return "当前为本地模式，本机后端未通过健康检查；请启动 node platform-resources\\backend\\server.js 后重试。";
+      }
+      return "当前为服务端模式，远端未部署上海话路由；如需本地验收，请切换为本地模式并启动 node platform-resources\\backend\\server.js。";
+    }
+    if (code === "shanghainese-route-not-deployed") {
+      if (backendMode === "local") {
+        return "当前本机后端未部署上海话路由；请从当前仓库启动 node platform-resources\\backend\\server.js 后重试。";
+      }
+      return "当前远端未部署上海话路由；请切换为本地模式并启动 node platform-resources\\backend\\server.js 进行验收。";
     }
     if (code === "timeout" || code === "ai-job-timeout") { return "识别超过 60 秒，请稍后重试。"; }
     if (code === "network-disconnected") { return "请检查当前后端服务和网络连通性。"; }
@@ -85,7 +98,7 @@
       step: normalizeText(fallbackStep) || "识别请求",
       code,
       summary: normalizeText(display.summary || source.message || code),
-      suggestion: normalizeText(display.inference || defaultSuggestion(code)),
+      suggestion: normalizeText(defaultSuggestion(code, source.rawResponse) || display.inference),
     };
   }
 

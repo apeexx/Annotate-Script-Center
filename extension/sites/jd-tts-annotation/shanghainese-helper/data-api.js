@@ -28,6 +28,12 @@
     );
   }
 
+  function isSameFullAudio(left, right) {
+    const leftAudio = String(left?.audioDataUrl || "");
+    const rightAudio = String(right?.audioDataUrl || "");
+    return leftAudio !== "" && leftAudio === rightAudio;
+  }
+
   function createNonce(randomValues) {
     const bytes = new Uint8Array(16);
     const fill = typeof randomValues === "function" ? randomValues : crypto.getRandomValues.bind(crypto);
@@ -166,7 +172,7 @@
       if (!started) {
         start();
       }
-      if (currentAudio && isSameIdentity(currentAudio, currentIdentity)) {
+      if (requestOptions.forceRefresh !== true && currentAudio && isSameIdentity(currentAudio, currentIdentity)) {
         return Promise.resolve(Object.assign({}, currentAudio));
       }
       if (pendingRequest) {
@@ -192,6 +198,24 @@
       return pending.promise;
     }
 
+    async function isSameFullAudioSnapshot(snapshot, options) {
+      if (!snapshot || typeof snapshot !== "object") {
+        return false;
+      }
+      if (isSameIdentity(currentIdentity, snapshot)) {
+        return true;
+      }
+      try {
+        const current = await getCurrentAudio({
+          signal: options?.signal,
+          forceRefresh: true,
+        });
+        return isSameFullAudio(snapshot, current);
+      } catch (_error) {
+        return false;
+      }
+    }
+
     function isCurrentSnapshot(snapshot) {
       return isSameIdentity(currentIdentity, snapshot);
     }
@@ -208,6 +232,7 @@
       getNonce: function () { return nonce; },
       getCurrentAudio,
       getCurrentSnapshot,
+      isSameFullAudio: isSameFullAudioSnapshot,
       isCurrentSnapshot,
       handlePageMessage,
     };

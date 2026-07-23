@@ -8,6 +8,12 @@
 
   function isAnnotateRoute(locationRef) { return String(locationRef?.hash || "").indexOf(ROUTE_PART) >= 0; }
   function sameIdentity(left, right) { return String(left?.utteranceId || "") === String(right?.utteranceId || "") && String(left?.checksum || "") === String(right?.checksum || ""); }
+  async function isSameFullAudio(dataApi, snapshot, signal) {
+    if (typeof dataApi?.isSameFullAudio === "function") {
+      return (await dataApi.isSameFullAudio(snapshot, { signal })) === true;
+    }
+    return dataApi?.isCurrentSnapshot?.(snapshot) === true;
+  }
   function sanitizeError(error) {
     return String(error?.message || error?.code || "识别失败。")
       .replace(/data:audio\/[^\s"'<>]+/gi, "[已隐藏]")
@@ -111,6 +117,7 @@
           status: "进行中",
           stage: "获取当前 WAV",
         });
+        const lockedTextTarget = panel?.getTextTarget?.() || null;
         const snapshot = await dataApi?.getCurrentAudio?.({ signal: run.controller.signal });
         if (run.controller.signal.aborted || activeRun !== run) { return; }
         if (!snapshot) {
@@ -127,14 +134,20 @@
           },
         });
         if (run.controller.signal.aborted || activeRun !== run) { return; }
-        updateRunInfo(run, { status: "进行中", stage: "校验当前条", resultText: typeof result?.listenText === "string" ? result.listenText : "" });
-        if (!sameIdentity(result, snapshot) || dataApi?.isCurrentSnapshot?.(snapshot) !== true) {
-          panel?.setStatus?.("识别结果已失效，请重新点击识别。", "warning");
-          updateRunInfo(run, { status: "未回填", stage: "校验当前条", fillState: "当前条目已切换", error: null });
+        updateRunInfo(run, { status: "进行中", stage: "校验完整 WAV", resultText: typeof result?.listenText === "string" ? result.listenText : "" });
+        if (!sameIdentity(result, snapshot)) {
+          panel?.setStatus?.("识别结果与当前请求不一致，未写入文本。", "warning");
+          updateRunInfo(run, { status: "未回填", stage: "校验完整 WAV", fillState: "识别结果与当前请求不一致", error: null });
+          return;
+        }
+        if (!(await isSameFullAudio(dataApi, snapshot, run.controller.signal)) || run.controller.signal.aborted || activeRun !== run) {
+          if (run.controller.signal.aborted || activeRun !== run) { return; }
+          panel?.setStatus?.("完整音频已切换，未写入旧识别结果。", "warning");
+          updateRunInfo(run, { status: "未回填", stage: "校验完整 WAV", fillState: "完整音频已切换", error: null });
           return;
         }
         updateRunInfo(run, { status: "进行中", stage: "写入文本框" });
-        const filled = panel?.fillRecommendedText?.(result, function () { return activeRun === run && run.controller.signal.aborted !== true && dataApi?.isCurrentSnapshot?.(snapshot) === true; }) === true;
+        const filled = panel?.fillRecommendedText?.(result, function () { return activeRun === run && run.controller.signal.aborted !== true; }, lockedTextTarget) === true;
         const details = typeof diagnostics.buildSuccessDetails === "function" ? diagnostics.buildSuccessDetails(result) : [];
         if (filled) {
           panel?.setStatus?.("识别完成，已回填文本。", "success");
@@ -143,8 +156,8 @@
           panel?.setStatus?.("未识别到有效文本，请人工复核。", "warning");
           updateRunInfo(run, { status: "需人工复核", stage: "写入文本框", fillState: "未写入（空识别）", details, error: null });
         } else {
-          panel?.setStatus?.("未写入文本：当前条目已切换或文本框不可写。", "warning");
-          updateRunInfo(run, { status: "未回填", stage: "写入文本框", fillState: "文本框不可写或条目已切换", details, error: null });
+          panel?.setStatus?.("未写入文本：文本框已更新或不可写。", "warning");
+          updateRunInfo(run, { status: "未回填", stage: "写入文本框", fillState: "文本框已更新或不可写", details, error: null });
         }
       } catch (error) {
         if (activeRun === run && !run.controller.signal.aborted) {

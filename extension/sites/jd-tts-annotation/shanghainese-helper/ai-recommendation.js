@@ -188,12 +188,25 @@
 
   function mapSuccess(value) {
     const source = value && typeof value === "object" ? value : {};
+    const nested = source.data && typeof source.data === "object" ? source.data : null;
+    const responseBody = nested?.success === true && nested.data && typeof nested.data === "object"
+      ? nested
+      : source.success === true && nested
+        ? source
+        : null;
+    const payload = responseBody
+      ? responseBody.data
+      : source.utteranceId || source.checksum || typeof source.listenText === "string"
+        ? source
+        : nested && (nested.utteranceId || nested.checksum || typeof nested.listenText === "string")
+          ? nested
+          : {};
     return {
-      utteranceId: normalizeText(source.utteranceId),
-      checksum: normalizeText(source.checksum),
-      listenText: typeof source.listenText === "string" ? source.listenText : "",
-      needHumanReview: source.needHumanReview === true,
-      meta: sanitizeMeta(source.meta),
+      utteranceId: normalizeText(payload.utteranceId),
+      checksum: normalizeText(payload.checksum),
+      listenText: typeof payload.listenText === "string" ? payload.listenText : "",
+      needHumanReview: payload.needHumanReview === true,
+      meta: sanitizeMeta(responseBody?.meta || payload.meta || source.meta),
     };
   }
 
@@ -237,6 +250,45 @@
 
   function isNetworkError(error) {
     return error?.name === "TypeError" || error?.code === "network-error" || /network|failed to fetch/i.test(String(error?.message || error));
+  }
+
+  function buildSafeHealthSummary(value) {
+    const source = value && typeof value === "object" ? value : {};
+    return {
+      ok: source.ok === true,
+      statusCode: Number(source.statusCode) || 0,
+      reason: normalizeText(source.reason),
+      errorName: normalizeText(source.errorName),
+    };
+  }
+
+  function createBackendHealthCheckError(backendMode, primaryHealth, fallbackHealth) {
+    const mode = normalizeText(backendMode).toLowerCase() === "local" ? "local" : "server";
+    return createError("后端健康检查失败，未创建识别任务。", {
+      code: "backend-health-check-failed",
+      stage: "health",
+      rawResponse: {
+        type: "backend-health-check-failed",
+        backendMode: mode,
+        healthChecks: {
+          primary: buildSafeHealthSummary(primaryHealth),
+          fallback: buildSafeHealthSummary(fallbackHealth),
+        },
+      },
+    });
+  }
+
+  function isJobsCreateRouteNotFound(error) {
+    return Number(error?.statusCode) === 404 && normalizeText(error?.phase || error?.stage).toLowerCase() === "create";
+  }
+
+  function createRouteNotDeployedError(backendMode) {
+    const mode = normalizeText(backendMode).toLowerCase() === "local" ? "local" : "server";
+    return createError("当前后端未部署上海话识别路由。", {
+      code: "shanghainese-route-not-deployed",
+      stage: "create",
+      rawResponse: { type: "shanghainese-route-not-deployed", backendMode: mode },
+    });
   }
 
   function createRuntime(options) {
@@ -289,8 +341,9 @@
       const requestMeta = assertUsageMeta(buildUsageMeta(settings, Object.assign({}, config.requestMeta || {}, {
         aiUsageOperatorName: usageState.operatorName,
       })));
+      const backendMode = getBackendMode(settings);
       const endpoint = resolveEndpoint(constants, settings, config.endpoint);
-      const fallbackMode = getBackendMode(settings) === "local" ? "server" : "local";
+      const fallbackMode = backendMode === "local" ? "server" : "local";
       let fallbackEndpoint = "";
       try { fallbackEndpoint = resolveEndpointForMode(constants, settings, fallbackMode); } catch (_error) { fallbackEndpoint = ""; }
       return {
@@ -298,6 +351,7 @@
         requestMeta,
         usageOperatorState: usageState,
         aiOmni: getSavedAiOmni(settings, config.aiOmni),
+        backendMode,
         endpoint,
         fallbackEndpoint,
       };
@@ -321,10 +375,7 @@
         },
         buildApiError,
         buildTerminalError: function (jobBody) { return buildApiError(jobBody?.error || jobBody, 500); },
-        mapSuccess: function (jobBody) {
-          const payload = jobBody?.data && typeof jobBody.data === "object" ? jobBody.data : {};
-          return Object.assign({}, payload, { meta: jobBody?.meta && typeof jobBody.meta === "object" ? jobBody.meta : {} });
-        },
+        mapSuccess: mapSuccess,
       });
       return mapSuccess(result?.data);
     }
@@ -361,32 +412,37 @@
       });
     }
 
-    async function selectEndpointBeforeJob(primaryEndpoint, fallbackEndpoint, signal) {
+    async function selectEndpointBeforeJob(primaryEndpoint, fallbackEndpoint, backendMode, signal) {
       const primaryHealth = await probeHealth(primaryEndpoint, signal);
-      if (signal?.aborted || primaryHealth.ok === true || primaryHealth.reason === "health-probe-unavailable" || !fallbackEndpoint || fallbackEndpoint === primaryEndpoint) {
+      if (signal?.aborted || primaryHealth.ok === true) {
         return { endpoint: primaryEndpoint, primaryHealth, fallbackSelected: false };
       }
-      const fallbackHealth = await probeHealth(fallbackEndpoint, signal);
-      if (fallbackHealth.ok === true) {
-        return { endpoint: fallbackEndpoint, primaryHealth, fallbackSelected: true };
+      let fallbackHealth = null;
+      if (fallbackEndpoint && fallbackEndpoint !== primaryEndpoint) {
+        fallbackHealth = await probeHealth(fallbackEndpoint, signal);
+        if (fallbackHealth.ok === true) {
+          return { endpoint: fallbackEndpoint, primaryHealth, fallbackSelected: true };
+        }
       }
-      return { endpoint: primaryEndpoint, primaryHealth, fallbackSelected: false };
+      throw createBackendHealthCheckError(backendMode, primaryHealth, fallbackHealth);
     }
 
     async function recommend(snapshot, requestOptions) {
       const prepared = requestOptions?.preparedRun || await prepareRun();
       const endpoint = prepared.endpoint;
       const fallbackEndpoint = prepared.fallbackEndpoint;
+      const backendMode = prepared.backendMode;
       const requestMeta = prepared.requestMeta;
       const body = buildRequestBody(snapshot, { aiOmni: prepared.aiOmni, requestMeta });
       const signal = requestOptions?.signal;
       requestOptions?.onStage?.({ key: "health", label: "后端健康检查" });
-      const selection = await selectEndpointBeforeJob(endpoint, fallbackEndpoint, signal);
+      const selection = await selectEndpointBeforeJob(endpoint, fallbackEndpoint, backendMode, signal);
       if (signal?.aborted) { throw createError("请求已取消。", { code: "user-aborted" }); }
       requestOptions?.onStage?.({ key: "create", label: "创建识别任务" });
       try {
         return await run(selection.endpoint, body, signal, requestOptions?.onStage);
       } catch (error) {
+        if (isJobsCreateRouteNotFound(error)) { throw createRouteNotDeployedError(backendMode); }
         if (signal?.aborted || error?.name === "AbortError" || !isNetworkError(error)) { throw error; }
         throw createNetworkError(endpoint, selection.fallbackSelected ? selection.endpoint : "", selection.primaryHealth);
       }

@@ -420,6 +420,30 @@ test("JD Shanghai panel selects only the textarea after the exact text label and
   assert.deepEqual(harness.events.map(function (event) { return [event.type, event.bubbles, event.inputType, event.data]; }), [["input", true, "insertText", "侬好"]]);
 });
 
+test("JD Shanghai panel writes only the text textarea locked when recognition starts", function () {
+  const harness = createHarness();
+  const runtime = panel.createRuntime({ document: harness.document, HTMLTextAreaElement: harness.Textarea, InputEvent: harness.InputEvent });
+  runtime.ensureMounted();
+  const lockedTarget = runtime.getTextTarget();
+
+  assert.equal(lockedTarget, harness.textarea);
+  assert.equal(runtime.fillRecommendedText({ listenText: "整条音频文本" }, function () { return true; }, lockedTarget), true);
+  assert.equal(harness.textarea._nativeValue, "整条音频文本");
+  assert.equal(harness.events.length, 1);
+});
+
+test("JD Shanghai panel refuses a detached locked text textarea without touching pinyin", function () {
+  const harness = createHarness();
+  const runtime = panel.createRuntime({ document: harness.document, HTMLTextAreaElement: harness.Textarea, InputEvent: harness.InputEvent });
+  runtime.ensureMounted();
+  const lockedTarget = runtime.getTextTarget();
+  lockedTarget.isConnected = false;
+
+  assert.equal(runtime.fillRecommendedText({ listenText: "不应写入" }, function () { return true; }, lockedTarget), false);
+  assert.equal(harness.textarea._nativeValue, undefined);
+  assert.equal(harness.events.length, 0);
+});
+
 test("JD Shanghai panel refuses readonly or stale writes without touching pinyin", function () {
   const harness = createHarness();
   const runtime = panel.createRuntime({ document: harness.document, HTMLTextAreaElement: harness.Textarea, InputEvent: harness.InputEvent });

@@ -105,6 +105,95 @@ test("JD Shanghai content reports visible success after it fills the current tex
   assert.equal(statuses.at(-1), "识别完成，已回填文本。");
 });
 
+test("JD Shanghai content fills the locked text field when a drawing changes only the snapshot", async function () {
+  let writes = 0;
+  let fullAudioChecks = 0;
+  const targetTextarea = { id: "text" };
+  const runtime = content.createRuntime({
+    location: { hash: "#/annotation/dataset/annotate" },
+    isEnabled: async function () { return true; },
+    createPanel: function () {
+      return {
+        ensureMounted() {}, setBusy() {}, setStatus() {}, remove() {},
+        getTextTarget() { return targetTextarea; },
+        fillRecommendedText(_result, isCurrent, target) { writes += 1; return target === targetTextarea && isCurrent() === true; },
+      };
+    },
+    createDataApi: function () {
+      return {
+        start() {}, stop() {},
+        getCurrentAudio: async function () { return { utteranceId: "1", checksum: "a".repeat(32), audioDataUrl: "data:audio/wav;base64,UklGRg==" }; },
+        isCurrentSnapshot() { return false; },
+        async isSameFullAudio(snapshot) {
+          fullAudioChecks += 1;
+          return snapshot.audioDataUrl === "data:audio/wav;base64,UklGRg==";
+        },
+      };
+    },
+    createAiClient: function () { return { recommend: async function () { return { utteranceId: "1", checksum: "a".repeat(32), listenText: "整条音频文本", needHumanReview: false, meta: {} }; } }; },
+  });
+
+  await runtime.evaluatePage();
+  await runtime.handleRecommend();
+
+  assert.equal(fullAudioChecks, 1);
+  assert.equal(writes, 1);
+});
+
+test("JD Shanghai content rejects an old result after the complete WAV changes", async function () {
+  const statuses = [];
+  let writes = 0;
+  const runtime = content.createRuntime({
+    location: { hash: "#/annotation/dataset/annotate" },
+    isEnabled: async function () { return true; },
+    createPanel: function () {
+      return {
+        ensureMounted() {}, setBusy() {}, setStatus(value) { statuses.push(value); }, remove() {},
+        getTextTarget() { return { id: "text" }; },
+        fillRecommendedText() { writes += 1; return true; },
+      };
+    },
+    createDataApi: function () {
+      return {
+        start() {}, stop() {},
+        getCurrentAudio: async function () { return { utteranceId: "1", checksum: "a".repeat(32), audioDataUrl: "data:audio/wav;base64,UklGRg==" }; },
+        async isSameFullAudio() { return false; },
+      };
+    },
+    createAiClient: function () { return { recommend: async function () { return { utteranceId: "1", checksum: "a".repeat(32), listenText: "旧音频文本", needHumanReview: false, meta: {} }; } }; },
+  });
+
+  await runtime.evaluatePage();
+  await runtime.handleRecommend();
+
+  assert.equal(writes, 0);
+  assert.equal(statuses.at(-1), "完整音频已切换，未写入旧识别结果。");
+});
+
+test("JD Shanghai content reports a mismatched backend result without writing text", async function () {
+  const statuses = [];
+  let writes = 0;
+  const runtime = content.createRuntime({
+    location: { hash: "#/annotation/dataset/annotate" },
+    isEnabled: async function () { return true; },
+    createPanel: function () {
+      return {
+        ensureMounted() {}, setBusy() {}, setStatus(value) { statuses.push(value); }, remove() {},
+        getTextTarget() { return { id: "text" }; },
+        fillRecommendedText() { writes += 1; return true; },
+      };
+    },
+    createDataApi: function () { return { start() {}, stop() {}, getCurrentAudio: async function () { return { utteranceId: "1", checksum: "a".repeat(32), audioDataUrl: "data:audio/wav;base64,UklGRg==" }; }, async isSameFullAudio() { return true; } }; },
+    createAiClient: function () { return { recommend: async function () { return { utteranceId: "2", checksum: "b".repeat(32), listenText: "不应写入", needHumanReview: false, meta: {} }; } }; },
+  });
+
+  await runtime.evaluatePage();
+  await runtime.handleRecommend();
+
+  assert.equal(writes, 0);
+  assert.equal(statuses.at(-1), "识别结果与当前请求不一致，未写入文本。");
+});
+
 test("JD Shanghai content stops at usage-operator validation before fetching WAV or creating a job", async function () {
   let audioCalls = 0;
   let jobCalls = 0;
@@ -234,7 +323,7 @@ test("JD Shanghai content reports all seven safe runtime stages before filling t
   await runtime.evaluatePage();
   await runtime.handleRecommend();
 
-  assert.deepEqual(stages, ["使用人检查", "获取当前 WAV", "后端健康检查", "创建识别任务", "等待识别结果", "校验当前条", "写入文本框", "写入文本框"]);
+  assert.deepEqual(stages, ["使用人检查", "获取当前 WAV", "后端健康检查", "创建识别任务", "等待识别结果", "校验完整 WAV", "写入文本框", "写入文本框"]);
   assert.equal(updates.at(-1).status, "成功");
   assert.equal(updates.at(-1).resultText, "侬好");
   assert.equal(updates.at(-1).fillState, "已回填文本");

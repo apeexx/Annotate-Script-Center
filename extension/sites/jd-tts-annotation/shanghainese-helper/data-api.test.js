@@ -115,6 +115,118 @@ test("JD TTS data API invalidates an old audio snapshot as soon as the page repo
   runtime.stop();
 });
 
+test("JD TTS data API accepts a changed snapshot when its latest complete WAV is unchanged", async function () {
+  const origin = "https://tts-biaozhu-pub.jd.com";
+  const windowHarness = createWindowHarness(origin);
+  const runtime = api.createRuntime({
+    window: windowHarness,
+    location: { origin },
+    randomValues: function (bytes) {
+      bytes.fill(5);
+      return bytes;
+    },
+  });
+  runtime.start();
+  const nonce = runtime.getNonce();
+  const initialAudio = runtime.getCurrentAudio();
+
+  await windowHarness.emitMessage({
+    source: "ASC_JD_TTS_SHANGHAI_PAGE",
+    type: "utterance-snapshot",
+    nonce,
+    utteranceId: "4881635",
+    checksum: "a".repeat(32),
+  });
+  await windowHarness.emitMessage({
+    source: "ASC_JD_TTS_SHANGHAI_PAGE",
+    type: "utterance-audio",
+    nonce,
+    utteranceId: "4881635",
+    checksum: "a".repeat(32),
+    mimeType: "audio/x-wav",
+    audioBuffer: new Uint8Array([82, 73, 70, 70]).buffer,
+  });
+  const snapshot = await initialAudio;
+
+  await windowHarness.emitMessage({
+    source: "ASC_JD_TTS_SHANGHAI_PAGE",
+    type: "utterance-snapshot",
+    nonce,
+    utteranceId: "4881636",
+    checksum: "b".repeat(32),
+  });
+  const sameAudio = runtime.isSameFullAudio(snapshot);
+  const secondRequest = windowHarness.posted.at(-1)?.message;
+  assert.equal(secondRequest.type, "request-audio");
+  await windowHarness.emitMessage({
+    source: "ASC_JD_TTS_SHANGHAI_PAGE",
+    type: "utterance-audio",
+    nonce,
+    utteranceId: "4881636",
+    checksum: "b".repeat(32),
+    mimeType: "audio/x-wav",
+    audioBuffer: new Uint8Array([82, 73, 70, 70]).buffer,
+  });
+
+  assert.equal(await sameAudio, true);
+  runtime.stop();
+});
+
+test("JD TTS data API rejects a changed snapshot when its latest complete WAV differs", async function () {
+  const origin = "https://tts-biaozhu-pub.jd.com";
+  const windowHarness = createWindowHarness(origin);
+  const runtime = api.createRuntime({
+    window: windowHarness,
+    location: { origin },
+    randomValues: function (bytes) {
+      bytes.fill(6);
+      return bytes;
+    },
+  });
+  runtime.start();
+  const nonce = runtime.getNonce();
+  const initialAudio = runtime.getCurrentAudio();
+
+  await windowHarness.emitMessage({
+    source: "ASC_JD_TTS_SHANGHAI_PAGE",
+    type: "utterance-snapshot",
+    nonce,
+    utteranceId: "4881635",
+    checksum: "a".repeat(32),
+  });
+  await windowHarness.emitMessage({
+    source: "ASC_JD_TTS_SHANGHAI_PAGE",
+    type: "utterance-audio",
+    nonce,
+    utteranceId: "4881635",
+    checksum: "a".repeat(32),
+    mimeType: "audio/x-wav",
+    audioBuffer: new Uint8Array([82, 73, 70, 70]).buffer,
+  });
+  const snapshot = await initialAudio;
+
+  await windowHarness.emitMessage({
+    source: "ASC_JD_TTS_SHANGHAI_PAGE",
+    type: "utterance-snapshot",
+    nonce,
+    utteranceId: "4881636",
+    checksum: "b".repeat(32),
+  });
+  const sameAudio = runtime.isSameFullAudio(snapshot);
+  await windowHarness.emitMessage({
+    source: "ASC_JD_TTS_SHANGHAI_PAGE",
+    type: "utterance-audio",
+    nonce,
+    utteranceId: "4881636",
+    checksum: "b".repeat(32),
+    mimeType: "audio/x-wav",
+    audioBuffer: new Uint8Array([87, 65, 86, 69]).buffer,
+  });
+
+  assert.equal(await sameAudio, false);
+  runtime.stop();
+});
+
 test("JD TTS data API rejects invalid bridge payloads without accepting a URL", async function () {
   const origin = "https://tts-biaozhu-pub.jd.com";
   const windowHarness = createWindowHarness(origin);

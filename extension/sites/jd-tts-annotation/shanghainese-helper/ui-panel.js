@@ -290,15 +290,20 @@
       return findTextField()?.container || null;
     }
 
-    function fillRecommendedText(result, isCurrent) {
+    function getTextTarget() {
+      return targetTextarea && targetTextarea.isConnected !== false ? targetTextarea : null;
+    }
+
+    function fillRecommendedText(result, isCurrent, lockedTextTarget) {
       const listenText = typeof result?.listenText === "string" ? result.listenText : "";
-      if (!listenText || !targetTextarea || targetTextarea.disabled === true || targetTextarea.readOnly === true || typeof isCurrent !== "function" || isCurrent() !== true) {
+      const target = lockedTextTarget || targetTextarea;
+      if (!listenText || !target || target !== targetTextarea || target.isConnected === false || target.disabled === true || target.readOnly === true || typeof isCurrent !== "function" || isCurrent() !== true) {
         return false;
       }
       const setter = Object.getOwnPropertyDescriptor(TextareaCtor?.prototype || {}, "value")?.set;
       if (typeof setter !== "function" || typeof InputEventCtor !== "function") { return false; }
-      setter.call(targetTextarea, listenText);
-      targetTextarea.dispatchEvent(new InputEventCtor("input", { bubbles: true, inputType: "insertText", data: listenText }));
+      setter.call(target, listenText);
+      target.dispatchEvent(new InputEventCtor("input", { bubbles: true, inputType: "insertText", data: listenText }));
       return true;
     }
 
@@ -313,7 +318,7 @@
     }
 
     function setOnRecommend(handler) { onRecommend = typeof handler === "function" ? handler : null; }
-    return { ensureMounted, fillRecommendedText, getMountTarget, remove, setBusy, setOnRecommend, setStatus, updateInfo };
+    return { ensureMounted, fillRecommendedText, getMountTarget, getTextTarget, remove, setBusy, setOnRecommend, setStatus, updateInfo };
   }
 
   const api = { createRuntime };

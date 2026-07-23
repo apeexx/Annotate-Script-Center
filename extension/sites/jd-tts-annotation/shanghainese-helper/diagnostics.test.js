@@ -56,6 +56,34 @@ test("JD Shanghai diagnostics maps job failures to a named safe step", function 
   assert.doesNotMatch(JSON.stringify(failure), /SECRET|Authorization/i);
 });
 
+test("JD Shanghai diagnostics gives a local startup action after health checks fail", function () {
+  const failure = diagnostics.buildFailureDetails(
+    {
+      code: "backend-health-check-failed",
+      message: "health check failed",
+      rawResponse: { type: "backend-health-check-failed", backendMode: "local", healthChecks: { primary: { statusCode: 0 }, fallback: { statusCode: 404 } } },
+    },
+    "backend health check"
+  );
+
+  assert.match(failure.suggestion, /node platform-resources\\backend\\server\.js/);
+  assert.doesNotMatch(JSON.stringify(failure), /127\.0\.0\.1|https?:\/\//i);
+});
+
+test("JD Shanghai diagnostics identifies a server-side route deployment gap after a jobs 404", function () {
+  const failure = diagnostics.buildFailureDetails(
+    {
+      code: "shanghainese-route-not-deployed",
+      message: "route unavailable",
+      rawResponse: { type: "shanghainese-route-not-deployed", backendMode: "server" },
+    },
+    "job creation"
+  );
+
+  assert.match(failure.suggestion, /\u8fdc\u7aef/);
+  assert.match(failure.suggestion, /\u8def\u7531/);
+});
+
 test("JD Shanghai diagnostics distinguishes a missing operator from a stale extension page", function () {
   const missing = diagnostics.buildFailureDetails(
     { code: "missing-ai-usage-operator-name", message: "未读取到 AI 调用使用人。" },
