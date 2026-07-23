@@ -35,7 +35,10 @@
       const nativeAutoAnnotate = findToolbarAutoAnnotateButton();
       if (nativeAutoAnnotate?.insertAdjacentElement) {
         nativeAutoAnnotate.insertAdjacentElement("afterend", nextButton);
-        return true;
+        const adjacentButton = nativeAutoAnnotate.nextElementSibling || nativeAutoAnnotate.nextSibling;
+        if (adjacentButton === nextButton || (nextButton.isConnected === true && nextButton.parentElement === nativeAutoAnnotate.parentElement)) {
+          return true;
+        }
       }
       if (!nextButton.parentElement) {
         field.container?.insertAdjacentElement?.("afterend", nextButton);
