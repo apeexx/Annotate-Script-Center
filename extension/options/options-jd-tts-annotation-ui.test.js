@@ -21,6 +21,30 @@ test("JD TTS options provide a dedicated flat single-stage settings panel", func
   assert.match(script, /qwen3\.5-omni-flash/);
 });
 
+test("JD TTS shared AI settings dispatcher renders the Shanghai panel with fixed safety controls", function () {
+  const script = fs.readFileSync(path.resolve(__dirname, "options.js"), "utf8");
+  const dispatcherStart = script.indexOf("function renderAsrVoiceAiSettingsSection(settings, scriptId) {");
+  const dispatcherEnd = script.indexOf("  function isScriptEnabled", dispatcherStart);
+  const dispatcher = dispatcherStart >= 0 && dispatcherEnd > dispatcherStart ? script.slice(dispatcherStart, dispatcherEnd) : "";
+  const rendererStart = script.indexOf("function renderJdTtsShanghaineseAiSettingsSection(");
+  const rendererEnd = script.indexOf("  function renderDataBakerCvpcAiSettingsSection", rendererStart);
+  const renderer = rendererStart >= 0 && rendererEnd > rendererStart ? script.slice(rendererStart, rendererEnd) : "";
+
+  assert.ok(dispatcher);
+  assert.match(
+    dispatcher,
+    /if \(isJdTtsShanghaineseScript\(scriptId\)\) \{\s*renderJdTtsShanghaineseAiSettingsSection\(panel, headerHtml, defaultsTipId\);\s*return;/
+  );
+  assert.ok(renderer);
+  assert.match(renderer, /jd-tts-ai-recommend-enabled/);
+  assert.match(renderer, /60000ms/);
+  assert.match(renderer, /jd-tts-ai-enable-thinking/);
+  assert.match(renderer, /disabled/);
+  assert.match(renderer, /jd-tts-ai-single-model-select/);
+  assert.match(renderer, /jd-tts-ai-single-prompt/);
+  assert.match(renderer, /aishellTechStageParamDefinitions/);
+});
+
 test("JD TTS options map backend aiOmni defaults to flat persisted fields", function () {
   const script = fs.readFileSync(path.resolve(__dirname, "options.js"), "utf8");
   const start = script.indexOf("if (isJdTtsShanghaineseScript(scriptId)) {");

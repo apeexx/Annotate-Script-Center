@@ -7743,6 +7743,7 @@
       '<div class="asr-ai-block"><strong>基础设置</strong><div class="asr-ai-grid two">',
       '<label class="asr-ai-field"><span>启用 AI 识别</span><label class="asr-ai-boolean"><input id="jd-tts-ai-recommend-enabled" type="checkbox" /><span>仅识别并填入当前文本框，不保存或提交</span></label></label>',
       '<div class="asr-ai-field"><span>请求超时时间</span><span class="asr-ai-help">60000ms（固定）</span></div>',
+      '<label class="asr-ai-field"><span>思考开关</span><label class="asr-ai-boolean"><input id="jd-tts-ai-enable-thinking" type="checkbox" disabled aria-disabled="true" /><span>thinking 已固定关闭</span></label></label>',
       '</div></div>',
       '<div class="asr-ai-block"><strong>单阶段 Omni 上海话识别</strong><div class="asr-ai-grid two">',
       '<label class="asr-ai-field"><span>识别模型</span><select id="jd-tts-ai-single-model-select" data-options-custom-select="true"></select></label>',
@@ -8006,6 +8007,11 @@
       } else {
         renderAishellTechAiSettingsSection(panel, headerHtml, defaultsTipId);
       }
+      return;
+    }
+
+    if (isJdTtsShanghaineseScript(scriptId)) {
+      renderJdTtsShanghaineseAiSettingsSection(panel, headerHtml, defaultsTipId);
       return;
     }
 
@@ -13841,10 +13847,6 @@
       return;
     }
 
-    if (isJdTtsShanghaineseScript(scriptId)) {
-      renderJdTtsShanghaineseAiSettingsSection(panel, headerHtml, defaultsTipId);
-      return;
-    }
     if (isAishellTechCantoneseScript(scriptId)) {
       applyAishellTechCantoneseForm(settings);
       return;
@@ -13915,6 +13917,10 @@
       const key = "aiRecommend" + definition.suffix;
       node.value = String(config[key] || aiDefaults[definition.apiKey] || "");
     });
+    applyForcedThinkingToggle(
+      "jd-tts-ai-enable-thinking",
+      "thinking 已全局固定关闭；京东 TTS 上海话助手不允许开启 Omni 思考模式。"
+    );
     syncOptionsCustomSelects(getElement("detail-shared-asr-ai-panel"));
   }
 

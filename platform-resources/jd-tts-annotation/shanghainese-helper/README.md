@@ -11,6 +11,7 @@
 
 - 仅处理当前完整 WAV；成功业务结果固定为 `listenText`。
 - 默认模型为 `qwen3.5-omni-plus`，可选 `qwen3.5-omni-flash`；强制关闭 thinking，任务从创建起最长 60 秒。
+- 脚本中心上海话详情页提供 AI 开关、固定 `60000ms` 超时、固定关闭 thinking、模型、可选 Prompt 和单阶段生成参数的保存入口；继续使用既有 defaults 与运行时配置读取链路。
 - 前端以当前 `utteranceId + checksum` 绑定音频、AI 结果和回填目标，防止切换语句后串写。
 - 空识别结果标为人工复核，不写入文本框。
 
@@ -28,4 +29,5 @@
 - 只定位精确“文本:”标签后紧邻容器内的 textarea，原样设置其值并派发 `input`。
 - “拼音:”textarea 不在选择、监听、读取或写入范围内。
 - 不调用 `focus()`、`blur()`、保存、提交、领取或 `reserve/` 等平台操作。
+- 不支持批量保存、快捷键或自动提交。
 - 不保留资源地址、签名参数、音频 Data URL、Cookie、Authorization 或真实转写内容。

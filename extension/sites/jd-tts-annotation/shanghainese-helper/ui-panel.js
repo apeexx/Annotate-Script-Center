@@ -68,6 +68,11 @@
       }
       targetTextarea = field.textarea;
       const nativeAutoAnnotate = findToolbarAutoAnnotateButton();
+      if (button && !nativeAutoAnnotate && mountedAfterNativeAutoAnnotate) {
+        button.remove?.();
+        button = null;
+        mountedAfterNativeAutoAnnotate = false;
+      }
       if (button && nativeAutoAnnotate && (!mountedAfterNativeAutoAnnotate || !isMountedImmediatelyAfter(nativeAutoAnnotate))) {
         button.remove?.();
         button = null;

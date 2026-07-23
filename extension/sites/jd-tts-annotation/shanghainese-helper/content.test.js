@@ -93,6 +93,43 @@ test("JD Shanghai content watches the toolbar container and removes sensitive er
   } finally { globalThis.MutationObserver = priorObserver; }
 });
 
+test("JD Shanghai content rebinds its observer after the panel falls back to the text field", async function () {
+  const priorObserver = globalThis.MutationObserver;
+  const observedTargets = [];
+  const observers = [];
+  globalThis.MutationObserver = class {
+    constructor(callback) { this.callback = callback; this.disconnected = false; observers.push(this); }
+    observe(target) { observedTargets.push(target); }
+    disconnect() { this.disconnected = true; }
+  };
+  try {
+    const toolbar = { id: "toolbar" };
+    const textField = { id: "text-field" };
+    let currentParent = toolbar;
+    const runtime = content.createRuntime({
+      document: { documentElement: { id: "document-root" } },
+      location: { hash: "#/annotation/dataset/annotate" },
+      isEnabled: async function () { return true; },
+      createPanel: function () {
+        return {
+          ensureMounted() {},
+          getMountTarget() { return currentParent; },
+          remove() {},
+        };
+      },
+      createDataApi: function () { return { start() {}, stop() {} }; },
+      createAiClient: function () { return {}; },
+    });
+
+    await runtime.evaluatePage();
+    currentParent = textField;
+    observers[0].callback();
+
+    assert.deepEqual(observedTargets, [toolbar, textField]);
+    assert.equal(observers[0].disconnected, true);
+  } finally { globalThis.MutationObserver = priorObserver; }
+});
+
 test("JD Shanghai content reports an API failure safely and never fills text", async function () {
   const status = [];
   let writes = 0;

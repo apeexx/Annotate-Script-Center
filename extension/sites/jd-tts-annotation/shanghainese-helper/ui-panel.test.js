@@ -96,7 +96,8 @@ function createHarness(options) {
     toolbarButtons.splice(0, toolbarButtons.length, secondNativeAutoAnnotate);
   }
   function showToolbar() { toolbarButtons.splice(0, toolbarButtons.length, nativeAutoAnnotate); }
-  return { document, textarea, pinyin, textContainer, cell, toolbar, secondToolbar, wrongParent, nativeAutoAnnotate, secondNativeAutoAnnotate, replaceToolbarAutoAnnotate, showToolbar, buttons, events, Textarea, InputEvent };
+  function hideToolbar() { toolbarButtons.splice(0, toolbarButtons.length); }
+  return { document, textarea, pinyin, textContainer, cell, toolbar, secondToolbar, wrongParent, nativeAutoAnnotate, secondNativeAutoAnnotate, replaceToolbarAutoAnnotate, showToolbar, hideToolbar, buttons, events, Textarea, InputEvent };
 }
 
 test("JD Shanghai panel mounts its distinct recognition button after the native auto-annotation button", function () {
@@ -160,6 +161,30 @@ test("JD Shanghai panel migrates a connected fallback button into a newly availa
   assert.equal(fallbackButton.parentElement, null);
   assert.equal(harness.nativeAutoAnnotate.nextSibling, harness.buttons[1]);
   assert.equal(harness.buttons[1].parentElement, harness.toolbar);
+});
+
+test("JD Shanghai panel falls back when its native toolbar anchor disappears and remigrates when it returns", function () {
+  const harness = createHarness();
+  const runtime = panel.createRuntime({ document: harness.document, HTMLTextAreaElement: harness.Textarea, InputEvent: harness.InputEvent });
+
+  runtime.ensureMounted();
+  const toolbarButton = harness.buttons[0];
+  harness.hideToolbar();
+  runtime.ensureMounted();
+
+  assert.equal(toolbarButton.isConnected, false);
+  assert.equal(harness.buttons.length, 2);
+  assert.equal(harness.buttons[1].parentElement, harness.cell);
+  assert.equal(runtime.getMountTarget(), harness.cell);
+
+  harness.showToolbar();
+  runtime.ensureMounted();
+
+  assert.equal(harness.buttons[1].isConnected, false);
+  assert.equal(harness.buttons.length, 3);
+  assert.equal(harness.nativeAutoAnnotate.nextSibling, harness.buttons[2]);
+  assert.equal(harness.buttons[2].parentElement, harness.toolbar);
+  assert.equal(runtime.getMountTarget(), harness.toolbar);
 });
 
 test("JD Shanghai panel remounts into a replaced toolbar and reports that toolbar as its mount target", function () {
