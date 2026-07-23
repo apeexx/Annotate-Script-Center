@@ -49,7 +49,7 @@
             <span class="workspace-side-label">AI 调用使用人</span>
             <strong id="workspace-ai-usage-operator-title">全局 AI 调用身份</strong>
             <p class="workspace-side-copy">
-              这里统一保存当前扩展使用 AI 时的调用人姓名。点击按钮后才会写入本地缓存。
+              这里统一保存当前扩展使用 AI 时的调用人姓名。京东 TTS 上海话识别必须先填写并保存，点击按钮后才会写入本地缓存。
             </p>
             <div class="workspace-side-form">
               <input
@@ -996,6 +996,26 @@
               </button>
             </div>
             <div id="aishell-tech-cantonese-status" class="status-text"></div>
+          </section>
+
+          <section id="detail-jd-tts-shanghainese-helper-panel" class="detail-panel detail-panel-base hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong>基础设置</strong>
+                <span>控制京东 TTS 标注页当前文本框的上海话识别与回填边界。</span>
+              </div>
+            </div>
+            <div class="field-card">
+              <strong>京东 TTS 上海话助手</strong>
+              <span>仅在 `https://tts-biaozhu-pub.jd.com/#/annotation/dataset/annotate` 生效。</span>
+              <span>仅识别并填入当前文本框，不保存或提交。</span>
+            </div>
+            <div class="field-actions">
+              <button id="save-jd-tts-shanghainese-settings" class="primary-button" type="button">
+                保存京东 TTS 上海话设置
+              </button>
+            </div>
+            <div id="jd-tts-shanghainese-status" class="status-text"></div>
           </section>
 
           <section id="detail-aishell-tech-cn-en-short-drama-panel" class="detail-panel detail-panel-base hidden">

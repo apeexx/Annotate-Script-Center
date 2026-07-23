@@ -340,6 +340,38 @@
     },
     {
       "matches": [
+        "https://tts-biaozhu-pub.jd.com/*"
+      ],
+      "js": [
+        "sites/jd-tts-annotation/shanghainese-helper/page-world/utterance-observer.js"
+      ],
+      "all_frames": false,
+      "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": [
+        "https://tts-biaozhu-pub.jd.com/*"
+      ],
+      "js": [
+        "shared/build-meta.js",
+        "shared/constants.js",
+        "shared/storage.js",
+        "shared/ai-error-display.js",
+        "shared/ai-usage-meta.js",
+        "shared/ai-job-client.js",
+        "sites/jd-tts-annotation/shanghainese-helper/data-api.js",
+        "sites/jd-tts-annotation/shanghainese-helper/ai-recommendation.js",
+        "sites/jd-tts-annotation/shanghainese-helper/diagnostics.js",
+        "sites/jd-tts-annotation/shanghainese-helper/ui-panel.js",
+        "sites/jd-tts-annotation/shanghainese-helper/content.js"
+      ],
+      "all_frames": false,
+      "run_at": "document_start",
+      "world": "ISOLATED"
+    },
+    {
+      "matches": [
         "http://*/*"
       ],
       "js": [

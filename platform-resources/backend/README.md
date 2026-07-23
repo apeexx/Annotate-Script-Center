@@ -22,6 +22,7 @@ http://127.0.0.1:3333
 - DataBaker 一检助手。
 - Magic Data 客家话和闽南语助手。
 - Aishell Tech 闽南语、粤语、越南语、泰语助手。
+- 京东 TTS 上海话助手。
 - Abaka AI Task21。
 - 管理会话、管理面板、下载中心、项目数据下载、AI 调用记录下载。
 - 公开下载中心默认地址：`https://script.aisiyunling.com/downloads/`。
@@ -30,7 +31,7 @@ http://127.0.0.1:3333
 
 扩展工作台的“系统管理”视图仅调用当前统一后端的管理员会话、仪表盘、下载中心、项目数据导出和 AI 调用记录导出接口。管理员会话使用环境变量配置的密码摘要和 JWT secret 鉴权；未配置或凭据错误时应返回脱敏错误，前端不得保存管理员密码或 token。
 
-当前 AI 默认配置接口仅为已注册的 LabelX、DataBaker、Magic Data、Aishell Tech 和 Abaka Task21 脚本提供。未接入 AI 的现行脚本不会伪造 AI 配置接口；已删除的历史脚本也不会重新注册路由。
+当前 AI 默认配置接口仅为已注册的 LabelX、DataBaker、Magic Data、Aishell Tech、京东 TTS 上海话和 Abaka Task21 脚本提供。未接入 AI 的现行脚本不会伪造 AI 配置接口；已删除的历史脚本也不会重新注册路由。
 
 ## 安全边界
 

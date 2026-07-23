@@ -223,6 +223,19 @@
         : function (jobBody) {
             return jobBody?.data;
           };
+    const onPhase = typeof config.onPhase === "function" ? config.onPhase : null;
+
+    function notifyPhase(phase) {
+      const normalized = normalizeText(phase);
+      if (!onPhase || (normalized !== "create" && normalized !== "poll")) {
+        return;
+      }
+      try {
+        onPhase(normalized);
+      } catch (_error) {
+        // Progress callbacks are UI-only and must never affect the job lifecycle.
+      }
+    }
 
     async function requestPhase(url, method, body, phase) {
       if (externalSignal?.aborted) {
@@ -232,6 +245,7 @@
       if (remainingMs <= 0) {
         throw createTimeoutError(phase);
       }
+      notifyPhase(phase);
       try {
         return await requestJson({
           fetchImpl: config.fetchImpl,

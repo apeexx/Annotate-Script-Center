@@ -30,6 +30,7 @@ const { aiCallLogger: magicDataMinnanLogger } = require("../../magic-data/minnan
 const { aiCallLogger: asrJudgementLogger } = require("../../alibaba-labelx/asr-judgement/backend/ai-call-log");
 const { aiCallLogger: asrTranscriptionLogger } = require("../../alibaba-labelx/asr-transcription/backend/ai-call-log");
 const { aiCallLogger: abakaTask21Logger } = require("../../abaka-ai/task21/backend/ai-call-log");
+const { aiCallLogger: jdTtsShanghaineseLogger } = require("../../jd-tts-annotation/shanghainese-helper/data/ai-call-log");
 
 const OPTIONS_PATH = "/api/admin/ai-call-log/options";
 const REQUEST_PATH = "/api/admin/ai-call-log/request";
@@ -183,6 +184,14 @@ function createDatasetRegistry(config) {
       defaultFileName: "abaka-task21-ai-calls.csv",
       getLogger: function () {
         return abakaTask21Logger;
+      },
+    },
+    {
+      id: "jd-tts-shanghainese-helper-ai",
+      label: "京东 TTS 上海话助手 AI 调用记录",
+      defaultFileName: "jd-tts-shanghainese-helper-ai-calls.csv",
+      getLogger: function () {
+        return jdTtsShanghaineseLogger;
       },
     },
   ];

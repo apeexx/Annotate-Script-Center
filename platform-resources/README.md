@@ -10,6 +10,7 @@
 - `aishell-tech/`：Aishell Tech 多脚本资料与后端。
 - `abaka-ai/`：Abaka AI Task21 资料与后端。
 - `haitian-utrans/`：uTrans 音频下载助手资料。
+- `jd-tts-annotation/`：京东 TTS 上海话文本回填助手资料、脱敏 Network / DOM 参考和后端。
 - `backend/`：统一后端入口、公共管理接口、下载与日志能力。
 
 ## 目录约定
