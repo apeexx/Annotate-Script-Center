@@ -40,9 +40,7 @@
           return true;
         }
       }
-      if (!nextButton.parentElement) {
-        field.container?.insertAdjacentElement?.("afterend", nextButton);
-      }
+      field.container?.insertAdjacentElement?.("afterend", nextButton);
       return false;
     }
 

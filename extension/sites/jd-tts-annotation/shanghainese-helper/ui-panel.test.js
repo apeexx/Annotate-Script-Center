@@ -40,6 +40,7 @@ function createHarness(options) {
   const buttons = [];
   const toolbar = { id: "toolbar" };
   const secondToolbar = { id: "second-toolbar" };
+  const wrongParent = { id: "wrong-parent" };
   function createNativeAutoAnnotate(parentElement) {
     const nativeMutations = [];
     const nativeButton = {
@@ -49,6 +50,11 @@ function createHarness(options) {
       insertAdjacentElement(position, button) {
         assert.equal(position, "afterend");
         if (config.nativeInsertionNoEffect === true) { return; }
+        if (config.nativeInsertionWrongParent === true) {
+          button.parentElement = wrongParent;
+          button.isConnected = true;
+          return;
+        }
         button.parentElement = parentElement;
         button.isConnected = true;
         this.nextSibling = button;
@@ -90,7 +96,7 @@ function createHarness(options) {
     toolbarButtons.splice(0, toolbarButtons.length, secondNativeAutoAnnotate);
   }
   function showToolbar() { toolbarButtons.splice(0, toolbarButtons.length, nativeAutoAnnotate); }
-  return { document, textarea, pinyin, textContainer, cell, toolbar, secondToolbar, nativeAutoAnnotate, secondNativeAutoAnnotate, replaceToolbarAutoAnnotate, showToolbar, buttons, events, Textarea, InputEvent };
+  return { document, textarea, pinyin, textContainer, cell, toolbar, secondToolbar, wrongParent, nativeAutoAnnotate, secondNativeAutoAnnotate, replaceToolbarAutoAnnotate, showToolbar, buttons, events, Textarea, InputEvent };
 }
 
 test("JD Shanghai panel mounts its distinct recognition button after the native auto-annotation button", function () {
@@ -126,6 +132,18 @@ test("JD Shanghai panel falls back to the text field when native insertion has n
   assert.deepEqual(harness.textContainer.insertions[0], ["afterend", harness.buttons[0]]);
   assert.equal(harness.buttons[0].parentElement, harness.cell);
   assert.equal(harness.textContainer.nextSibling, harness.buttons[0]);
+});
+
+test("JD Shanghai panel relocates an incorrectly parented native insertion beside the text field", function () {
+  const harness = createHarness({ nativeInsertionWrongParent: true });
+  const runtime = panel.createRuntime({ document: harness.document, HTMLTextAreaElement: harness.Textarea, InputEvent: harness.InputEvent });
+
+  assert.equal(runtime.ensureMounted(), true);
+  assert.equal(harness.textContainer.insertions.length, 1);
+  assert.deepEqual(harness.textContainer.insertions[0], ["afterend", harness.buttons[0]]);
+  assert.equal(harness.textContainer.nextSibling, harness.buttons[0]);
+  assert.equal(harness.buttons[0].parentElement, harness.cell);
+  assert.notEqual(harness.buttons[0].parentElement, harness.wrongParent);
 });
 
 test("JD Shanghai panel migrates a connected fallback button into a newly available toolbar", function () {
