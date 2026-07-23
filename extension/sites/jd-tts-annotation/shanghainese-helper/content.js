@@ -4,16 +4,27 @@
   const SCRIPT_ID = "jdTtsShanghaineseAssistant";
   const ROUTE_PART = "/annotation/dataset/annotate";
   const TIMEOUT_MS = 60000;
+  const diagnostics = globalThis.ASREdgeJdTtsShanghaiDiagnostics || {};
 
   function isAnnotateRoute(locationRef) { return String(locationRef?.hash || "").indexOf(ROUTE_PART) >= 0; }
   function sameIdentity(left, right) { return String(left?.utteranceId || "") === String(right?.utteranceId || "") && String(left?.checksum || "") === String(right?.checksum || ""); }
   function sanitizeError(error) {
-    return String(error?.code || error?.message || "识别失败。")
+    return String(error?.message || error?.code || "识别失败。")
       .replace(/data:audio\/[^\s"'<>]+/gi, "[已隐藏]")
       .replace(/https?:\/\/[^\s"'<>]+/gi, "[已隐藏]")
       .replace(/\b(?:cookie|authorization|token|signature|secret(?:key)?|api[_-]?key)\b\s*[:=]\s*(?:Bearer\s+)?(?:"[^"]*"|'[^']*'|[^\s,;]+)/gi, "[已隐藏]")
       .replace(/\bBearer\s+[^\s,;]+/gi, "Bearer [已隐藏]")
       .slice(0, 120);
+  }
+
+  function stageLabel(value, fallback) {
+    const key = String(value || "").trim().toLowerCase();
+    if (key === "validate") { return "使用人检查"; }
+    if (key === "health") { return "后端健康检查"; }
+    if (key === "create") { return "创建识别任务"; }
+    if (key === "poll" || key === "job") { return "等待识别结果"; }
+    if (key === "write") { return "写入文本框"; }
+    return String(fallback || "识别请求");
   }
 
   function createRuntime(options) {
@@ -29,6 +40,24 @@
     let nextRunId = 0;
     let evaluationVersion = 0;
     let started = false;
+
+    function updateRunInfo(run, patch) {
+      if (!run || activeRun !== run) { return; }
+      run.info = Object.assign({}, run.info || {}, patch || {});
+      panel?.updateInfo?.(run.info);
+    }
+
+    function buildFailure(error, fallbackStage) {
+      const safeError = {
+        code: String(error?.code || "request-error"),
+        message: sanitizeError(error),
+        rawResponse: error?.rawResponse && typeof error.rawResponse === "object" ? error.rawResponse : null,
+      };
+      if (typeof diagnostics.buildFailureDetails === "function") {
+        return diagnostics.buildFailureDetails(safeError, fallbackStage);
+      }
+      return { step: fallbackStage, code: safeError.code, summary: safeError.message, suggestion: "请稍后重试。" };
+    }
 
     async function enabled() {
       if (typeof config.isEnabled === "function") { return config.isEnabled(); }
@@ -62,23 +91,79 @@
 
     async function handleRecommend() {
       if (!started || activeRun) { return; }
-      const run = { id: ++nextRunId, controller: new AbortController(), timer: null };
+      const run = {
+        id: ++nextRunId,
+        controller: new AbortController(),
+        timer: null,
+        timedOut: false,
+        info: { operatorName: "未设置", status: "进行中", stage: "使用人检查", resultText: "", fillState: "未写入", details: [], error: null },
+      };
       activeRun = run;
-      run.timer = globalThis.setTimeout(function () { run.controller.abort(); }, TIMEOUT_MS);
+      run.timer = globalThis.setTimeout(function () { run.timedOut = true; run.controller.abort(); }, TIMEOUT_MS);
       panel?.setBusy?.(true);
+      panel?.setStatus?.("正在识别当前音频…", "pending");
       try {
+        updateRunInfo(run, { status: "进行中", stage: "使用人检查", fillState: "未写入", error: null });
+        const preparedRun = typeof aiClient?.prepareRun === "function" ? await aiClient.prepareRun() : {};
+        if (run.controller.signal.aborted || activeRun !== run) { return; }
+        updateRunInfo(run, {
+          operatorName: preparedRun?.requestMeta?.aiUsageOperatorName || "未设置",
+          status: "进行中",
+          stage: "获取当前 WAV",
+        });
         const snapshot = await dataApi?.getCurrentAudio?.({ signal: run.controller.signal });
-        if (run.controller.signal.aborted || !snapshot || activeRun !== run) { return; }
-        const result = await aiClient?.recommend?.(snapshot, { signal: run.controller.signal });
-        if (run.controller.signal.aborted || activeRun !== run || !sameIdentity(result, snapshot) || dataApi?.isCurrentSnapshot?.(snapshot) !== true) { return; }
-        panel?.fillRecommendedText?.(result, function () { return activeRun === run && run.controller.signal.aborted !== true && dataApi?.isCurrentSnapshot?.(snapshot) === true; });
+        if (run.controller.signal.aborted || activeRun !== run) { return; }
+        if (!snapshot) {
+          panel?.setStatus?.("未获取当前 WAV，请刷新页面后重试。", "warning");
+          updateRunInfo(run, { status: "失败", stage: "获取当前 WAV", fillState: "未写入", error: { step: "获取当前 WAV", code: "audio-unavailable", summary: "未获取当前 WAV，请刷新页面后重试。", suggestion: "刷新当前标注页面后重新点击识别。" } });
+          return;
+        }
+        updateRunInfo(run, { status: "进行中", stage: "后端健康检查" });
+        const result = await aiClient?.recommend?.(snapshot, {
+          signal: run.controller.signal,
+          preparedRun,
+          onStage: function (stage) {
+            updateRunInfo(run, { status: "进行中", stage: stageLabel(stage?.key, stage?.label) });
+          },
+        });
+        if (run.controller.signal.aborted || activeRun !== run) { return; }
+        updateRunInfo(run, { status: "进行中", stage: "校验当前条", resultText: typeof result?.listenText === "string" ? result.listenText : "" });
+        if (!sameIdentity(result, snapshot) || dataApi?.isCurrentSnapshot?.(snapshot) !== true) {
+          panel?.setStatus?.("识别结果已失效，请重新点击识别。", "warning");
+          updateRunInfo(run, { status: "未回填", stage: "校验当前条", fillState: "当前条目已切换", error: null });
+          return;
+        }
+        updateRunInfo(run, { status: "进行中", stage: "写入文本框" });
+        const filled = panel?.fillRecommendedText?.(result, function () { return activeRun === run && run.controller.signal.aborted !== true && dataApi?.isCurrentSnapshot?.(snapshot) === true; }) === true;
+        const details = typeof diagnostics.buildSuccessDetails === "function" ? diagnostics.buildSuccessDetails(result) : [];
+        if (filled) {
+          panel?.setStatus?.("识别完成，已回填文本。", "success");
+          updateRunInfo(run, { status: "成功", stage: "写入文本框", fillState: "已回填文本", details, error: null });
+        } else if (!String(result?.listenText || "").trim()) {
+          panel?.setStatus?.("未识别到有效文本，请人工复核。", "warning");
+          updateRunInfo(run, { status: "需人工复核", stage: "写入文本框", fillState: "未写入（空识别）", details, error: null });
+        } else {
+          panel?.setStatus?.("未写入文本：当前条目已切换或文本框不可写。", "warning");
+          updateRunInfo(run, { status: "未回填", stage: "写入文本框", fillState: "文本框不可写或条目已切换", details, error: null });
+        }
       } catch (error) {
-        if (activeRun === run && !run.controller.signal.aborted) { panel?.setStatus?.(sanitizeError(error)); }
+        if (activeRun === run && !run.controller.signal.aborted) {
+          const failureStage = stageLabel(error?.stage || error?.phase, run.info?.stage);
+          const failure = buildFailure(error, failureStage);
+          panel?.setStatus?.(failure.summary, "error");
+          updateRunInfo(run, { status: "失败", stage: failureStage, fillState: "未写入", error: failure });
+        }
       } finally {
         if (activeRun === run) {
           if (run.timer) { globalThis.clearTimeout(run.timer); run.timer = null; }
           activeRun = null;
           panel?.setBusy?.(false);
+          if (run.timedOut) {
+            const timedOutStage = String(run.info?.stage || "").trim() || "等待识别结果";
+            panel?.setStatus?.("识别超时，请稍后重试。", "warning");
+            run.info = Object.assign({}, run.info || {}, { status: "失败", stage: timedOutStage, fillState: "未写入", error: { step: timedOutStage, code: "timeout", summary: "识别超时，请稍后重试。", suggestion: "识别超过 60 秒，请稍后重试。" } });
+            panel?.updateInfo?.(run.info);
+          }
         }
       }
     }

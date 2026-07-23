@@ -5,6 +5,44 @@ const path = require("node:path");
 const test = require("node:test");
 const content = require(path.resolve(__dirname, "content.js"));
 
+test("JD Shanghai content reports the preflight step before requesting current WAV", async function () {
+  const updates = [];
+  let audioCalls = 0;
+  const runtime = content.createRuntime({
+    location: { hash: "#/annotation/dataset/annotate" },
+    isEnabled: async function () { return true; },
+    createPanel: function () {
+      return {
+        ensureMounted() {}, setBusy() {}, setStatus() {}, remove() {},
+        updateInfo(value) { updates.push(value); },
+      };
+    },
+    createDataApi: function () {
+      return {
+        start() {}, stop() {},
+        getCurrentAudio: async function () { audioCalls += 1; return null; },
+      };
+    },
+    createAiClient: function () {
+      return {
+        prepareRun: async function () {
+          const error = new Error("请先在 options 首页填写 AI 调用使用人。");
+          error.code = "missing-ai-usage-operator-name";
+          throw error;
+        },
+      };
+    },
+  });
+
+  await runtime.evaluatePage();
+  await runtime.handleRecommend();
+
+  assert.equal(audioCalls, 0);
+  assert.equal(updates.at(-1).stage, "使用人检查");
+  assert.equal(updates.at(-1).status, "失败");
+  assert.equal(updates.at(-1).error.code, "missing-ai-usage-operator-name");
+});
+
 test("JD Shanghai content starts only on annotation route when enabled and cancels on route exit", async function () {
   let aborted = false;
   let mounted = 0;
@@ -36,6 +74,199 @@ test("JD Shanghai content does not fill after cancellation, identity change, or 
   await runtime.evaluatePage();
   await runtime.handleRecommend({ signal: controller.signal });
   assert.equal(writes.length, 0);
+});
+
+test("JD Shanghai content reports visible success after it fills the current text field", async function () {
+  const statuses = [];
+  let writes = 0;
+  const runtime = content.createRuntime({
+    location: { hash: "#/annotation/dataset/annotate" },
+    isEnabled: async function () { return true; },
+    createPanel: function () {
+      return {
+        ensureMounted() {}, setBusy() {}, setStatus(message) { statuses.push(message); },
+        fillRecommendedText() { writes += 1; return true; }, remove() {},
+      };
+    },
+    createDataApi: function () {
+      return {
+        start() {}, stop() {},
+        getCurrentAudio: async function () { return { utteranceId: "1", checksum: "a".repeat(32), audioDataUrl: "data:audio/wav;base64,UklGRg==" }; },
+        isCurrentSnapshot() { return true; },
+      };
+    },
+    createAiClient: function () { return { recommend: async function () { return { utteranceId: "1", checksum: "a".repeat(32), listenText: "侬好", needHumanReview: false, meta: {} }; } }; },
+  });
+
+  await runtime.evaluatePage();
+  await runtime.handleRecommend();
+
+  assert.equal(writes, 1);
+  assert.equal(statuses.at(-1), "识别完成，已回填文本。");
+});
+
+test("JD Shanghai content stops at usage-operator validation before fetching WAV or creating a job", async function () {
+  let audioCalls = 0;
+  let jobCalls = 0;
+  const updates = [];
+  const runtime = content.createRuntime({
+    location: { hash: "#/annotation/dataset/annotate" },
+    isEnabled: async function () { return true; },
+    createPanel: function () {
+      return {
+        ensureMounted() {}, setBusy() {}, setStatus() {}, updateInfo(value) { updates.push(value); }, fillRecommendedText() { throw new Error("must not fill"); }, remove() {},
+      };
+    },
+    createDataApi: function () {
+      return {
+        start() {}, stop() {},
+        getCurrentAudio: async function () { audioCalls += 1; return null; },
+        isCurrentSnapshot() { return true; },
+      };
+    },
+    createAiClient: function () {
+      return {
+        prepareRun: async function () {
+          const error = new Error("请先填写 AI 调用使用人。");
+          error.code = "missing-ai-usage-operator-name";
+          error.stage = "validate";
+          throw error;
+        },
+        recommend: async function () { jobCalls += 1; return null; },
+      };
+    },
+  });
+
+  await runtime.evaluatePage();
+  await runtime.handleRecommend();
+
+  assert.equal(audioCalls, 0);
+  assert.equal(jobCalls, 0);
+  assert.equal(updates.at(-1).status, "失败");
+  assert.equal(updates.at(-1).stage, "使用人检查");
+  assert.equal(updates.at(-1).error.code, "missing-ai-usage-operator-name");
+  assert.equal(updates.at(-1).error.summary, "请先填写 AI 调用使用人。");
+});
+
+test("JD Shanghai content keeps the current named step when recognition times out before WAV retrieval", async function () {
+  const priorSetTimeout = globalThis.setTimeout;
+  const priorClearTimeout = globalThis.clearTimeout;
+  let timeoutCallback = null;
+  let resolvePrepareRun;
+  const updates = [];
+  const timeoutHandle = { id: "jd-timeout" };
+  globalThis.setTimeout = function (callback, delay) {
+    if (delay === 60000) {
+      timeoutCallback = callback;
+      return timeoutHandle;
+    }
+    return priorSetTimeout(callback, delay);
+  };
+  globalThis.clearTimeout = function (handle) {
+    if (handle !== timeoutHandle) { return priorClearTimeout(handle); }
+  };
+  try {
+    const runtime = content.createRuntime({
+      location: { hash: "#/annotation/dataset/annotate" },
+      isEnabled: async function () { return true; },
+      createPanel: function () {
+        return {
+          ensureMounted() {}, setBusy() {}, setStatus() {}, updateInfo(value) { updates.push(value); }, fillRecommendedText() { throw new Error("must not fill"); }, remove() {},
+        };
+      },
+      createDataApi: function () { return { start() {}, stop() {}, getCurrentAudio() { throw new Error("must not fetch WAV"); }, isCurrentSnapshot() { return true; } }; },
+      createAiClient: function () {
+        return {
+          prepareRun: function () { return new Promise(function (resolve) { resolvePrepareRun = resolve; }); },
+          recommend() { throw new Error("must not create job"); },
+        };
+      },
+    });
+    await runtime.evaluatePage();
+    const pending = runtime.handleRecommend();
+    await Promise.resolve();
+    assert.equal(typeof timeoutCallback, "function");
+    timeoutCallback();
+    resolvePrepareRun({ requestMeta: { aiUsageOperatorName: "测试使用人" } });
+    await pending;
+
+    assert.equal(updates.at(-1).status, "失败");
+    assert.equal(updates.at(-1).stage, "使用人检查");
+    assert.equal(updates.at(-1).error.code, "timeout");
+  } finally {
+    globalThis.setTimeout = priorSetTimeout;
+    globalThis.clearTimeout = priorClearTimeout;
+  }
+});
+
+test("JD Shanghai content reports all seven safe runtime stages before filling the current text field", async function () {
+  const stages = [];
+  const updates = [];
+  const runtime = content.createRuntime({
+    location: { hash: "#/annotation/dataset/annotate" },
+    isEnabled: async function () { return true; },
+    createPanel: function () {
+      return {
+        ensureMounted() {}, setBusy() {}, setStatus() {},
+        updateInfo(value) { updates.push(value); stages.push(value.stage); },
+        fillRecommendedText() { return true; }, remove() {},
+      };
+    },
+    createDataApi: function () {
+      return {
+        start() {}, stop() {},
+        getCurrentAudio: async function () { return { utteranceId: "1", checksum: "a".repeat(32), audioDataUrl: "data:audio/wav;base64,UklGRg==" }; },
+        isCurrentSnapshot() { return true; },
+      };
+    },
+    createAiClient: function () {
+      return {
+        prepareRun: async function () { return { requestMeta: { aiUsageOperatorName: "测试使用人" } }; },
+        recommend: async function (_snapshot, options) {
+          options.onStage({ key: "create" });
+          options.onStage({ key: "poll" });
+          return { utteranceId: "1", checksum: "a".repeat(32), listenText: "侬好", needHumanReview: false, meta: {} };
+        },
+      };
+    },
+  });
+
+  await runtime.evaluatePage();
+  await runtime.handleRecommend();
+
+  assert.deepEqual(stages, ["使用人检查", "获取当前 WAV", "后端健康检查", "创建识别任务", "等待识别结果", "校验当前条", "写入文本框", "写入文本框"]);
+  assert.equal(updates.at(-1).status, "成功");
+  assert.equal(updates.at(-1).resultText, "侬好");
+  assert.equal(updates.at(-1).fillState, "已回填文本");
+});
+
+test("JD Shanghai content explains an empty recognition result without filling text", async function () {
+  const statuses = [];
+  let writes = 0;
+  const runtime = content.createRuntime({
+    location: { hash: "#/annotation/dataset/annotate" },
+    isEnabled: async function () { return true; },
+    createPanel: function () {
+      return {
+        ensureMounted() {}, setBusy() {}, setStatus(message) { statuses.push(message); },
+        fillRecommendedText() { writes += 1; return false; }, remove() {},
+      };
+    },
+    createDataApi: function () {
+      return {
+        start() {}, stop() {},
+        getCurrentAudio: async function () { return { utteranceId: "1", checksum: "a".repeat(32), audioDataUrl: "data:audio/wav;base64,UklGRg==" }; },
+        isCurrentSnapshot() { return true; },
+      };
+    },
+    createAiClient: function () { return { recommend: async function () { return { utteranceId: "1", checksum: "a".repeat(32), listenText: "", needHumanReview: true, meta: {} }; } }; },
+  });
+
+  await runtime.evaluatePage();
+  await runtime.handleRecommend();
+
+  assert.equal(writes, 1);
+  assert.equal(statuses.at(-1), "未识别到有效文本，请人工复核。");
 });
 
 test("JD Shanghai content keeps a newer request busy when an aborted older request finishes late", async function () {

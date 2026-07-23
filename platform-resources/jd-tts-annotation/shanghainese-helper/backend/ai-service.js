@@ -1,6 +1,7 @@
 "use strict";
 
 const { estimateProjectCost } = require("../../../backend/ai/model-pricing");
+const { assertAiUsageOperatorName } = require("../../../backend/ai-call-log");
 const { DEFAULT_TIMEOUT_MS } = require("./config");
 
 const SCRIPT_ID = "jdTtsShanghaineseAssistant";
@@ -104,6 +105,13 @@ function normalizeRecommendRequest(value) {
   if (Object.prototype.hasOwnProperty.call(source, "audioUrl")) {
     throw createHttpError(400, "请求不得携带音频地址。", "unexpected-audio-url");
   }
+  let aiUsageOperatorName = "";
+  try {
+    aiUsageOperatorName = assertAiUsageOperatorName(source);
+  } catch (error) {
+    error.stage = error.stage || "validate";
+    throw error;
+  }
   return {
     requestId: normalizeText(source.requestId || source.clientRequestId),
     clientRequestId: normalizeText(source.clientRequestId),
@@ -111,7 +119,7 @@ function normalizeRecommendRequest(value) {
     checksum: normalizeChecksum(source.checksum),
     audioDataUrl: normalizeAudioDataUrl(source.audioDataUrl),
     aiOmni: normalizeOmniConfig(source.aiOmni),
-    aiUsageOperatorName: normalizeText(source.aiUsageOperatorName).slice(0, 40),
+    aiUsageOperatorName,
     platformUserName: normalizeText(source.platformUserName).slice(0, 80),
     platformUserId: normalizeText(source.platformUserId).slice(0, 120),
     timeoutMs: DEFAULT_TIMEOUT_MS,

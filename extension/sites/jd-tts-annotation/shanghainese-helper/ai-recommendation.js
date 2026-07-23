@@ -3,6 +3,7 @@
 
   const RECOMMEND_PATH = "/api/jd-tts-annotation/shanghainese-helper/ai/recommend";
   const DEFAULT_TIMEOUT_MS = 60000;
+  const aiUsageMeta = globalThis.ASREdgeAiUsageMeta || {};
 
   function normalizeText(value) { return String(value || "").trim(); }
 
@@ -80,6 +81,39 @@
     };
   }
 
+  function createMissingUsageOperatorError() {
+    if (typeof aiUsageMeta.createMissingAiUsageOperatorError === "function") {
+      return aiUsageMeta.createMissingAiUsageOperatorError();
+    }
+    return createError("请先在 options 首页填写 AI 调用使用人。", { code: "missing-ai-usage-operator-name" });
+  }
+
+  function buildUsageMeta(settings, fallback) {
+    const source = fallback && typeof fallback === "object" ? fallback : {};
+    const built = typeof aiUsageMeta.buildAiUsageRequestMeta === "function"
+      ? aiUsageMeta.buildAiUsageRequestMeta({ settings, platformUserName: source.platformUserName, platformUserId: source.platformUserId })
+      : {};
+    return buildSafeMeta({
+      aiUsageOperatorName: built.aiUsageOperatorName || source.aiUsageOperatorName,
+      platformUserName: built.platformUserName || source.platformUserName,
+      platformUserId: built.platformUserId || source.platformUserId,
+    });
+  }
+
+  function assertUsageMeta(requestMeta) {
+    try {
+      if (typeof aiUsageMeta.assertAiUsageOperatorConfigured === "function") {
+        aiUsageMeta.assertAiUsageOperatorConfigured(requestMeta);
+      } else if (!normalizeText(requestMeta?.aiUsageOperatorName)) {
+        throw createMissingUsageOperatorError();
+      }
+    } catch (error) {
+      error.stage = error.stage || "validate";
+      throw error;
+    }
+    return requestMeta;
+  }
+
   function buildRequestBody(snapshot, config) {
     const source = snapshot && typeof snapshot === "object" ? snapshot : {};
     const requestMeta = buildSafeMeta(config?.requestMeta);
@@ -96,11 +130,14 @@
     };
   }
 
-  function buildApiError(body, statusCode) {
+  function buildApiError(body, statusCode, phase) {
     const errorBody = body?.error && typeof body.error === "object" ? body.error : body || {};
     return createError(normalizeText(errorBody.message) || "AI 服务不可用。", {
       code: normalizeText(errorBody.code) || "request-error",
       statusCode: Number(statusCode) || 0,
+      phase: normalizeText(phase) || normalizeText(errorBody.stage) || "request",
+      requestId: normalizeText(body?.meta?.requestId || body?.requestId),
+      rawResponse: errorBody,
     });
   }
 
@@ -177,7 +214,17 @@
         ? globalThis.ASREdgeStorage.getSettings
         : async function () { return {}; };
 
-    async function run(endpoint, body, signal) {
+    async function prepareRun() {
+      const settings = await getSettings();
+      const requestMeta = assertUsageMeta(buildUsageMeta(settings, config.requestMeta));
+      const endpoint = resolveEndpoint(constants, settings, config.endpoint);
+      const fallbackMode = getBackendMode(settings) === "local" ? "server" : "local";
+      let fallbackEndpoint = "";
+      try { fallbackEndpoint = resolveEndpointForMode(constants, settings, fallbackMode); } catch (_error) { fallbackEndpoint = ""; }
+      return { settings, requestMeta, aiOmni: getSavedAiOmni(settings, config.aiOmni), endpoint, fallbackEndpoint };
+    }
+
+    async function run(endpoint, body, signal, onStage) {
       if (!jobClient || typeof jobClient.runJobLifecycle !== "function") {
         throw createError("当前环境不支持 AI jobs 客户端。", { code: "jobs-client-unavailable" });
       }
@@ -188,6 +235,11 @@
         signal: signal || undefined,
         timeoutMs: DEFAULT_TIMEOUT_MS,
         pollIntervalMs: 800,
+        onPhase: function (phase) {
+          if (normalizeText(phase).toLowerCase() === "poll") {
+            onStage?.({ key: "poll", label: "等待识别结果" });
+          }
+        },
         buildApiError,
         buildTerminalError: function (jobBody) { return buildApiError(jobBody?.error || jobBody, 500); },
         mapSuccess: function (jobBody) {
@@ -243,27 +295,25 @@
     }
 
     async function recommend(snapshot, requestOptions) {
-      const settings = await getSettings();
-      const endpoint = resolveEndpoint(constants, settings, config.endpoint);
-      const fallbackMode = getBackendMode(settings) === "local" ? "server" : "local";
-      let fallbackEndpoint = "";
-      try { fallbackEndpoint = resolveEndpointForMode(constants, settings, fallbackMode); } catch (_error) { fallbackEndpoint = ""; }
-      const requestMeta = Object.assign({}, config.requestMeta || {}, {
-        aiUsageOperatorName: normalizeText(settings?.meta?.aiUsageOperatorName) || config?.requestMeta?.aiUsageOperatorName,
-      });
-      const body = buildRequestBody(snapshot, { aiOmni: getSavedAiOmni(settings, config.aiOmni), requestMeta });
+      const prepared = requestOptions?.preparedRun || await prepareRun();
+      const endpoint = prepared.endpoint;
+      const fallbackEndpoint = prepared.fallbackEndpoint;
+      const requestMeta = prepared.requestMeta;
+      const body = buildRequestBody(snapshot, { aiOmni: prepared.aiOmni, requestMeta });
       const signal = requestOptions?.signal;
+      requestOptions?.onStage?.({ key: "health", label: "后端健康检查" });
       const selection = await selectEndpointBeforeJob(endpoint, fallbackEndpoint, signal);
       if (signal?.aborted) { throw createError("请求已取消。", { code: "user-aborted" }); }
+      requestOptions?.onStage?.({ key: "create", label: "创建识别任务" });
       try {
-        return await run(selection.endpoint, body, signal);
+        return await run(selection.endpoint, body, signal, requestOptions?.onStage);
       } catch (error) {
         if (signal?.aborted || error?.name === "AbortError" || !isNetworkError(error)) { throw error; }
         throw createNetworkError(endpoint, selection.fallbackSelected ? selection.endpoint : "", selection.primaryHealth);
       }
     }
 
-    return { recommend, probeHealth: function (endpoint, signal) { return probeHealth(endpoint, signal); }, buildRequestBody: function (snapshot) { return buildRequestBody(snapshot, config); } };
+    return { prepareRun, recommend, probeHealth: function (endpoint, signal) { return probeHealth(endpoint, signal); }, buildRequestBody: function (snapshot) { return buildRequestBody(snapshot, config); } };
   }
 
   const api = { createRuntime, mapSuccess, buildRequestBody, resolveEndpoint };

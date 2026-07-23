@@ -19,6 +19,7 @@ test("JD TTS options provide a dedicated flat single-stage settings panel", func
   assert.match(script, /async function saveJdTtsShanghaineseSettings\(/);
   assert.match(script, /qwen3\.5-omni-plus/);
   assert.match(script, /qwen3\.5-omni-flash/);
+  assert.match(html, /京东 TTS 上海话识别必须先填写并保存/);
 });
 
 test("JD TTS shared AI settings dispatcher renders the Shanghai panel with fixed safety controls", function () {

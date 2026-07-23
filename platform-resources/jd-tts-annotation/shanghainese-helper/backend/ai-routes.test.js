@@ -101,6 +101,7 @@ test("JD TTS Shanghai saves sanitized provider debug payload when a job fails", 
       utteranceId: "4881635",
       checksum: "a".repeat(32),
       audioDataUrl: "data:audio/x-wav;base64,UklGRg==",
+      aiUsageOperatorName: "测试使用人",
       aiOmni: { model: "qwen3.5-omni-plus", prompt: "only text", params: {} },
     })));
     request.emit("end");
@@ -147,4 +148,56 @@ test("JD TTS Shanghai stops reading an oversized request body before later chunk
   assert.equal(response.statusCode, 413);
   assert.equal(response.body.error.code, "payload-too-large");
   assert.equal(request.listenerCount("data"), 0);
+});
+
+test("JD TTS Shanghai rejects missing AI usage operator before creating an async job", async function () {
+  const request = new EventEmitter();
+  const response = {};
+  let createCalls = 0;
+  const runtime = routes.createRecommendRouteRuntime({
+    jobStore: {
+      createJob() { createCalls += 1; throw new Error("must not create job"); },
+    },
+    sendJson(target, statusCode, body) { target.statusCode = statusCode; target.body = body; },
+  });
+  process.nextTick(function () {
+    request.emit("data", Buffer.from(JSON.stringify({
+      utteranceId: "4881635",
+      checksum: "a".repeat(32),
+      audioDataUrl: "data:audio/x-wav;base64,UklGRg==",
+    })));
+    request.emit("end");
+  });
+
+  await runtime.handleCreateRecommendJob({ request, response });
+
+  assert.equal(createCalls, 0);
+  assert.equal(response.statusCode, 400);
+  assert.equal(response.body.error.code, "missing-ai-usage-operator-name");
+  assert.equal(response.body.error.stage, "validate");
+});
+
+test("JD TTS Shanghai rejects a missing AI usage operator on the compatibility entry before its pipeline runs", async function () {
+  const request = new EventEmitter();
+  const response = {};
+  let pipelineCalls = 0;
+  const runtime = routes.createRecommendRouteRuntime({
+    pipeline: { run: async function () { pipelineCalls += 1; throw new Error("must not run"); } },
+    sendJson(target, statusCode, body) { target.statusCode = statusCode; target.body = body; },
+  });
+  process.nextTick(function () {
+    request.emit("data", Buffer.from(JSON.stringify({
+      utteranceId: "4881635",
+      checksum: "a".repeat(32),
+      audioDataUrl: "data:audio/x-wav;base64,UklGRg==",
+    })));
+    request.emit("end");
+  });
+
+  await runtime.handleRecommend({ request, response });
+
+  assert.equal(pipelineCalls, 0);
+  assert.equal(response.statusCode, 400);
+  assert.equal(response.body.error.code, "missing-ai-usage-operator-name");
+  assert.equal(response.body.error.stage, "validate");
 });

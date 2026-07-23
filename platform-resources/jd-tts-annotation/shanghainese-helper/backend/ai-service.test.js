@@ -20,6 +20,7 @@ test("JD TTS Shanghai accepts only numeric-string utterance identity and a WAV d
     utteranceId: "4881635",
     checksum: "a".repeat(32),
     audioDataUrl: "data:audio/x-wav;base64,UklGRg==",
+    aiUsageOperatorName: "测试使用人",
     clientRequestId: "client-request-1",
     aiOmni: {
       model: "qwen3.5-omni-flash",
@@ -41,6 +42,7 @@ test("JD TTS Shanghai rejects source URLs and invalid audio input", function () 
         utteranceId: "4881635",
         checksum: "a".repeat(32),
         audioDataUrl: "https://private.example.test/audio.wav",
+        aiUsageOperatorName: "测试使用人",
       });
     },
     function (error) {
@@ -54,10 +56,26 @@ test("JD TTS Shanghai rejects source URLs and invalid audio input", function () 
         checksum: "a".repeat(32),
         audioDataUrl: "data:audio/x-wav;base64,UklGRg==",
         audioUrl: "https://private.example.test/audio.wav?signature=private",
+        aiUsageOperatorName: "测试使用人",
       });
     },
     function (error) {
       return error?.code === "unexpected-audio-url";
+    }
+  );
+});
+
+test("JD TTS Shanghai requires an AI usage operator during request validation", function () {
+  assert.throws(
+    function () {
+      service.normalizeRecommendRequest({
+        utteranceId: "4881635",
+        checksum: "a".repeat(32),
+        audioDataUrl: "data:audio/x-wav;base64,UklGRg==",
+      });
+    },
+    function (error) {
+      return error?.code === "missing-ai-usage-operator-name" && error?.stage === "validate";
     }
   );
 });
@@ -67,6 +85,7 @@ test("JD TTS Shanghai bounds custom prompt and stop text before sending it to th
     utteranceId: "4881635",
     checksum: "a".repeat(32),
     audioDataUrl: "data:audio/x-wav;base64,UklGRg==",
+    aiUsageOperatorName: "测试使用人",
     aiOmni: {
       prompt: "p".repeat(50000),
       params: { stop: ["s".repeat(200), "ok", "ok"] },

@@ -2,6 +2,7 @@
 
 const crypto = require("crypto");
 const { sendJson } = require("../../../backend/response");
+const { assertAiUsageOperatorName } = require("../../../backend/ai-call-log");
 const { buildJobStatusBody } = require("../../../backend/ai-framework/core/create-ai-job-routes");
 const { sharedAiJobStore } = require("../../../backend/ai-framework/runtime/ai-job-store");
 const { buildRecommendCacheKey, getCachedRecommendResult, setCachedRecommendResult } = require("./cache");
@@ -179,6 +180,12 @@ function createRecommendRouteRuntime(overrides) {
 
   async function parseAndNormalize(request) {
     const parsed = parseRequestBody(await readCappedRequestBody(request));
+    try {
+      assertAiUsageOperatorName(parsed);
+    } catch (error) {
+      error.stage = error.stage || "validate";
+      throw error;
+    }
     return { parsed, normalized: deps.normalizeRecommendRequest(parsed) };
   }
 
