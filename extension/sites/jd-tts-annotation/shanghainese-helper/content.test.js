@@ -76,18 +76,18 @@ test("JD Shanghai content ignores an older enabled evaluation after a newer rout
   assert.equal(mounted, 0);
 });
 
-test("JD Shanghai content watches only the text field container and removes sensitive error values", async function () {
+test("JD Shanghai content watches the toolbar container and removes sensitive error values", async function () {
   const priorObserver = globalThis.MutationObserver;
   let observedTarget = null;
   globalThis.MutationObserver = class { observe(target) { observedTarget = target; } disconnect() {} };
   try {
-    const textContainer = { id: "text-container" };
+    const toolbarContainer = { id: "toolbar-container" };
     const runtime = content.createRuntime({
       document: { documentElement: { id: "document-root" } }, location: { hash: "#/annotation/dataset/annotate" }, isEnabled: async function () { return true; },
-      createPanel: function () { return { ensureMounted() {}, getMountTarget() { return textContainer; }, remove() {} }; }, createDataApi: function () { return { start() {}, stop() {} }; }, createAiClient: function () { return {}; },
+      createPanel: function () { return { ensureMounted() {}, getMountTarget() { return toolbarContainer; }, remove() {} }; }, createDataApi: function () { return { start() {}, stop() {} }; }, createAiClient: function () { return {}; },
     });
     await runtime.evaluatePage();
-    assert.equal(observedTarget, textContainer);
+    assert.equal(observedTarget, toolbarContainer);
     const message = content.sanitizeError({ message: "data:audio/x-wav;base64,SECRET cookie=COOKIE authorization: Bearer TOKEN signature=SIG https://host.example/file?token=TOKEN secretKey=KEY" });
     assert.equal(/SECRET|COOKIE|TOKEN|SIG|KEY|host\.example/i.test(message), false);
   } finally { globalThis.MutationObserver = priorObserver; }

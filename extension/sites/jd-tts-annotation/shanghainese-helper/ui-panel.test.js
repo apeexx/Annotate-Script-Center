@@ -37,7 +37,8 @@ function createHarness(options) {
   const toolbar = { id: "toolbar" };
   const secondToolbar = { id: "second-toolbar" };
   function createNativeAutoAnnotate(parentElement) {
-    return {
+    const nativeMutations = [];
+    const nativeButton = {
       textContent: "自动标注",
       parentElement,
       clickCalls: 0,
@@ -48,15 +49,22 @@ function createHarness(options) {
         this.nextSibling = button;
       },
     };
+    nativeButton.style = new Proxy({}, { set() { nativeMutations.push("style"); throw new Error("must not mutate native button style"); } });
+    Object.defineProperty(nativeButton, "className", { get() { return ""; }, set() { nativeMutations.push("class"); throw new Error("must not mutate native button class"); } });
+    nativeButton.setAttribute = function () { nativeMutations.push("attribute"); throw new Error("must not mutate native button attributes"); };
+    nativeButton.addEventListener = function () { nativeMutations.push("listener"); throw new Error("must not attach native button listener"); };
+    nativeButton.click = function () { this.clickCalls += 1; nativeMutations.push("click"); throw new Error("must not click native button"); };
+    nativeButton.nativeMutations = nativeMutations;
+    return nativeButton;
   }
   const nativeAutoAnnotate = createNativeAutoAnnotate(toolbar);
   const secondNativeAutoAnnotate = createNativeAutoAnnotate(secondToolbar);
-  const toolbarButtons = [nativeAutoAnnotate];
+  const toolbarButtons = config.withToolbar === false ? [] : [nativeAutoAnnotate];
   const document = {
     querySelector(selector) { assert.equal(selector, "div.cell > span:first-child"); return label; },
     querySelectorAll(selector) {
       assert.equal(selector, "button");
-      return config.withToolbar === false ? [] : toolbarButtons;
+      return toolbarButtons;
     },
     createElement() {
       const button = {
@@ -76,7 +84,8 @@ function createHarness(options) {
   function replaceToolbarAutoAnnotate() {
     toolbarButtons.splice(0, toolbarButtons.length, secondNativeAutoAnnotate);
   }
-  return { document, textarea, pinyin, textContainer, toolbar, secondToolbar, nativeAutoAnnotate, secondNativeAutoAnnotate, replaceToolbarAutoAnnotate, buttons, events, Textarea, InputEvent };
+  function showToolbar() { toolbarButtons.splice(0, toolbarButtons.length, nativeAutoAnnotate); }
+  return { document, textarea, pinyin, textContainer, toolbar, secondToolbar, nativeAutoAnnotate, secondNativeAutoAnnotate, replaceToolbarAutoAnnotate, showToolbar, buttons, events, Textarea, InputEvent };
 }
 
 test("JD Shanghai panel mounts its distinct recognition button after the native auto-annotation button", function () {
@@ -101,6 +110,22 @@ test("JD Shanghai panel falls back to the text field when the native toolbar is 
   assert.equal(harness.buttons[0].textContent, "上海话识别");
 });
 
+test("JD Shanghai panel migrates a connected fallback button into a newly available toolbar", function () {
+  const harness = createHarness({ withToolbar: false });
+  const runtime = panel.createRuntime({ document: harness.document, HTMLTextAreaElement: harness.Textarea, InputEvent: harness.InputEvent });
+
+  runtime.ensureMounted();
+  const fallbackButton = harness.buttons[0];
+  harness.showToolbar();
+  runtime.ensureMounted();
+
+  assert.equal(harness.buttons.length, 2);
+  assert.equal(fallbackButton.isConnected, false);
+  assert.equal(fallbackButton.parentElement, null);
+  assert.equal(harness.nativeAutoAnnotate.nextSibling, harness.buttons[1]);
+  assert.equal(harness.buttons[1].parentElement, harness.toolbar);
+});
+
 test("JD Shanghai panel remounts into a replaced toolbar and reports that toolbar as its mount target", function () {
   const harness = createHarness();
   const runtime = panel.createRuntime({ document: harness.document, HTMLTextAreaElement: harness.Textarea, InputEvent: harness.InputEvent });
@@ -114,6 +139,27 @@ test("JD Shanghai panel remounts into a replaced toolbar and reports that toolba
   assert.equal(harness.buttons[0].isConnected, false);
   assert.equal(harness.secondNativeAutoAnnotate.nextSibling, harness.buttons[1]);
   assert.equal(runtime.getMountTarget(), harness.secondToolbar);
+});
+
+test("JD Shanghai panel reports its live parent or the text-field fallback instead of a stale mount target", function () {
+  const harness = createHarness();
+  const runtime = panel.createRuntime({ document: harness.document, HTMLTextAreaElement: harness.Textarea, InputEvent: harness.InputEvent });
+
+  runtime.ensureMounted();
+  harness.buttons[0].parentElement = harness.secondToolbar;
+  assert.equal(runtime.getMountTarget(), harness.secondToolbar);
+  harness.buttons[0].isConnected = false;
+  harness.buttons[0].parentElement = null;
+  assert.equal(runtime.getMountTarget(), harness.textContainer);
+});
+
+test("JD Shanghai panel mounts beside native auto-annotation without mutating or clicking it", function () {
+  const harness = createHarness();
+  const runtime = panel.createRuntime({ document: harness.document, HTMLTextAreaElement: harness.Textarea, InputEvent: harness.InputEvent });
+
+  assert.equal(runtime.ensureMounted(), true);
+  assert.deepEqual(harness.nativeAutoAnnotate.nativeMutations, []);
+  assert.equal(harness.nativeAutoAnnotate.clickCalls, 0);
 });
 
 test("JD Shanghai panel selects only the textarea after the exact text label and dispatches input only", function () {

@@ -12,7 +12,7 @@
     const TextareaCtor = config.HTMLTextAreaElement || globalThis.HTMLTextAreaElement;
     const InputEventCtor = config.InputEvent || globalThis.InputEvent;
     let button = null;
-    let mountTarget = null;
+    let mountedAfterNativeAutoAnnotate = false;
     let targetTextarea = null;
     let onRecommend = typeof config.onRecommend === "function" ? config.onRecommend : null;
 
@@ -35,10 +35,16 @@
       const nativeAutoAnnotate = findToolbarAutoAnnotateButton();
       if (nativeAutoAnnotate?.insertAdjacentElement) {
         nativeAutoAnnotate.insertAdjacentElement("afterend", nextButton);
+        return true;
       }
       if (!nextButton.parentElement) {
         field.container?.insertAdjacentElement?.("afterend", nextButton);
       }
+      return false;
+    }
+
+    function isMountedImmediatelyAfter(nativeAutoAnnotate) {
+      return (nativeAutoAnnotate?.nextElementSibling || nativeAutoAnnotate?.nextSibling) === button;
     }
 
     function setBusy(busy) {
@@ -57,9 +63,15 @@
       if (button && (button.isConnected === false || targetTextarea !== field.textarea)) {
         button.remove?.();
         button = null;
-        mountTarget = null;
+        mountedAfterNativeAutoAnnotate = false;
       }
       targetTextarea = field.textarea;
+      const nativeAutoAnnotate = findToolbarAutoAnnotateButton();
+      if (button && nativeAutoAnnotate && (!mountedAfterNativeAutoAnnotate || !isMountedImmediatelyAfter(nativeAutoAnnotate))) {
+        button.remove?.();
+        button = null;
+        mountedAfterNativeAutoAnnotate = false;
+      }
       if (button) { return true; }
       button = documentRef.createElement("button");
       button.type = "button";
@@ -79,12 +91,14 @@
         if (button.disabled || typeof onRecommend !== "function") { return; }
         Promise.resolve(onRecommend()).catch(function (error) { setStatus(error?.message || "识别失败。"); });
       });
-      mountButton(button, field);
-      mountTarget = button.parentElement || field.container || null;
+      mountedAfterNativeAutoAnnotate = mountButton(button, field);
       return true;
     }
 
-    function getMountTarget() { return mountTarget || findTextField()?.container || null; }
+    function getMountTarget() {
+      if (button?.isConnected !== false && button?.parentElement) { return button.parentElement; }
+      return findTextField()?.container || null;
+    }
 
     function fillRecommendedText(result, isCurrent) {
       const listenText = typeof result?.listenText === "string" ? result.listenText : "";
@@ -98,7 +112,7 @@
       return true;
     }
 
-    function remove() { button?.remove?.(); button = null; mountTarget = null; targetTextarea = null; }
+    function remove() { button?.remove?.(); button = null; mountedAfterNativeAutoAnnotate = false; targetTextarea = null; }
     function setOnRecommend(handler) { onRecommend = typeof handler === "function" ? handler : null; }
     return { ensureMounted, getMountTarget, setBusy, setStatus, fillRecommendedText, remove, setOnRecommend };
   }
