@@ -114,6 +114,42 @@
     return requestMeta;
   }
 
+  function createUsageOperatorStateError(state) {
+    const storageStatus = normalizeText(state?.storageStatus).toLowerCase();
+    if (storageStatus === "extension-context-invalidated") {
+      return createError("扩展已重新加载，当前标注页仍在使用旧脚本。请刷新当前标注页后重试。", {
+        code: "extension-context-invalidated",
+        stage: "validate",
+        usageOperatorState: state,
+      });
+    }
+    if (storageStatus && storageStatus !== "ready") {
+      return createError("无法读取当前扩展实例的 AI 调用使用人。请重新打开扩展首页并刷新当前标注页。", {
+        code: "ai-usage-operator-storage-unavailable",
+        stage: "validate",
+        usageOperatorState: state,
+      });
+    }
+    const error = createMissingUsageOperatorError();
+    error.stage = error.stage || "validate";
+    error.usageOperatorState = state;
+    return error;
+  }
+
+  function getUsageOperatorStorageStatus(error) {
+    return /(?:extension\s+)?context\s+invalidated/i.test(String(error?.message || error || ""))
+      ? "extension-context-invalidated"
+      : "unavailable";
+  }
+
+  function createUsageOperatorStorageError(error) {
+    return createUsageOperatorStateError({
+      operatorName: "",
+      configured: false,
+      storageStatus: getUsageOperatorStorageStatus(error),
+    });
+  }
+
   function buildRequestBody(snapshot, config) {
     const source = snapshot && typeof snapshot === "object" ? snapshot : {};
     const requestMeta = buildSafeMeta(config?.requestMeta);
@@ -213,15 +249,58 @@
       : typeof globalThis.ASREdgeStorage?.getSettings === "function"
         ? globalThis.ASREdgeStorage.getSettings
         : async function () { return {}; };
+    const readAiUsageOperatorState =
+      typeof config.readAiUsageOperatorState === "function"
+        ? config.readAiUsageOperatorState
+        : typeof globalThis.ASREdgeStorage?.readAiUsageOperatorState === "function"
+          ? globalThis.ASREdgeStorage.readAiUsageOperatorState
+          : async function () { return null; };
 
     async function prepareRun() {
-      const settings = await getSettings();
-      const requestMeta = assertUsageMeta(buildUsageMeta(settings, config.requestMeta));
+      let verifiedUsageState = null;
+      try {
+        verifiedUsageState = await readAiUsageOperatorState();
+      } catch (error) {
+        throw createUsageOperatorStorageError(error);
+      }
+      if (verifiedUsageState && typeof verifiedUsageState === "object") {
+        if (verifiedUsageState.configured !== true || !normalizeText(verifiedUsageState.operatorName)) {
+          throw createUsageOperatorStateError(verifiedUsageState);
+        }
+      }
+
+      let settings;
+      try {
+        settings = await getSettings();
+      } catch (error) {
+        throw createUsageOperatorStorageError(error);
+      }
+      const fallbackUsageState = buildUsageMeta(settings, config.requestMeta);
+      const usageState = verifiedUsageState && typeof verifiedUsageState === "object"
+        ? verifiedUsageState
+        : {
+            operatorName: fallbackUsageState.aiUsageOperatorName,
+            configured: Boolean(fallbackUsageState.aiUsageOperatorName),
+            storageStatus: "ready",
+          };
+      if (usageState.configured !== true || !normalizeText(usageState.operatorName)) {
+        throw createUsageOperatorStateError(usageState);
+      }
+      const requestMeta = assertUsageMeta(buildUsageMeta(settings, Object.assign({}, config.requestMeta || {}, {
+        aiUsageOperatorName: usageState.operatorName,
+      })));
       const endpoint = resolveEndpoint(constants, settings, config.endpoint);
       const fallbackMode = getBackendMode(settings) === "local" ? "server" : "local";
       let fallbackEndpoint = "";
       try { fallbackEndpoint = resolveEndpointForMode(constants, settings, fallbackMode); } catch (_error) { fallbackEndpoint = ""; }
-      return { settings, requestMeta, aiOmni: getSavedAiOmni(settings, config.aiOmni), endpoint, fallbackEndpoint };
+      return {
+        settings,
+        requestMeta,
+        usageOperatorState: usageState,
+        aiOmni: getSavedAiOmni(settings, config.aiOmni),
+        endpoint,
+        fallbackEndpoint,
+      };
     }
 
     async function run(endpoint, body, signal, onStage) {

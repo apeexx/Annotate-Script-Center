@@ -55,3 +55,17 @@ test("JD Shanghai diagnostics maps job failures to a named safe step", function 
   assert.match(failure.suggestion, /限流/);
   assert.doesNotMatch(JSON.stringify(failure), /SECRET|Authorization/i);
 });
+
+test("JD Shanghai diagnostics distinguishes a missing operator from a stale extension page", function () {
+  const missing = diagnostics.buildFailureDetails(
+    { code: "missing-ai-usage-operator-name", message: "未读取到 AI 调用使用人。" },
+    "使用人检查"
+  );
+  const stale = diagnostics.buildFailureDetails(
+    { code: "extension-context-invalidated", message: "扩展上下文已失效。" },
+    "使用人检查"
+  );
+
+  assert.match(missing.suggestion, /同一个扩展实例/);
+  assert.match(stale.suggestion, /刷新当前标注页/);
+});

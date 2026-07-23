@@ -97,3 +97,20 @@ test("JD TTS script-center displays the enabled state instead of the LabelX fall
   assert.match(block, /if \(isJdTtsShanghaineseScript\(scriptId\)\) \{/);
   assert.match(block, /return isScriptEnabled\(settings, scriptId\)/);
 });
+
+test("workspace AI usage operator save verifies the persisted shared state", function () {
+  const script = fs.readFileSync(path.resolve(__dirname, "options.js"), "utf8");
+  const start = script.indexOf("async function saveWorkspaceAiUsageOperatorName() {");
+  const end = script.indexOf("  function getProjectDataDownloadDatasetById", start);
+  const block = start >= 0 && end > start ? script.slice(start, end) : "";
+
+  assert.ok(block);
+  assert.match(block, /storage\.saveAiUsageOperatorName\(operatorName\)/);
+  assert.match(block, /verification\.persisted === true/);
+  assert.match(block, /刷新当前标注页/);
+  const unavailableCheck = block.indexOf('if (verification.storageStatus !== "ready")');
+  const settingsRead = block.indexOf("currentSettings = await storage.getSettings();");
+  assert.ok(unavailableCheck >= 0);
+  assert.ok(settingsRead >= 0);
+  assert.ok(unavailableCheck < settingsRead);
+});

@@ -60,7 +60,15 @@
   }
 
   function defaultSuggestion(code) {
-    if (code === "missing-ai-usage-operator-name") { return "请先在扩展首页填写并保存 AI 调用使用人。"; }
+    if (code === "missing-ai-usage-operator-name") {
+      return "当前标注页所属的同一个扩展实例未读取到 AI 调用使用人；请在同一个扩展首页填写并保存后刷新当前标注页。";
+    }
+    if (code === "extension-context-invalidated") {
+      return "扩展已重新加载，当前页面仍在使用旧脚本；请刷新当前标注页后再识别。";
+    }
+    if (code === "ai-usage-operator-storage-unavailable") {
+      return "当前扩展实例无法读取使用人配置；请重新打开扩展首页，并确认浏览器只保留一个 0.4.3 扩展实例。";
+    }
     if (code === "timeout" || code === "ai-job-timeout") { return "识别超过 60 秒，请稍后重试。"; }
     if (code === "network-disconnected") { return "请检查当前后端服务和网络连通性。"; }
     if (/rate-limited|limit_burst_rate/i.test(code)) { return "上游模型限流，请稍后重试。"; }

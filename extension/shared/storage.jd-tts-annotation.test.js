@@ -17,7 +17,13 @@ function loadStorageApi(initialSettings) {
   const store = { [constants.STORAGE_KEY]: initialSettings || {} };
   globalThis.ASREdgeConstants = constants;
   globalThis.chrome = {
-    runtime: { id: "test-extension", lastError: null },
+    runtime: {
+      id: "test-extension",
+      lastError: null,
+      getManifest() {
+        return { version: "0.4.3" };
+      },
+    },
     storage: {
       local: {
         get(key, callback) {
@@ -34,6 +40,7 @@ function loadStorageApi(initialSettings) {
   return {
     constants,
     storage: globalThis.ASREdgeStorage,
+    store,
     cleanup() {
       delete require.cache[constantsModulePath];
       delete require.cache[storageModulePath];
@@ -43,6 +50,36 @@ function loadStorageApi(initialSettings) {
     },
   };
 }
+
+test("AI usage operator save re-reads the persisted value for a fresh extension context", async function () {
+  const firstContext = loadStorageApi({});
+  let secondContext = null;
+  try {
+    const saved = await firstContext.storage.saveAiUsageOperatorName("  测试使用人  ");
+
+    assert.deepEqual(saved, {
+      operatorName: "测试使用人",
+      configured: true,
+      persisted: true,
+      storageStatus: "ready",
+      extensionId: "test-extension",
+      extensionVersion: "0.4.3",
+    });
+
+    secondContext = loadStorageApi(firstContext.store[firstContext.constants.STORAGE_KEY]);
+    const reread = await secondContext.storage.readAiUsageOperatorState();
+    assert.deepEqual(reread, {
+      operatorName: "测试使用人",
+      configured: true,
+      storageStatus: "ready",
+      extensionId: "test-extension",
+      extensionVersion: "0.4.3",
+    });
+  } finally {
+    secondContext?.cleanup();
+    firstContext.cleanup();
+  }
+});
 
 test("JD TTS defaults to disabled and uses the fixed server endpoint", async function () {
   const harness = loadStorageApi({});

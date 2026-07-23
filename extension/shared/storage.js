@@ -3958,6 +3958,75 @@
     return settings;
   }
 
+  function normalizeAiUsageOperatorName(value) {
+    return String(value === undefined || value === null ? "" : value)
+      .replace(/\s+/g, " ")
+      .trim()
+      .slice(0, 40);
+  }
+
+  function getExtensionRuntimeInfo() {
+    let extensionId = "";
+    let extensionVersion = "";
+    try {
+      extensionId = String(chrome?.runtime?.id || "").trim().slice(0, 80);
+      extensionVersion = String(chrome?.runtime?.getManifest?.()?.version || "").trim().slice(0, 32);
+    } catch (_error) {
+      extensionId = "";
+      extensionVersion = "";
+    }
+    return { extensionId, extensionVersion };
+  }
+
+  function getAiUsageStorageStatus(error) {
+    return isExtensionContextInvalidatedError(error)
+      ? "extension-context-invalidated"
+      : "unavailable";
+  }
+
+  async function readAiUsageOperatorState() {
+    const runtimeInfo = getExtensionRuntimeInfo();
+    try {
+      const settings = await getSettings();
+      const operatorName = normalizeAiUsageOperatorName(settings?.meta?.aiUsageOperatorName);
+      return Object.assign({}, runtimeInfo, {
+        operatorName,
+        configured: Boolean(operatorName),
+        storageStatus: "ready",
+      });
+    } catch (error) {
+      return Object.assign({}, runtimeInfo, {
+        operatorName: "",
+        configured: false,
+        storageStatus: getAiUsageStorageStatus(error),
+      });
+    }
+  }
+
+  async function saveAiUsageOperatorName(operatorName) {
+    const expectedOperatorName = normalizeAiUsageOperatorName(operatorName);
+    try {
+      await patchSettings({
+        meta: {
+          aiUsageOperatorName: expectedOperatorName,
+        },
+      });
+    } catch (error) {
+      return Object.assign({}, getExtensionRuntimeInfo(), {
+        operatorName: "",
+        configured: false,
+        persisted: false,
+        storageStatus: getAiUsageStorageStatus(error),
+      });
+    }
+
+    const state = await readAiUsageOperatorState();
+    return Object.assign({}, state, {
+      persisted:
+        state.storageStatus === "ready" && state.operatorName === expectedOperatorName,
+    });
+  }
+
   async function getSettings() {
     const stored = await getStoredValue();
     return normalizeSettings(stored);
@@ -4317,6 +4386,8 @@
     getSettings: getSettings,
     saveSettings: saveSettings,
     patchSettings: patchSettings,
+    readAiUsageOperatorState: readAiUsageOperatorState,
+    saveAiUsageOperatorName: saveAiUsageOperatorName,
     isPlatformEnabled: isPlatformEnabled,
     setDebugMode: setDebugMode,
     clearRuntimeCache: clearRuntimeCache,

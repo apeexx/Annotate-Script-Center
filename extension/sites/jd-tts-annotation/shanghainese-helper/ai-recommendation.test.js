@@ -31,6 +31,122 @@ test("JD Shanghai recommendation requires the homepage AI usage operator before 
   assert.equal(jobCalls, 0);
 });
 
+test("JD Shanghai recommendation uses the verified shared usage-operator state for every job", async function () {
+  let received = null;
+  const runtime = recommendation.createRuntime({
+    constants: { buildBackendUrl(path) { return "https://server.example.test" + path; } },
+    getSettings: async function () {
+      return {
+        meta: { backendEndpointMode: "server", aiUsageOperatorName: "" },
+        platforms: { jdTtsAnnotation: { scripts: { shanghaineseHelper: {} } } },
+      };
+    },
+    readAiUsageOperatorState: async function () {
+      return {
+        operatorName: "测试使用人",
+        configured: true,
+        storageStatus: "ready",
+        extensionId: "test-extension",
+        extensionVersion: "0.4.3",
+      };
+    },
+    fetchImpl: async function () {
+      return { ok: true, status: 200, json: async function () { return { success: true }; } };
+    },
+    jobClient: {
+      runJobLifecycle: async function (input) {
+        received = input;
+        return {
+          data: {
+            utteranceId: "42",
+            checksum: "a".repeat(32),
+            listenText: "侬好",
+            needHumanReview: false,
+          },
+        };
+      },
+    },
+  });
+
+  await runtime.recommend({
+    utteranceId: "42",
+    checksum: "a".repeat(32),
+    audioDataUrl: "data:audio/x-wav;base64,UklGRg==",
+  });
+
+  assert.equal(received.body.aiUsageOperatorName, "测试使用人");
+});
+
+test("JD Shanghai recommendation reports a stale extension context before it creates a job", async function () {
+  let jobCalls = 0;
+  let settingsCalls = 0;
+  const runtime = recommendation.createRuntime({
+    constants: { buildBackendUrl(path) { return "https://server.example.test" + path; } },
+    getSettings: async function () {
+      settingsCalls += 1;
+      throw new Error("Extension context invalidated.");
+    },
+    readAiUsageOperatorState: async function () {
+      return {
+        operatorName: "",
+        configured: false,
+        storageStatus: "extension-context-invalidated",
+        extensionId: "test-extension",
+        extensionVersion: "0.4.3",
+      };
+    },
+    jobClient: {
+      runJobLifecycle: async function () {
+        jobCalls += 1;
+        return { data: {} };
+      },
+    },
+  });
+
+  await assert.rejects(
+    runtime.prepareRun(),
+    function (error) {
+      return error?.code === "extension-context-invalidated" && error?.stage === "validate";
+    }
+  );
+  assert.equal(settingsCalls, 0);
+  assert.equal(jobCalls, 0);
+});
+
+test("JD Shanghai recommendation stops at usage-operator validation when shared storage is unavailable", async function () {
+  let settingsCalls = 0;
+  let jobCalls = 0;
+  const runtime = recommendation.createRuntime({
+    constants: { buildBackendUrl(path) { return "https://server.example.test" + path; } },
+    getSettings: async function () {
+      settingsCalls += 1;
+      throw new Error("storage unavailable");
+    },
+    readAiUsageOperatorState: async function () {
+      return {
+        operatorName: "",
+        configured: false,
+        storageStatus: "unavailable",
+      };
+    },
+    jobClient: {
+      runJobLifecycle: async function () {
+        jobCalls += 1;
+        return { data: {} };
+      },
+    },
+  });
+
+  await assert.rejects(
+    runtime.prepareRun(),
+    function (error) {
+      return error?.code === "ai-usage-operator-storage-unavailable" && error?.stage === "validate";
+    }
+  );
+  assert.equal(settingsCalls, 0);
+  assert.equal(jobCalls, 0);
+});
+
 test("JD Shanghai recommendation sends only the safe current audio snapshot to jobs", async function () {
   let received = null;
   const runtime = recommendation.createRuntime({

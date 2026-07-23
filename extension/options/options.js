@@ -831,17 +831,6 @@
             .trim()
             .slice(0, 40);
         };
-  const createAiUsageOperatorSettingsPatch =
-    typeof aiUsageMeta.createAiUsageOperatorSettingsPatch === "function"
-      ? aiUsageMeta.createAiUsageOperatorSettingsPatch
-      : function (operatorName) {
-          return {
-            meta: {
-              aiUsageOperatorName: normalizeAiUsageOperatorName(operatorName),
-            },
-          };
-        };
-
   const magicDataShortcutActions = [
     { key: "reviewCurrent", label: "AI 质检当前条" },
     { key: "fillAllAiSuggestions", label: "全部填入AI推荐" },
@@ -11147,7 +11136,11 @@
   }
 
   async function saveWorkspaceAiUsageOperatorName() {
-    if (!storage || typeof storage.patchSettings !== "function") {
+    if (
+      !storage ||
+      typeof storage.saveAiUsageOperatorName !== "function" ||
+      typeof storage.getSettings !== "function"
+    ) {
       setStatus("workspace-ai-usage-operator-status", "当前扩展版本不支持保存 AI 调用使用人。");
       return false;
     }
@@ -11158,15 +11151,30 @@
     const operatorName = normalizeAiUsageOperatorName(input.value);
     setStatus("workspace-ai-usage-operator-status", "正在保存 AI 调用使用人...");
     try {
-      currentSettings = await storage.patchSettings(
-        createAiUsageOperatorSettingsPatch(operatorName)
-      );
+      const verification = await storage.saveAiUsageOperatorName(operatorName);
+      if (verification.storageStatus !== "ready") {
+        setStatus(
+          "workspace-ai-usage-operator-status",
+          verification.storageStatus === "extension-context-invalidated"
+            ? "扩展已重新加载，请刷新当前标注页后重新打开扩展首页再保存。"
+            : "无法读取当前扩展实例的存储；请重新打开扩展首页，并确认浏览器只保留一个 0.4.3 扩展实例。"
+        );
+        return false;
+      }
+      currentSettings = await storage.getSettings();
       resetAdminBackendDraft(currentSettings);
       renderWorkspaceSidebar(currentSettings || {}, getCurrentRouteState());
       renderHomeAiUsageOperator(currentSettings || {});
       renderAdminBackendSummary(adminDashboardCache || {});
-      setStatus("workspace-ai-usage-operator-status", "AI 调用使用人已保存到本地缓存。");
-      return true;
+      if (verification.persisted === true) {
+        setStatus("workspace-ai-usage-operator-status", "AI 调用使用人已保存并确认写入扩展存储。");
+        return true;
+      }
+      setStatus(
+        "workspace-ai-usage-operator-status",
+        "未能确认 AI 调用使用人已写入当前扩展实例；请仅保留一个 0.4.3 扩展实例，保存后刷新当前标注页。"
+      );
+      return false;
     } catch (error) {
       setStatus(
         "workspace-ai-usage-operator-status",
