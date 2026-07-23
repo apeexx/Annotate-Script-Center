@@ -146,8 +146,7 @@
     }
 
     if (url.hostname === constants.JD_TTS_ANNOTATION_PLATFORM?.host) {
-      return String(url.hash || "").toLowerCase().startsWith("#/annotation/dataset/annotate") &&
-        isScriptEnabled(settings, jdTtsShanghaineseScriptId)
+      return String(url.hash || "").toLowerCase().startsWith("#/annotation/dataset/annotate")
         ? jdTtsShanghaineseScriptId
         : "";
     }

@@ -8284,6 +8284,15 @@
       );
     }
 
+    if (isJdTtsShanghaineseScript(scriptId)) {
+      return Boolean(
+        settings?.platforms?.jdTtsAnnotation?.enabled === true &&
+          settings?.platforms?.jdTtsAnnotation?.activeScriptId === jdTtsShanghaineseScriptId &&
+          settings?.platforms?.jdTtsAnnotation?.scripts?.shanghaineseHelper?.enabled === true &&
+          settings?.platforms?.jdTtsAnnotation?.scripts?.shanghaineseHelper?.aiRecommendEnabled === true
+      );
+    }
+
     if (isLabelxScript(scriptId)) {
       return Boolean(
         settings?.platforms?.alibabaLabelx?.enabled &&
@@ -8395,6 +8404,12 @@
     }
 
     if (isHaitianUtransScript(scriptId)) {
+      return isScriptEnabled(settings, scriptId)
+        ? { text: "已启用", tone: "enabled" }
+        : { text: "未启用", tone: "disabled" };
+    }
+
+    if (isJdTtsShanghaineseScript(scriptId)) {
       return isScriptEnabled(settings, scriptId)
         ? { text: "已启用", tone: "enabled" }
         : { text: "未启用", tone: "disabled" };

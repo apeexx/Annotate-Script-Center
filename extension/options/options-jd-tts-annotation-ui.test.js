@@ -44,3 +44,31 @@ test("JD TTS defaults loader keeps the defaults endpoint separate from its statu
   assert.match(block, /return asrVoiceAiDefaultsPaths\.jdTtsShanghaineseAssistant/);
   assert.doesNotMatch(block, /jd-tts-shanghainese-status/);
 });
+
+test("JD TTS script-center enablement reads the persisted platform and helper state", function () {
+  const script = fs.readFileSync(path.resolve(__dirname, "options.js"), "utf8");
+  const start = script.indexOf("function isScriptEnabled(settings, scriptId) {");
+  const end = script.indexOf("  function getScriptStatus", start);
+  const block = start >= 0 && end > start ? script.slice(start, end) : "";
+
+  assert.ok(block);
+  assert.match(block, /if \(isJdTtsShanghaineseScript\(scriptId\)\) \{/);
+  assert.match(block, /settings\?\.platforms\?\.jdTtsAnnotation\?\.enabled === true/);
+  assert.match(
+    block,
+    /settings\?\.platforms\?\.jdTtsAnnotation\?\.activeScriptId === jdTtsShanghaineseScriptId/
+  );
+  assert.match(block, /scripts\?\.shanghaineseHelper\?\.enabled === true/);
+  assert.match(block, /scripts\?\.shanghaineseHelper\?\.aiRecommendEnabled === true/);
+});
+
+test("JD TTS script-center displays the enabled state instead of the LabelX fallback", function () {
+  const script = fs.readFileSync(path.resolve(__dirname, "options.js"), "utf8");
+  const start = script.indexOf("function getScriptStatus(settings, scriptId) {");
+  const end = script.indexOf("  function getScriptHostText", start);
+  const block = start >= 0 && end > start ? script.slice(start, end) : "";
+
+  assert.ok(block);
+  assert.match(block, /if \(isJdTtsShanghaineseScript\(scriptId\)\) \{/);
+  assert.match(block, /return isScriptEnabled\(settings, scriptId\)/);
+});
