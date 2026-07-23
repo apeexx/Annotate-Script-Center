@@ -68,7 +68,7 @@
       return "扩展已重新加载，当前页面仍在使用旧脚本；请刷新当前标注页后再识别。";
     }
     if (code === "ai-usage-operator-storage-unavailable") {
-      return "当前扩展实例无法读取使用人配置；请重新打开扩展首页，并确认浏览器只保留一个 0.4.4 扩展实例。";
+      return "当前扩展实例无法读取使用人配置；请重新打开扩展首页，并确认浏览器只保留一个 0.4.5 扩展实例。";
     }
     if (code === "backend-health-check-failed") {
       if (backendMode === "local") {

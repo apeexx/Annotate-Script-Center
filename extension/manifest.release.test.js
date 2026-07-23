@@ -10,7 +10,7 @@ const manifestPath = path.resolve(__dirname, "manifest.json");
 test("public release manifest targets the new domain and retains the legacy host permission", function () {
   const manifest = JSON.parse(fs.readFileSync(manifestPath, "utf8"));
 
-  assert.equal(manifest.version, "0.4.4");
+  assert.equal(manifest.version, "0.4.5");
   assert.equal(
     manifest.update_url,
     "https://script.aisiyunling.com/downloads/annotation-script-center-update.xml"

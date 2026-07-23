@@ -21,7 +21,7 @@ function loadStorageApi(initialSettings) {
       id: "test-extension",
       lastError: null,
       getManifest() {
-        return { version: "0.4.4" };
+        return { version: "0.4.5" };
       },
     },
     storage: {
@@ -63,7 +63,7 @@ test("AI usage operator save re-reads the persisted value for a fresh extension 
       persisted: true,
       storageStatus: "ready",
       extensionId: "test-extension",
-      extensionVersion: "0.4.4",
+      extensionVersion: "0.4.5",
     });
 
     secondContext = loadStorageApi(firstContext.store[firstContext.constants.STORAGE_KEY]);
@@ -73,7 +73,7 @@ test("AI usage operator save re-reads the persisted value for a fresh extension 
       configured: true,
       storageStatus: "ready",
       extensionId: "test-extension",
-      extensionVersion: "0.4.4",
+      extensionVersion: "0.4.5",
     });
   } finally {
     secondContext?.cleanup();

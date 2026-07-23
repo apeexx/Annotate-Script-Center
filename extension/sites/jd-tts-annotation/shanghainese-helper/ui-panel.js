@@ -8,6 +8,10 @@
     return String(value || "").replace(/\s+/g, " ").trim().slice(0, maxLength || 240);
   }
 
+  function normalizeFieldLabel(value) {
+    return normalizeText(value).replace(/：/g, ":");
+  }
+
   function createRuntime(options) {
     const config = options && typeof options === "object" ? options : {};
     const documentRef = config.document || globalThis.document;
@@ -31,13 +35,39 @@
     let targetTextarea = null;
     let onRecommend = typeof config.onRecommend === "function" ? config.onRecommend : null;
 
+    function findUniqueTextFieldInCell(cell) {
+      const textareas = Array.from(cell?.querySelectorAll?.("textarea.el-textarea__inner") || []);
+      if (textareas.length !== 1) { return null; }
+      const textarea = textareas[0];
+      let container = textarea?.parentElement || cell;
+      while (container?.parentElement && container.parentElement !== cell) {
+        container = container.parentElement;
+      }
+      return { container, textarea };
+    }
+
     function findTextField() {
       const labels = Array.from(documentRef?.querySelectorAll?.("div.cell > span:first-child") || []);
       for (const label of labels) {
-        if (normalizeText(label?.textContent).trim() !== "文本:") { continue; }
-        const container = label.nextElementSibling;
-        const textarea = container?.querySelector?.("textarea.el-textarea__inner");
-        if (textarea) { return { container, textarea }; }
+        if (normalizeFieldLabel(label?.textContent) !== "文本:") { continue; }
+        const field = findUniqueTextFieldInCell(label?.parentElement);
+        if (field) { return field; }
+        if (!label?.parentElement) {
+          const container = label.nextElementSibling;
+          const textarea = container?.querySelector?.("textarea.el-textarea__inner");
+          if (textarea) { return { container, textarea }; }
+        }
+      }
+
+      const cells = Array.from(documentRef?.querySelectorAll?.("div.cell") || []);
+      for (const cell of cells) {
+        const cellLabels = Array.from(cell?.querySelectorAll?.("span") || []);
+        const hasTextLabel = cellLabels.some(function (label) {
+          return normalizeFieldLabel(label?.textContent) === "文本:";
+        });
+        if (!hasTextLabel) { continue; }
+        const field = findUniqueTextFieldInCell(cell);
+        if (field) { return field; }
       }
       return null;
     }

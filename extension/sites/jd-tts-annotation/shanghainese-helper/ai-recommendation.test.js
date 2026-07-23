@@ -47,7 +47,7 @@ test("JD Shanghai recommendation uses the verified shared usage-operator state f
         configured: true,
         storageStatus: "ready",
         extensionId: "test-extension",
-        extensionVersion: "0.4.4",
+        extensionVersion: "0.4.5",
       };
     },
     fetchImpl: async function () {
@@ -92,7 +92,7 @@ test("JD Shanghai recommendation reports a stale extension context before it cre
         configured: false,
         storageStatus: "extension-context-invalidated",
         extensionId: "test-extension",
-        extensionVersion: "0.4.4",
+        extensionVersion: "0.4.5",
       };
     },
     jobClient: {

@@ -8,16 +8,16 @@
 
 ## 页面总览
 
-- 当前条目包含“文本:”与“拼音:”两个 Element UI textarea。
-- 本助手在“文本:”区域提供“上海话识别”按钮，并在该字段下方提供只读“上海话 AI 信息”卡。
+- 当前条目包含“文本:”或“文本：”与“拼音:”或“拼音：”两个 Element UI textarea；标签可能被 `FONT` 包裹。
+- 本助手在“文本:”或“文本：”区域提供“上海话识别”按钮，并在该字段下方提供只读“上海话 AI 信息”卡。
 
 ## DOM 树 / 区域结构
 
     div.cell
-      span 文本:
+      span 文本: 或 font > span 文本：
       div.input-container.el-textarea.el-input--suffix
         textarea.el-textarea__inner
-      span 拼音:
+      span 拼音: 或 font > span 拼音：
       div.input-container.el-textarea.el-input--suffix
         textarea.el-textarea__inner
 
@@ -25,25 +25,25 @@
 
 | 目标 | 稳定规则 | 使用方式 |
 | --- | --- | --- |
-| 文本标签 | 遍历 `div.cell > span:first-child`，仅接受文本精确为 `文本:` 的候选 | 作为唯一挂载起点 |
-| 文本输入框 | 文本标签的 `nextElementSibling` 内 `textarea.el-textarea__inner` | 唯一允许读取/写入的 textarea |
-| 拼音输入框 | “拼音:”标签后的 textarea | 明确忽略，不选择、不监听、不写入 |
+| 文本标签 | 先兼容 `div.cell > span:first-child`，再遍历 `div.cell` 内的 `span`；仅接受归一化后精确为 `文本:` 的“文本:”或“文本：”候选 | 作为唯一挂载起点 |
+| 文本输入框 | 仅接受同一 `.cell` 内唯一的 `textarea.el-textarea__inner` | 唯一允许读取/写入的 textarea；多个 textarea 时拒绝挂载 |
+| 拼音输入框 | “拼音:”或“拼音：”所在 `.cell` 的 textarea | 明确忽略，不选择、不监听、不写入 |
 | 按钮位置 | 文本输入框容器之后 | 插入单一“上海话识别”按钮 |
-| AI 信息卡 | `data-asc-jd-tts-shanghai-info="true"` | 仅挂在精确“文本:”字段区域；不绑定拼音或页面保存按钮 |
+| AI 信息卡 | `data-asc-jd-tts-shanghai-info="true"` | 仅挂在精确“文本:”或“文本：”字段区域；不绑定拼音或页面保存按钮 |
 
 不得依赖 textarea 下标、placeholder 或“拼音:”后的兄弟节点来定位文本输入框。
 
 ## 动态区域 / 重渲染风险
 
 - 切换下一条后的已观测结果：文本 textarea 节点未被 Vue 重建。
-- 运行时仍用 `MutationObserver` 复核挂载点；若容器或文本 textarea 未来被替换，扩展按钮和 AI 信息卡都会移除旧挂载并重新定位到新的“文本:”区域。
+- 运行时仍用 `MutationObserver` 复核挂载点；若容器或文本 textarea 未来被替换，扩展按钮和 AI 信息卡都会移除旧挂载并重新定位到新的“文本:”或“文本：”区域。
 - 原生“自动标注”工具栏临时消失时，只有扩展按钮回退到文本字段旁；信息卡始终随文本字段。工具栏恢复后，按钮会重新迁回原生按钮右侧。
 - 接收到新的语句身份时会废弃缓存音频；回填前仅在身份变化时重新读取最新完整 WAV。完整 WAV 相同视为画段或页面快照变化并允许回填；完整 WAV 不同才拒绝旧结果。
 
 ## 可挂载点建议
 
-- 仅在“文本:”标签的直接相邻容器区域挂载信息卡；扩展按钮优先放在原生“自动标注”右侧，缺失时才放在文本字段旁。
-- 若页面结构不再满足该相邻关系，助手不挂载按钮，不进行猜测性回填。
+- 仅在含“文本:”或“文本：”标签且 textarea 唯一的 `.cell` 内挂载信息卡；扩展按钮优先放在原生“自动标注”右侧，缺失时才放在文本字段旁。
+- 若页面结构不再提供明确文本标签或同一 `.cell` 有多个 textarea，助手不挂载按钮，不进行猜测性回填。
 
 ## 页面区域与接口映射
 
