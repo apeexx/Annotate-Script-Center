@@ -46,6 +46,26 @@
       return { container, textarea };
     }
 
+    function findSharedTextPinyinFieldInCell(cell) {
+      const labels = Array.from(cell?.querySelectorAll?.("span") || []);
+      const textLabelIndexes = labels.map(function (label, index) {
+        return normalizeFieldLabel(label?.textContent) === "文本:" ? index : -1;
+      }).filter(function (index) { return index >= 0; });
+      const pinyinLabelIndexes = labels.map(function (label, index) {
+        return normalizeFieldLabel(label?.textContent) === "拼音:" ? index : -1;
+      }).filter(function (index) { return index >= 0; });
+      if (textLabelIndexes.length !== 1 || pinyinLabelIndexes.length !== 1 || textLabelIndexes[0] >= pinyinLabelIndexes[0]) {
+        return null;
+      }
+      if (labels[textLabelIndexes[0]]?.parentElement !== labels[pinyinLabelIndexes[0]]?.parentElement) { return null; }
+
+      const inputContainers = Array.from(cell?.querySelectorAll?.("div.input-container.el-textarea.el-input--suffix") || []);
+      if (inputContainers.length !== 2 || inputContainers.some(function (container) { return container?.parentElement !== cell; })) { return null; }
+      const firstContainerTextareas = Array.from(inputContainers[0]?.querySelectorAll?.("textarea.el-textarea__inner") || []);
+      if (firstContainerTextareas.length !== 1) { return null; }
+      return { container: inputContainers[0], textarea: firstContainerTextareas[0] };
+    }
+
     function findTextField() {
       const labels = Array.from(documentRef?.querySelectorAll?.("div.cell > span:first-child") || []);
       for (const label of labels) {
@@ -68,6 +88,8 @@
         if (!hasTextLabel) { continue; }
         const field = findUniqueTextFieldInCell(cell);
         if (field) { return field; }
+        const sharedField = findSharedTextPinyinFieldInCell(cell);
+        if (sharedField) { return sharedField; }
       }
       return null;
     }

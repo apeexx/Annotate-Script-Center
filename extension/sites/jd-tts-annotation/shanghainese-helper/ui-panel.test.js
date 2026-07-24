@@ -350,6 +350,114 @@ function createFullWidthTextLabelHarness(options) {
   return { document, textarea, pinyin, textContainer, buttons, infoPanels, events, Textarea, InputEvent };
 }
 
+function createSharedTextPinyinCellHarness() {
+  const events = [];
+  const buttons = [];
+  const infoPanels = [];
+  const pinyin = {
+    dispatchEvent() { throw new Error("must not dispatch an event to pinyin"); },
+  };
+  Object.defineProperty(pinyin, "value", {
+    get() { throw new Error("must not access pinyin value"); },
+    set() { throw new Error("must not write pinyin value"); },
+  });
+
+  const textarea = {
+    disabled: false,
+    readOnly: false,
+    dispatchEvent(event) { events.push(event); },
+  };
+  const textContainer = {
+    parentElement: null,
+    nextSibling: null,
+    querySelectorAll(selector) {
+      assert.equal(selector, "textarea.el-textarea__inner");
+      return [textarea];
+    },
+    insertAdjacentElement(position, node) {
+      assert.equal(position, "afterend");
+      node.parentElement = this.parentElement;
+      node.isConnected = true;
+      this.nextSibling = node;
+    },
+  };
+  const pinyinContainer = {
+    parentElement: null,
+    querySelectorAll(selector) {
+      throw new Error("must not query pinyin textarea: " + selector);
+    },
+  };
+  const textLabel = { textContent: "文本：", parentElement: null };
+  const pinyinLabel = { textContent: "拼音：", parentElement: null };
+  const labelFont = { parentElement: null };
+  const cell = {
+    id: "shared-text-pinyin-cell",
+    querySelectorAll(selector) {
+      if (selector === "span") { return [textLabel, pinyinLabel]; }
+      if (selector === "textarea.el-textarea__inner") { return [textarea, pinyin]; }
+      if (selector === "div.input-container.el-textarea.el-input--suffix") { return [textContainer, pinyinContainer]; }
+      throw new Error("unexpected shared-cell selector: " + selector);
+    },
+  };
+  labelFont.parentElement = cell;
+  textLabel.parentElement = labelFont;
+  pinyinLabel.parentElement = labelFont;
+  textContainer.parentElement = cell;
+  pinyinContainer.parentElement = cell;
+  textarea.parentElement = textContainer;
+  pinyin.parentElement = pinyinContainer;
+
+  const document = {
+    querySelectorAll(selector) {
+      if (selector === "div.cell > span:first-child") { return []; }
+      if (selector === "div.cell") { return [cell]; }
+      if (selector === "button") { return []; }
+      throw new Error("unexpected document selector: " + selector);
+    },
+    createElement() {
+      const node = {
+        children: [],
+        style: {},
+        isConnected: false,
+        parentElement: null,
+        nextSibling: null,
+        addEventListener() {},
+        appendChild(child) {
+          child.parentElement = this;
+          child.isConnected = true;
+          this.children.push(child);
+        },
+        replaceChildren() { this.children.splice(0, this.children.length); },
+        setAttribute() {},
+        remove() { this.isConnected = false; this.parentElement = null; },
+        insertAdjacentElement(position, sibling) {
+          assert.equal(position, "afterend");
+          sibling.parentElement = this.parentElement;
+          sibling.isConnected = true;
+          this.nextSibling = sibling;
+        },
+      };
+      Object.defineProperty(node, "className", {
+        get() { return this._className || ""; },
+        set(value) {
+          this._className = String(value || "");
+          if (this._className === "asc-jd-tts-shanghai-recommend") { buttons.push(this); }
+          if (this._className === "asc-jd-tts-shanghai-info") { infoPanels.push(this); }
+        },
+      });
+      return node;
+    },
+  };
+  function Textarea() {}
+  Object.defineProperty(Textarea.prototype, "value", {
+    set(value) { this._nativeValue = value; },
+    get() { return this._nativeValue; },
+  });
+  function InputEvent(type, init) { this.type = type; Object.assign(this, init); }
+
+  return { document, textarea, pinyin, textContainer, buttons, infoPanels, events, Textarea, InputEvent };
+}
+
 function createAmbiguousLegacyTextFieldHarness() {
   const firstTextarea = {};
   const secondTextarea = {};
@@ -556,6 +664,23 @@ test("JD Shanghai panel selects only the textarea after the exact text label and
 
 test("JD Shanghai panel mounts and fills only the full-width nested text field", function () {
   const harness = createFullWidthTextLabelHarness();
+  const runtime = panel.createRuntime({
+    document: harness.document,
+    HTMLTextAreaElement: harness.Textarea,
+    InputEvent: harness.InputEvent,
+  });
+
+  assert.equal(runtime.ensureMounted(), true);
+  assert.equal(runtime.getTextTarget(), harness.textarea);
+  assert.equal(harness.buttons.length, 1);
+  assert.equal(harness.infoPanels.length, 1);
+  assert.equal(runtime.fillRecommendedText({ listenText: "侬好" }, function () { return true; }), true);
+  assert.equal(harness.textarea._nativeValue, "侬好");
+  assert.deepEqual(harness.events.map(function (event) { return event.type; }), ["input"]);
+});
+
+test("JD Shanghai panel locks the first textarea from the verified shared text and pinyin cell", function () {
+  const harness = createSharedTextPinyinCellHarness();
   const runtime = panel.createRuntime({
     document: harness.document,
     HTMLTextAreaElement: harness.Textarea,

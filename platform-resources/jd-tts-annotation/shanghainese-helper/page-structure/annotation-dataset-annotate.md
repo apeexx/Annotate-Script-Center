@@ -14,24 +14,25 @@
 ## DOM 树 / 区域结构
 
     div.cell
-      span 文本: 或 font > span 文本：
+      font
+        span 文本: 或 文本：
+        span 拼音: 或 拼音：
       div.input-container.el-textarea.el-input--suffix
-        textarea.el-textarea__inner
-      span 拼音: 或 font > span 拼音：
+        textarea.el-textarea__inner（文本）
       div.input-container.el-textarea.el-input--suffix
-        textarea.el-textarea__inner
+        textarea.el-textarea__inner（拼音）
 
 ## 稳定选择器表
 
 | 目标 | 稳定规则 | 使用方式 |
 | --- | --- | --- |
 | 文本标签 | 先兼容 `div.cell > span:first-child`，再遍历 `div.cell` 内的 `span`；仅接受归一化后精确为 `文本:` 的“文本:”或“文本：”候选 | 作为唯一挂载起点 |
-| 文本输入框 | 仅接受同一 `.cell` 内唯一的 `textarea.el-textarea__inner` | 唯一允许读取/写入的 textarea；多个 textarea 时拒绝挂载 |
-| 拼音输入框 | “拼音:”或“拼音：”所在 `.cell` 的 textarea | 明确忽略，不选择、不监听、不写入 |
+| 文本输入框 | 接受同一 `.cell` 内唯一的 `textarea.el-textarea__inner`；或接受已采样的共享结构：同一 `FONT` 内“文本”标签在“拼音”标签之前，`.cell` 直属恰有两个 `div.input-container.el-textarea.el-input--suffix`，且第一个容器唯一含有 textarea | 共享结构只查询、锁定并写入第一个容器的 textarea；其他多 textarea 结构拒绝挂载 |
+| 拼音输入框 | 共享结构中的第二个输入容器 | 明确忽略；不查询其 textarea、不读取、不监听、不写入或触发事件 |
 | 按钮位置 | 文本输入框容器之后 | 插入单一“上海话识别”按钮 |
 | AI 信息卡 | `data-asc-jd-tts-shanghai-info="true"` | 仅挂在精确“文本:”或“文本：”字段区域；不绑定拼音或页面保存按钮 |
 
-不得依赖 textarea 下标、placeholder 或“拼音:”后的兄弟节点来定位文本输入框。
+不得依赖 textarea 下标、placeholder 或“拼音:”后的兄弟节点来定位文本输入框；共享结构仅以已确认的标签顺序和第一个直属输入容器定位。
 
 ## 动态区域 / 重渲染风险
 
@@ -42,8 +43,8 @@
 
 ## 可挂载点建议
 
-- 仅在含“文本:”或“文本：”标签且 textarea 唯一的 `.cell` 内挂载信息卡；扩展按钮优先放在原生“自动标注”右侧，缺失时才放在文本字段旁。
-- 若页面结构不再提供明确文本标签或同一 `.cell` 有多个 textarea，助手不挂载按钮，不进行猜测性回填。
+- 仅在含“文本:”或“文本：”标签且 textarea 唯一的 `.cell`，或已确认的“文本/拼音”共享结构内挂载信息卡；扩展按钮优先放在原生“自动标注”右侧，缺失时才放在文本字段旁。
+- 若页面结构不再提供明确文本标签，或不满足唯一 textarea / 已确认共享结构的全部条件，助手不挂载按钮，不进行猜测性回填。
 
 ## 页面区域与接口映射
 
