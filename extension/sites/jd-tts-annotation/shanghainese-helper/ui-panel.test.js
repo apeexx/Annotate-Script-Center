@@ -63,6 +63,31 @@ test("JD Shanghai panel renders a dedicated safe AI information card below the t
   assert.match(text, /检查后端服务/);
 });
 
+test("JD Shanghai panel shows the provider text, processed text, and replacement count without replacement details", function () {
+  const harness = createInfoHarness();
+  const runtime = panel.createRuntime({ document: harness.document });
+  runtime.ensureMounted();
+  runtime.updateInfo({
+    operatorName: "测试使用人",
+    status: "成功",
+    stage: "写入文本框",
+    rawResultText: "农好",
+    processedText: "侬好",
+    replacementCount: 1,
+    fillState: "已回填文本",
+  });
+
+  const card = harness.elements.find(function (node) { return node.attributes["data-asc-jd-tts-shanghai-info"] === "true"; });
+  const text = harness.readText(card);
+  assert.match(text, /百炼原文/);
+  assert.match(text, /农好/);
+  assert.match(text, /正字加工后/);
+  assert.match(text, /侬好/);
+  assert.match(text, /替换次数/);
+  assert.match(text, /1处/);
+  assert.doesNotMatch(text, /农好→侬好/);
+});
+
 test("JD Shanghai panel shows the default AI information card before recognition starts", function () {
   const harness = createInfoHarness();
   const runtime = panel.createRuntime({ document: harness.document });

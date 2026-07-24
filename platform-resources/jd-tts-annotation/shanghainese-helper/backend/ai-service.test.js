@@ -96,20 +96,24 @@ test("JD TTS Shanghai bounds custom prompt and stop text before sending it to th
   assert.deepEqual(request.aiOmni.params.stop, ["s".repeat(80), "ok"]);
 });
 
-test("JD TTS Shanghai success body preserves raw listenText and only returns utterance identity", function () {
+test("JD TTS Shanghai success body returns provider text and orthography-processed text", function () {
   const body = service.buildRecommendSuccessBody({
     data: {
       utteranceId: "4881635",
       checksum: "a".repeat(32),
+      rawListenText: "农好 ！",
       listenText: "侬好 ！",
       needHumanReview: false,
+      orthography: { status: "applied", replacementCount: 1 },
     },
     meta: { requestId: "request-1" },
   });
   assert.deepEqual(body.data, {
     utteranceId: "4881635",
     checksum: "a".repeat(32),
+    rawListenText: "农好 ！",
     listenText: "侬好 ！",
     needHumanReview: false,
+    orthography: { status: "applied", replacementCount: 1 },
   });
 });

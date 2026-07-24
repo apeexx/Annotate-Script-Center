@@ -314,7 +314,15 @@ test("JD Shanghai content reports all seven safe runtime stages before filling t
         recommend: async function (_snapshot, options) {
           options.onStage({ key: "create" });
           options.onStage({ key: "poll" });
-          return { utteranceId: "1", checksum: "a".repeat(32), listenText: "侬好", needHumanReview: false, meta: {} };
+          return {
+            utteranceId: "1",
+            checksum: "a".repeat(32),
+            rawListenText: "农好",
+            listenText: "侬好",
+            needHumanReview: false,
+            orthography: { status: "applied", replacementCount: 1 },
+            meta: {},
+          };
         },
       };
     },
@@ -326,6 +334,9 @@ test("JD Shanghai content reports all seven safe runtime stages before filling t
   assert.deepEqual(stages, ["使用人检查", "获取当前 WAV", "后端健康检查", "创建识别任务", "等待识别结果", "校验完整 WAV", "写入文本框", "写入文本框"]);
   assert.equal(updates.at(-1).status, "成功");
   assert.equal(updates.at(-1).resultText, "侬好");
+  assert.equal(updates.at(-1).rawResultText, "农好");
+  assert.equal(updates.at(-1).processedText, "侬好");
+  assert.equal(updates.at(-1).replacementCount, 1);
   assert.equal(updates.at(-1).fillState, "已回填文本");
 });
 

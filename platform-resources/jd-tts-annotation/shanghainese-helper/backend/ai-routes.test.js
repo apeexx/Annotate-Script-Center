@@ -201,3 +201,69 @@ test("JD TTS Shanghai rejects a missing AI usage operator on the compatibility e
   assert.equal(response.body.error.code, "missing-ai-usage-operator-name");
   assert.equal(response.body.error.stage, "validate");
 });
+
+test("JD TTS Shanghai caches the raw transcription and reapplies orthography on every response", async function () {
+  let cached = null;
+  let pipelineCalls = 0;
+  const orthographyInputs = [];
+  const runtime = routes.createRecommendRouteRuntime({
+    normalizeRecommendRequest: function (body) { return body; },
+    buildRecommendCacheKey: function () { return "same-wav"; },
+    getCachedRecommendResult: function () { return cached; },
+    setCachedRecommendResult: function (_key, value) { cached = value; },
+    pipeline: {
+      run: async function () {
+        pipelineCalls += 1;
+        return {
+          data: { utteranceId: "42", checksum: "a".repeat(32), listenText: "农", rawListenText: "农", needHumanReview: false },
+          meta: { requestId: "source-request" },
+        };
+      },
+    },
+    orthography: {
+      normalizeListenText: function (rawListenText) {
+        orthographyInputs.push(rawListenText);
+        return { rawListenText, listenText: "侬", orthography: { status: "applied", replacementCount: 1 } };
+      },
+    },
+    buildRecommendSuccessBody: function (value) { return value; },
+    aiCallLogger: { appendSafe: function () {} },
+    sendJson: function (target, statusCode, body) { target.statusCode = statusCode; target.body = body; },
+  });
+
+  async function requestOnce(requestId) {
+    const request = new EventEmitter();
+    const response = {};
+    process.nextTick(function () {
+      request.emit("data", Buffer.from(JSON.stringify({
+        requestId,
+        utteranceId: "42",
+        checksum: "a".repeat(32),
+        audioDataUrl: "data:audio/x-wav;base64,UklGRg==",
+        aiUsageOperatorName: "测试使用人",
+        aiOmni: { model: "qwen3.5-omni-plus", prompt: "only text", params: {} },
+      })));
+      request.emit("end");
+    });
+    await runtime.handleRecommend({ request, response });
+    return response;
+  }
+
+  const first = await requestOnce("request-one");
+  const second = await requestOnce("request-two");
+
+  assert.equal(pipelineCalls, 1);
+  assert.deepEqual(orthographyInputs, ["农", "农"]);
+  assert.deepEqual(cached.data, { utteranceId: "42", checksum: "a".repeat(32), listenText: "农", rawListenText: "农", needHumanReview: false });
+  assert.deepEqual(first.body.data, {
+    utteranceId: "42",
+    checksum: "a".repeat(32),
+    rawListenText: "农",
+    listenText: "侬",
+    needHumanReview: false,
+    orthography: { status: "applied", replacementCount: 1 },
+  });
+  assert.equal(first.body.meta.cache.hit, false);
+  assert.equal(second.body.meta.cache.hit, true);
+  assert.equal(second.body.meta.cache.sourceRequestId, "request-one");
+});

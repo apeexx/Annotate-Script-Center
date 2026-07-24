@@ -189,6 +189,29 @@ test("JD Shanghai recommendation preserves raw listenText and never exposes a jo
   assert.equal(Object.prototype.hasOwnProperty.call(result, "jobId"), false);
 });
 
+test("JD Shanghai recommendation keeps provider text alongside processed text and a text-free summary", function () {
+  assert.deepEqual(recommendation.mapSuccess({
+    success: true,
+    data: {
+      utteranceId: "7",
+      checksum: "b".repeat(32),
+      rawListenText: "农好",
+      listenText: "侬好",
+      needHumanReview: false,
+      orthography: { status: "applied", replacementCount: 1 },
+    },
+    meta: { requestId: "safe" },
+  }), {
+    utteranceId: "7",
+    checksum: "b".repeat(32),
+    rawListenText: "农好",
+    listenText: "侬好",
+    needHumanReview: false,
+    orthography: { status: "applied", replacementCount: 1 },
+    meta: { requestId: "safe" },
+  });
+});
+
 test("JD Shanghai recommendation maps saved flat single-stage settings on every request", async function () {
   const calls = [];
   const settings = { meta: { backendEndpointMode: "server", aiUsageOperatorName: "tester" }, platforms: { jdTtsAnnotation: { scripts: { shanghaineseHelper: {

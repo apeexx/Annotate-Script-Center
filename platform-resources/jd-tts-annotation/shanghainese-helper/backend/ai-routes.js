@@ -7,6 +7,7 @@ const { buildJobStatusBody } = require("../../../backend/ai-framework/core/creat
 const { sharedAiJobStore } = require("../../../backend/ai-framework/runtime/ai-job-store");
 const { buildRecommendCacheKey, getCachedRecommendResult, setCachedRecommendResult } = require("./cache");
 const { createRecommendPipeline } = require("./pipeline");
+const { createOrthographyRuntime } = require("./orthography");
 const { aiCallLogger } = require("../data/ai-call-log");
 const {
   buildRecommendErrorBody,
@@ -129,6 +130,7 @@ function createRecommendRouteRuntime(overrides) {
     sendJson,
     jobStore: sharedAiJobStore,
     pipeline: createRecommendPipeline(),
+    orthography: createOrthographyRuntime(),
     normalizeRecommendRequest,
     buildRecommendSuccessBody,
     buildRecommendErrorBody,
@@ -145,20 +147,52 @@ function createRecommendRouteRuntime(overrides) {
     deps.sendJson(response, Math.max(400, Number(error?.statusCode) || 500), body);
   }
 
+  function finalizeRawResult(rawResult, context, cache) {
+    const source = rawResult && typeof rawResult === "object" ? rawResult : {};
+    const sourceData = source.data && typeof source.data === "object" ? source.data : {};
+    const rawListenText = typeof sourceData.rawListenText === "string"
+      ? sourceData.rawListenText
+      : typeof sourceData.listenText === "string"
+        ? sourceData.listenText
+        : "";
+    let normalized = { rawListenText, listenText: rawListenText, orthography: { status: "invalid", replacementCount: 0 } };
+    try {
+      if (deps.orthography && typeof deps.orthography.normalizeListenText === "function") {
+        normalized = deps.orthography.normalizeListenText(rawListenText);
+      }
+    } catch (_error) {}
+    const finalRawText = typeof normalized?.rawListenText === "string" ? normalized.rawListenText : rawListenText;
+    const finalListenText = typeof normalized?.listenText === "string" ? normalized.listenText : finalRawText;
+    const orthography = normalized?.orthography && typeof normalized.orthography === "object"
+      ? { status: normalizeText(normalized.orthography.status) || "invalid", replacementCount: Math.max(0, Math.floor(Number(normalized.orthography.replacementCount) || 0)) }
+      : { status: "invalid", replacementCount: 0 };
+    return {
+      data: Object.assign({}, sourceData, {
+        rawListenText: finalRawText,
+        listenText: finalListenText,
+        needHumanReview: finalListenText === "",
+        orthography,
+      }),
+      meta: Object.assign({}, source.meta || {}, {
+        requestId: context.requestId,
+        cache: cache,
+      }),
+    };
+  }
+
   async function execute(request, context) {
     const cacheKey = deps.buildRecommendCacheKey(request);
     const cached = deps.getCachedRecommendResult(cacheKey);
     if (cached) {
-      cached.meta = Object.assign({}, cached.meta || {}, { requestId: context.requestId, cache: { hit: true, sourceRequestId: normalizeText(cached?.meta?.requestId) } });
-      return cached;
+      return finalizeRawResult(cached, context, { hit: true, sourceRequestId: normalizeText(cached?.meta?.requestId) });
     }
     const result = await deps.pipeline.run(request, context);
-    const safeResult = {
+    const rawResult = {
       data: result.data,
-      meta: Object.assign({}, result.meta || {}, { requestId: context.requestId, cache: { hit: false, sourceRequestId: "" } }),
+      meta: Object.assign({}, result.meta || {}, { requestId: context.requestId }),
     };
-    deps.setCachedRecommendResult(cacheKey, safeResult);
-    return safeResult;
+    deps.setCachedRecommendResult(cacheKey, rawResult);
+    return finalizeRawResult(rawResult, context, { hit: false, sourceRequestId: "" });
   }
 
   function appendLog(payload) {

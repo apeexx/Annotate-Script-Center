@@ -49,6 +49,7 @@ test("JD TTS Shanghai pipeline sends only the WAV Data URL to its dedicated queu
   assert.deepEqual(result.data, {
     utteranceId: "4881635",
     checksum: "a".repeat(32),
+    rawListenText: "侬好 ！",
     listenText: "侬好 ！",
     needHumanReview: false,
   });
@@ -81,6 +82,7 @@ test("JD TTS Shanghai treats an empty provider transcription as a human-review r
   assert.deepEqual(result.data, {
     utteranceId: "4881635",
     checksum: "a".repeat(32),
+    rawListenText: "",
     listenText: "",
     needHumanReview: true,
   });

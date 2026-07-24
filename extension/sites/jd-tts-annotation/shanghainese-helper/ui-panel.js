@@ -27,6 +27,9 @@
       status: "等待识别",
       stage: "-",
       resultText: "暂无识别结果",
+      rawResultText: "",
+      processedText: "",
+      replacementCount: 0,
       fillState: "未写入",
       details: [],
       error: null,
@@ -240,7 +243,9 @@
       appendRow(root, "AI 使用人", normalizeText(infoState.operatorName) || "未设置");
       appendRow(root, "当前状态", normalizeText(infoState.status) || "等待识别");
       appendRow(root, "当前步骤", normalizeText(infoState.stage) || "-");
-      appendRow(root, "识别文本", infoState.resultText === "" ? "暂无识别结果" : String(infoState.resultText || "暂无识别结果"));
+      appendRow(root, "百炼原文", infoState.rawResultText === "" ? "暂无识别结果" : String(infoState.rawResultText || "暂无识别结果"));
+      appendRow(root, "正字加工后", infoState.processedText === "" ? "暂无识别结果" : String(infoState.processedText || "暂无识别结果"));
+      appendRow(root, "替换次数", String(Math.max(0, Math.floor(Number(infoState.replacementCount) || 0))) + "处");
       appendRow(root, "回填结果", normalizeText(infoState.fillState) || "未写入");
       if (infoState.error) {
         appendRow(root, "失败步骤", normalizeText(infoState.error.step) || normalizeText(infoState.stage) || "-");
@@ -281,6 +286,9 @@
         status: source.status !== undefined ? normalizeText(source.status, 120) : infoState.status,
         stage: source.stage !== undefined ? normalizeText(source.stage, 120) : infoState.stage,
         resultText: source.resultText !== undefined ? String(source.resultText || "") : infoState.resultText,
+        rawResultText: source.rawResultText !== undefined ? String(source.rawResultText || "") : source.resultText !== undefined ? String(source.resultText || "") : infoState.rawResultText,
+        processedText: source.processedText !== undefined ? String(source.processedText || "") : source.resultText !== undefined ? String(source.resultText || "") : infoState.processedText,
+        replacementCount: source.replacementCount !== undefined ? Math.max(0, Math.floor(Number(source.replacementCount) || 0)) : infoState.replacementCount,
         fillState: source.fillState !== undefined ? normalizeText(source.fillState, 120) : infoState.fillState,
         details: Array.isArray(source.details) ? source.details.slice(0, 10).map(function (row) { return [normalizeText(row?.[0], 80), normalizeText(row?.[1], 240)]; }) : infoState.details,
         error,

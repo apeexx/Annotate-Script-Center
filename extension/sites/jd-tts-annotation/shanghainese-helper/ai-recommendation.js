@@ -201,13 +201,23 @@
         : nested && (nested.utteranceId || nested.checksum || typeof nested.listenText === "string")
           ? nested
           : {};
-    return {
+    const result = {
       utteranceId: normalizeText(payload.utteranceId),
       checksum: normalizeText(payload.checksum),
       listenText: typeof payload.listenText === "string" ? payload.listenText : "",
       needHumanReview: payload.needHumanReview === true,
       meta: sanitizeMeta(responseBody?.meta || payload.meta || source.meta),
     };
+    if (typeof payload.rawListenText === "string") {
+      result.rawListenText = payload.rawListenText;
+    }
+    if (payload.orthography && typeof payload.orthography === "object") {
+      result.orthography = {
+        status: normalizeText(payload.orthography.status) || "unavailable",
+        replacementCount: Math.max(0, Math.floor(Number(payload.orthography.replacementCount) || 0)),
+      };
+    }
+    return result;
   }
 
   function getBackendMode(settings) {

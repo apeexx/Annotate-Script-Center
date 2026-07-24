@@ -39,9 +39,9 @@ function createRecommendPipeline(overrides) {
     const value = queued?.value && typeof queued.value === "object" ? queued.value : queued || {};
     const queueMeta = queued?.queueMeta && typeof queued.queueMeta === "object" ? queued.queueMeta : {};
     const usage = buildUsageMeta(normalizeText(value.model) || input.aiOmni?.model, value.usage);
-    const listenText = typeof value.rawText === "string" ? value.rawText : "";
+    const rawListenText = typeof value.rawText === "string" ? value.rawText : "";
     return {
-      data: { utteranceId: normalizeText(input.utteranceId), checksum: normalizeText(input.checksum), listenText, needHumanReview: listenText === "" },
+      data: { utteranceId: normalizeText(input.utteranceId), checksum: normalizeText(input.checksum), rawListenText, listenText: rawListenText, needHumanReview: rawListenText === "" },
       meta: { requestId: normalizeText(context.requestId || input.requestId), stage: "complete", models: { pipelineMode: "omni_single_raw_listen", omniModel: normalizeText(value.model) || normalizeText(input.aiOmni?.model), enableThinking: false }, timing: { totalDurationMs: Math.max(0, deps.now() - startedAt) }, usage: usage.usage, cost: usage.cost, queue: { totalQueueWaitMs: Math.max(0, Number(queueMeta.queueWaitMs) || 0), groups: [normalizeText(queueMeta.groupName) || "jd_tts_qwen_omni"] }, cache: { hit: false, sourceRequestId: "" }, retryCount: Math.max(0, Number(queueMeta.retryCount) || 0), cancelled: false },
     };
   }

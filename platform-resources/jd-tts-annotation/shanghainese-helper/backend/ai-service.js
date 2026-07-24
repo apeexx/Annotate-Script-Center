@@ -153,7 +153,21 @@ function createHealthPayload() {
 
 function buildRecommendSuccessBody(value) {
   const data = value?.data && typeof value.data === "object" ? value.data : {};
-  return { success: true, data: { utteranceId: normalizeText(data.utteranceId), checksum: normalizeText(data.checksum), listenText: typeof data.listenText === "string" ? data.listenText : "", needHumanReview: data.needHumanReview === true }, meta: value?.meta && typeof value.meta === "object" ? value.meta : {} };
+  const listenText = typeof data.listenText === "string" ? data.listenText : "";
+  const rawListenText = typeof data.rawListenText === "string" ? data.rawListenText : listenText;
+  const orthography = data.orthography && typeof data.orthography === "object" ? data.orthography : {};
+  return {
+    success: true,
+    data: {
+      utteranceId: normalizeText(data.utteranceId),
+      checksum: normalizeText(data.checksum),
+      rawListenText,
+      listenText,
+      needHumanReview: data.needHumanReview === true,
+      orthography: { status: normalizeText(orthography.status) || "unavailable", replacementCount: Math.max(0, Math.floor(Number(orthography.replacementCount) || 0)) },
+    },
+    meta: value?.meta && typeof value.meta === "object" ? value.meta : {},
+  };
 }
 
 function buildRecommendErrorBody(value) {

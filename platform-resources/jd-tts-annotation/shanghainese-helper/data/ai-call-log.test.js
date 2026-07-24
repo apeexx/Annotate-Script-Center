@@ -17,7 +17,13 @@ test("JD TTS call log keeps the utterance identity summary but never audio sourc
       aiUsageOperatorName: "tester",
     },
     result: {
-      data: { utteranceId: "4881635", checksum: "a".repeat(32), listenText: "\u4f8b\u5b50" },
+      data: {
+        utteranceId: "4881635",
+        checksum: "a".repeat(32),
+        rawListenText: "百炼原文",
+        listenText: "正字加工后",
+        orthography: { status: "applied", replacementCount: 1 },
+      },
       meta: {
         stage: "complete",
         timing: { totalDurationMs: 321 },
@@ -34,5 +40,5 @@ test("JD TTS call log keeps the utterance identity summary but never audio sourc
   assert.equal(row.audioChecksumDigest, "a".repeat(32));
   assert.equal(row.recognizeModel, "qwen3.5-omni-plus");
   assert.doesNotMatch(serialized, /data:audio|U0VDUkVU/i);
-  assert.doesNotMatch(serialized, /\u4f8b\u5b50|listenText/i);
+  assert.doesNotMatch(serialized, /百炼原文|正字加工后|rawListenText|listenText|orthography/i);
 });

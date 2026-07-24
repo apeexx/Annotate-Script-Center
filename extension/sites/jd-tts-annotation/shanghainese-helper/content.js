@@ -102,7 +102,7 @@
         controller: new AbortController(),
         timer: null,
         timedOut: false,
-        info: { operatorName: "未设置", status: "进行中", stage: "使用人检查", resultText: "", fillState: "未写入", details: [], error: null },
+        info: { operatorName: "未设置", status: "进行中", stage: "使用人检查", resultText: "", rawResultText: "", processedText: "", replacementCount: 0, fillState: "未写入", details: [], error: null },
       };
       activeRun = run;
       run.timer = globalThis.setTimeout(function () { run.timedOut = true; run.controller.abort(); }, TIMEOUT_MS);
@@ -134,7 +134,10 @@
           },
         });
         if (run.controller.signal.aborted || activeRun !== run) { return; }
-        updateRunInfo(run, { status: "进行中", stage: "校验完整 WAV", resultText: typeof result?.listenText === "string" ? result.listenText : "" });
+        const processedText = typeof result?.listenText === "string" ? result.listenText : "";
+        const rawResultText = typeof result?.rawListenText === "string" ? result.rawListenText : processedText;
+        const replacementCount = Math.max(0, Math.floor(Number(result?.orthography?.replacementCount) || 0));
+        updateRunInfo(run, { status: "进行中", stage: "校验完整 WAV", resultText: processedText, rawResultText, processedText, replacementCount });
         if (!sameIdentity(result, snapshot)) {
           panel?.setStatus?.("识别结果与当前请求不一致，未写入文本。", "warning");
           updateRunInfo(run, { status: "未回填", stage: "校验完整 WAV", fillState: "识别结果与当前请求不一致", error: null });
