@@ -368,6 +368,27 @@
       }) || null;
     }
 
+    function getBatchButtonMountTarget() {
+      const nativeContainer = getNativeBatchButtonContainer();
+      if (nativeContainer) {
+        return {
+          container: nativeContainer,
+          scopedAnchor: nativeContainer,
+          legacyToolbar: true,
+        };
+      }
+      const saveButton = getNativeSaveButton();
+      if (!saveButton || !saveButton.parentNode) {
+        return null;
+      }
+      return {
+        container: saveButton.parentNode,
+        scopedAnchor: saveButton,
+        saveButton: saveButton,
+        legacyToolbar: false,
+      };
+    }
+
     function getScopedDataAttrs(element) {
       const attrs = {};
       if (!element) {
@@ -722,17 +743,21 @@
     }
 
     function syncBatchButtons() {
-      const container = getNativeBatchButtonContainer();
-      if (!container) {
+      const mountTarget = getBatchButtonMountTarget();
+      if (!mountTarget) {
         return;
       }
+      const container = mountTarget.container;
       if (
         batchAllButtonNode &&
         batchPendingButtonNode &&
         stopButtonNode &&
         document.documentElement.contains(batchAllButtonNode) &&
         document.documentElement.contains(batchPendingButtonNode) &&
-        document.documentElement.contains(stopButtonNode)
+        document.documentElement.contains(stopButtonNode) &&
+        batchAllButtonNode.parentNode === container &&
+        batchPendingButtonNode.parentNode === container &&
+        stopButtonNode.parentNode === container
       ) {
         return;
       }
@@ -745,7 +770,7 @@
       if (stopButtonNode) {
         stopButtonNode.remove();
       }
-      const scopedAttrs = getScopedDataAttrs(container);
+      const scopedAttrs = getScopedDataAttrs(mountTarget.scopedAnchor);
       const referenceButton = Array.from(container.children).find(function (child) {
         if (!(child instanceof HTMLButtonElement)) {
           return false;
@@ -819,10 +844,20 @@
         }
       });
 
-      if (referenceButton) {
+      if (mountTarget.legacyToolbar && referenceButton) {
         container.insertBefore(stopButtonNode, referenceButton);
         container.insertBefore(batchPendingButtonNode, stopButtonNode);
         container.insertBefore(batchAllButtonNode, batchPendingButtonNode);
+      } else if (!mountTarget.legacyToolbar) {
+        const fallbackAnchor =
+          singleButtonNode &&
+          document.documentElement.contains(singleButtonNode) &&
+          singleButtonNode.parentNode === container
+            ? singleButtonNode
+            : mountTarget.saveButton;
+        fallbackAnchor.insertAdjacentElement("afterend", batchAllButtonNode);
+        batchAllButtonNode.insertAdjacentElement("afterend", batchPendingButtonNode);
+        batchPendingButtonNode.insertAdjacentElement("afterend", stopButtonNode);
       } else {
         container.appendChild(batchAllButtonNode);
         container.appendChild(batchPendingButtonNode);
