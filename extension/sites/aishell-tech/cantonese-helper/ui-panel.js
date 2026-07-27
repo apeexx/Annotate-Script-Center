@@ -350,15 +350,6 @@
       return form || document.querySelector(".mark-area");
     }
 
-    function getNativeBatchButtonContainer() {
-      const buttons = Array.from(document.querySelectorAll("button"));
-      const target = buttons.find(function (button) {
-        const text = String(button.textContent || "");
-        return text.indexOf("删除音频标点") >= 0 || text.indexOf("查看历史标注记录") >= 0;
-      });
-      return target ? target.parentNode : null;
-    }
-
     function getNativeSaveButton() {
       const buttons = Array.from(
         document.querySelectorAll(".mark-area button.el-button--primary")
@@ -369,14 +360,6 @@
     }
 
     function getBatchButtonMountTarget() {
-      const nativeContainer = getNativeBatchButtonContainer();
-      if (nativeContainer) {
-        return {
-          container: nativeContainer,
-          scopedAnchor: nativeContainer,
-          legacyToolbar: true,
-        };
-      }
       const saveButton = getNativeSaveButton();
       if (!saveButton || !saveButton.parentNode) {
         return null;
@@ -385,7 +368,6 @@
         container: saveButton.parentNode,
         scopedAnchor: saveButton,
         saveButton: saveButton,
-        legacyToolbar: false,
       };
     }
 
@@ -674,19 +656,15 @@
           batchAllButtonNode,
           nextState.batch === true || nextState.single === true
         );
-        batchAllButtonNode.style.color = batchAllButtonNode.disabled ? "#94a3b8" : "#1d4ed8";
       }
       if (batchPendingButtonNode) {
         syncButtonDisabledState(
           batchPendingButtonNode,
           nextState.batch === true || nextState.single === true
         );
-        batchPendingButtonNode.style.color = batchPendingButtonNode.disabled ? "#94a3b8" : "#1d4ed8";
       }
       if (stopButtonNode) {
         syncButtonDisabledState(stopButtonNode, nextState.batch !== true);
-        stopButtonNode.style.color = stopButtonNode.disabled ? "#94a3b8" : "#dc2626";
-        stopButtonNode.style.fontWeight = stopButtonNode.disabled ? "400" : "700";
       }
       if (fillRecommendBtn) {
         fillRecommendBtn.disabled =
@@ -711,6 +689,9 @@
         document.documentElement.contains(singleButtonNode) &&
         singleButtonNode.parentNode === saveButton.parentNode
       ) {
+        if (singleButtonNode.previousSibling !== saveButton) {
+          saveButton.insertAdjacentElement("afterend", singleButtonNode);
+        }
         return;
       }
       if (singleButtonNode) {
@@ -748,6 +729,12 @@
         return;
       }
       const container = mountTarget.container;
+      const actionAnchor =
+        singleButtonNode &&
+        document.documentElement.contains(singleButtonNode) &&
+        singleButtonNode.parentNode === container
+          ? singleButtonNode
+          : mountTarget.saveButton;
       if (
         batchAllButtonNode &&
         batchPendingButtonNode &&
@@ -757,7 +744,10 @@
         document.documentElement.contains(stopButtonNode) &&
         batchAllButtonNode.parentNode === container &&
         batchPendingButtonNode.parentNode === container &&
-        stopButtonNode.parentNode === container
+        stopButtonNode.parentNode === container &&
+        batchAllButtonNode.previousSibling === actionAnchor &&
+        batchPendingButtonNode.previousSibling === batchAllButtonNode &&
+        stopButtonNode.previousSibling === batchPendingButtonNode
       ) {
         return;
       }
@@ -771,23 +761,14 @@
         stopButtonNode.remove();
       }
       const scopedAttrs = getScopedDataAttrs(mountTarget.scopedAnchor);
-      const referenceButton = Array.from(container.children).find(function (child) {
-        if (!(child instanceof HTMLButtonElement)) {
-          return false;
-        }
-        const text = String(child.textContent || "");
-        return text.indexOf("删除音频标点") >= 0 || text.indexOf("查看历史标注记录") >= 0;
-      });
 
-      function createToolbarButton(text, attrName, onClick) {
+      function createBatchActionButton(text, attrName, onClick, className) {
         const button = document.createElement("button");
         button.type = "button";
-        button.className = "el-button el-button--text el-button--small";
+        button.className = className;
         button.setAttribute(attrName, "true");
         applyScopedAttrs(button, scopedAttrs);
-        button.style.marginRight = "12px";
-        button.style.color = "#1d4ed8";
-        button.style.fontWeight = "700";
+        button.style.marginLeft = "12px";
         button.style.pointerEvents = "auto";
         const label = document.createElement("span");
         applyScopedAttrs(label, scopedAttrs);
@@ -803,7 +784,7 @@
         return button;
       }
 
-      batchAllButtonNode = createToolbarButton(
+      batchAllButtonNode = createBatchActionButton(
         "全部AI批量识别",
         "data-asc-injected-batch-all",
         function () {
@@ -811,9 +792,10 @@
             return deps.onBatchRecommendAll();
           }
           return null;
-        }
+        },
+        "el-button el-button--primary"
       );
-      batchPendingButtonNode = createToolbarButton(
+      batchPendingButtonNode = createBatchActionButton(
         "未完成的AI批量识别",
         "data-asc-injected-batch-pending",
         function () {
@@ -821,48 +803,25 @@
             return deps.onBatchRecommendPending();
           }
           return null;
-        }
+        },
+        "el-button el-button--primary"
       );
 
-      stopButtonNode = document.createElement("button");
-      stopButtonNode.type = "button";
-      stopButtonNode.className = "el-button el-button--text el-button--small";
-      stopButtonNode.setAttribute("data-asc-injected-stop", "true");
-      applyScopedAttrs(stopButtonNode, scopedAttrs);
-      stopButtonNode.style.marginRight = "12px";
-      stopButtonNode.style.color = "#94a3b8";
-      stopButtonNode.style.pointerEvents = "auto";
-      const stopLabel = document.createElement("span");
-      applyScopedAttrs(stopLabel, scopedAttrs);
-      stopLabel.textContent = "停止批量";
-      stopButtonNode.appendChild(stopLabel);
-      stopButtonNode.addEventListener("click", function (event) {
-        event.preventDefault();
-        event.stopPropagation();
-        if (typeof deps.onBatchStop === "function") {
-          void deps.onBatchStop();
-        }
-      });
+      stopButtonNode = createBatchActionButton(
+        "停止批量",
+        "data-asc-injected-stop",
+        function () {
+          if (typeof deps.onBatchStop === "function") {
+            return deps.onBatchStop();
+          }
+          return null;
+        },
+        "el-button el-button--danger"
+      );
 
-      if (mountTarget.legacyToolbar && referenceButton) {
-        container.insertBefore(stopButtonNode, referenceButton);
-        container.insertBefore(batchPendingButtonNode, stopButtonNode);
-        container.insertBefore(batchAllButtonNode, batchPendingButtonNode);
-      } else if (!mountTarget.legacyToolbar) {
-        const fallbackAnchor =
-          singleButtonNode &&
-          document.documentElement.contains(singleButtonNode) &&
-          singleButtonNode.parentNode === container
-            ? singleButtonNode
-            : mountTarget.saveButton;
-        fallbackAnchor.insertAdjacentElement("afterend", batchAllButtonNode);
-        batchAllButtonNode.insertAdjacentElement("afterend", batchPendingButtonNode);
-        batchPendingButtonNode.insertAdjacentElement("afterend", stopButtonNode);
-      } else {
-        container.appendChild(batchAllButtonNode);
-        container.appendChild(batchPendingButtonNode);
-        container.appendChild(stopButtonNode);
-      }
+      actionAnchor.insertAdjacentElement("afterend", batchAllButtonNode);
+      batchAllButtonNode.insertAdjacentElement("afterend", batchPendingButtonNode);
+      batchPendingButtonNode.insertAdjacentElement("afterend", stopButtonNode);
       setBusy(currentBusyState);
     }
 

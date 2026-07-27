@@ -252,7 +252,7 @@ test("Aishell Cantonese refuses to fill a result after only the selected blue se
   );
 });
 
-test("Aishell Cantonese mounts batch controls beside save when the legacy utility toolbar is absent", function () {
+test("Aishell Cantonese keeps batch controls beside save when the legacy utility toolbar exists", function () {
   const previousDocument = global.document;
   const previousButton = global.HTMLButtonElement;
   const documentLike = createFakeDocument();
@@ -284,13 +284,33 @@ test("Aishell Cantonese mounts batch controls beside save when the legacy utilit
 
     runtime.ensureMounted();
 
-    assert.deepEqual(getButtonLabels(documentLike.actions), ["保存", "AI识别"]);
-    assert.deepEqual(getButtonLabels(legacyActions), [
+    assert.deepEqual(getButtonLabels(documentLike.actions), [
+      "保存",
+      "AI识别",
       "全部AI批量识别",
       "未完成的AI批量识别",
       "停止批量",
-      "删除音频标点",
     ]);
+    assert.deepEqual(getButtonLabels(legacyActions), ["删除音频标点"]);
+    assert.equal(findInjectedButtons(documentLike, "data-asc-injected-batch-all").length, 1);
+    assert.equal(findInjectedButtons(documentLike, "data-asc-injected-batch-pending").length, 1);
+    assert.equal(findInjectedButtons(documentLike, "data-asc-injected-stop").length, 1);
+
+    const singleButton = findInjectedButtons(documentLike, "data-asc-injected-single")[0];
+    const batchAllButton = findInjectedButtons(documentLike, "data-asc-injected-batch-all")[0];
+    documentLike.actions.insertBefore(batchAllButton, documentLike.saveButton);
+    documentLike.actions.appendChild(singleButton);
+
+    runtime.ensureMounted();
+
+    assert.deepEqual(getButtonLabels(documentLike.actions), [
+      "保存",
+      "AI识别",
+      "全部AI批量识别",
+      "未完成的AI批量识别",
+      "停止批量",
+    ]);
+    assert.equal(findInjectedButtons(documentLike, "data-asc-injected-single").length, 1);
     assert.equal(findInjectedButtons(documentLike, "data-asc-injected-batch-all").length, 1);
     assert.equal(findInjectedButtons(documentLike, "data-asc-injected-batch-pending").length, 1);
     assert.equal(findInjectedButtons(documentLike, "data-asc-injected-stop").length, 1);
