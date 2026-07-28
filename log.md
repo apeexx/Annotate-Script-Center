@@ -1,5 +1,11 @@
 # 修改日志
 
+## 2026-07-28：发布 0.4.7 粤语批量稳定性修复
+
+- Manifest 保持正式 `0.4.7`，基于已验收的粤语批量限流和正常空文本处理重新生成 public CRX、ZIP、企业自动更新 XML 与 latest JSON。
+- 产物复用既有扩展 ID `megaonhojlkfhkdbhfapeknjokhgmkad`；latest JSON、更新 XML、CRX 与 ZIP 的版本、文件名、大小和 SHA-256 已在本地交叉校验。
+- 本次未改动 Prompt、平台保存边界或扩展版本号；公开下载站仍需在推送后单独确认实际文件和 latest JSON 已同步。
+
 ## 2026-07-28：修复 Aishell 粤语批量上游限流与正常空文本处理
 
 - 根因确认：粤语专用队列原默认 `20 RPM` 高于当前账号的稳定额度，且 429 重试没有重新占用队列间隔，重试完成后会立即放行下一段，导致长视频批量连续触发 `limit_burst_rate`。

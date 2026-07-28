@@ -6,13 +6,13 @@
   "filename": "annotation-script-center-v0.4.7.crx",
   "download_url": "https://script.aisiyunling.com/downloads/annotation-script-center-v0.4.7.crx",
   "update_xml_url": "https://script.aisiyunling.com/downloads/annotation-script-center-update.xml",
-  "sha256": "a4b3264dd8b03ae5991f0d2060216fe579f61d9dbff354f37dc806e73d5c22b2",
-  "size_bytes": 924076,
+  "sha256": "f4c4024d6431b6daca87a40b812fc9cfd526c1dad7edb9ba3e52e7644ee8a401",
+  "size_bytes": 925012,
   "zip_filename": "annotation-script-center-v0.4.7.zip",
   "zip_download_url": "https://script.aisiyunling.com/downloads/annotation-script-center-v0.4.7.zip",
-  "zip_sha256": "fffcf946988f774f139f2e685c24da2d635a4015c893cf2d48cb4cd4f99e02ba",
-  "zip_size_bytes": 910037,
-  "created_at": "2026-07-27T14:13:20.578Z",
+  "zip_sha256": "d2602c815d3b2ba720a0e426ec2cbc8ea9f89d86a5bcd709f83df4614ab13c3e",
+  "zip_size_bytes": 910967,
+  "created_at": "2026-07-28T09:34:18.886Z",
   "min_agent_version": "0.1.0",
-  "release_notes": "0.4.7：粤语批量识别按钮固定到底部操作行，并增强页面重绘稳定性。"
+  "release_notes": "修复粤语批量限流与正常空文本处理"
 }
