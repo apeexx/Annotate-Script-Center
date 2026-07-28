@@ -161,7 +161,7 @@
   }
 
   function hasFillableRecommendation(result) {
-    return hasRecommendedText(result);
+    return hasRecommendedText(result) && result?.needHumanReview !== true;
   }
 
   function isResultBoundToCurrentItem(result, item) {

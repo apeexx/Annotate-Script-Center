@@ -4,8 +4,8 @@ function redactProviderText(text) {
   return String(text || "")
     .replace(/https?:\/\/[^\s"'\\]+/g, function (matchText) {
       try {
-        const parsedUrl = new URL(matchText);
-        return parsedUrl.protocol + "//" + parsedUrl.host + "/[redacted]";
+        new URL(matchText);
+        return "[url-redacted]";
       } catch (error) {
         return "[url-redacted]";
       }
@@ -15,6 +15,9 @@ function redactProviderText(text) {
     .replace(/(cookie["'\s:=]+)([^\n\r]+)/gi, "$1[redacted]")
     .replace(/(ossaccesskeyid["'\s:=]+)([^\s",}]+)/gi, "$1[redacted]")
     .replace(/(signature["'\s:=]+)([^\s",}]+)/gi, "$1[redacted]")
+    .replace(/(access[_-]?key[_-]?secret["'\s:=]+)([^\s",}]+)/gi, "$1[redacted]")
+    .replace(/(secret["'\s:=]+)([^\s",}]+)/gi, "$1[redacted]")
+    .replace(/(password["'\s:=]+)([^\s",}]+)/gi, "$1[redacted]")
     .replace(/(api[_-]?key["'\s:=]+)([^\s",}]+)/gi, "$1[redacted]")
     .replace(/(authorization["'\s:=]+)([^\s",}]+)/gi, "$1[redacted]");
 }
@@ -48,10 +51,17 @@ function isSensitiveDebugKey(key) {
     normalized.indexOf("cookie") >= 0 ||
     normalized.indexOf("authorization") >= 0 ||
     normalized.indexOf("signature") >= 0 ||
+    normalized.indexOf("secret") >= 0 ||
+    normalized.indexOf("password") >= 0 ||
     normalized.indexOf("api_key") >= 0 ||
     normalized.indexOf("apikey") >= 0 ||
     normalized.indexOf("audiourl") >= 0 ||
-    normalized.indexOf("audio_url") >= 0
+    normalized.indexOf("audio_url") >= 0 ||
+    normalized.indexOf("audiodataurl") >= 0 ||
+    normalized.indexOf("audio_data_url") >= 0 ||
+    normalized.indexOf("sourceurl") >= 0 ||
+    normalized.indexOf("source_url") >= 0 ||
+    normalized.indexOf("url") >= 0
   );
 }
 
@@ -67,6 +77,9 @@ function sanitizeProviderDebugValue(value, options, depth, seen) {
     return value === undefined ? null : value;
   }
   if (typeof value === "string") {
+    if (/data:audio\//i.test(value)) {
+      return "[redacted-audio-data]";
+    }
     return sanitizeProviderDebugText(value, textLimit);
   }
   if (typeof value === "number" || typeof value === "boolean") {

@@ -40,6 +40,23 @@ test("Aishell Cantonese listenText is kept byte-for-byte when building a save pa
   }
 });
 
+test("Aishell Cantonese final save boundary rejects every #N#-containing result", async function () {
+  const harness = loadApi();
+  try {
+    const runtime = harness.api.createRuntime();
+    for (const text of [" #N# ", "#N# explanation", "before #N#\nafter"]) {
+      const result = await runtime.fillAndSaveCurrent(text);
+      assert.deepEqual(result, {
+        ok: false,
+        code: "human-review-marker",
+        message: "人工复核标记不能自动填入或保存。",
+      });
+    }
+  } finally {
+    harness.cleanup();
+  }
+});
+
 test("Aishell Cantonese reads only the text input and exposes no speed-field API", function () {
   const harness = loadApi();
   try {

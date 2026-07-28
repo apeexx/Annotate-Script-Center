@@ -13,6 +13,21 @@
     CONSTANTS.AISHELL_TECH_CANTONESE_AI_RECOMMEND_PATH ||
     "/api/aishell-tech/cantonese-helper/ai/recommend";
   const concurrentRequestStreamFactory = globalThis.ASREdgeConcurrentAiRequestStream || null;
+  const batchWindow =
+    globalThis.__ASREdgeAishellTechCantoneseBatchWindow ||
+    (typeof module !== "undefined" && module.exports ? require("./batch-window.js") : {});
+  const resolveBatchRequestPolicy =
+    typeof batchWindow.resolveBatchRequestPolicy === "function"
+      ? batchWindow.resolveBatchRequestPolicy
+      : function () {
+          return { configuredConcurrency: 1, frontConcurrency: 1, requestStaggerMs: 0 };
+        };
+  const shouldPauseAfterAiError =
+    typeof batchWindow.shouldPauseAfterAiError === "function"
+      ? batchWindow.shouldPauseAfterAiError
+      : function () {
+          return false;
+        };
   const aiBatchSummary =
     globalThis.ASREdgeAiBatchSummary ||
     (typeof module !== "undefined" && module.exports
@@ -459,13 +474,13 @@
           return;
         }
         const batchRunId = createBatchRunId();
-        const batchConcurrency = Math.max(
-          1,
-          Number(config.aiQualifiedAutofillConcurrency || 5) || 5
-        );
+        const batchRequestPolicy = resolveBatchRequestPolicy(config);
+        const batchConcurrency = batchRequestPolicy.frontConcurrency;
+        const batchRequestStaggerMs = batchRequestPolicy.requestStaggerMs;
         const batchSummaryAccumulator = createBatchSummaryAccumulator();
         let completedCount = failures.length;
         let processedTaskCount = 0;
+        let batchPausedByRateLimit = false;
         let currentPhaseText = batchMeta.label + "开始";
         let currentDisplayText = tasks[0].displayName || "";
         clipSession = segmentClipper.createAudioClipSession(tasks[0].audioUrl);
@@ -513,7 +528,7 @@
         requestStream = concurrentRequestStreamFactory.createConcurrentAiRequestStream({
           tasks: tasks,
           concurrency: batchConcurrency,
-          staggerMs: 50,
+          staggerMs: batchRequestStaggerMs,
           onStateChange: function () {
             if (batchClosed === true) {
               return;
@@ -534,7 +549,15 @@
             ].join(":");
             item.frontConcurrency = batchConcurrency;
             const croppedItem = await buildCroppedSegmentItem(item, clipSession);
-            return aiClient.recommend(croppedItem);
+            try {
+              return await aiClient.recommend(croppedItem);
+            } catch (error) {
+              if (shouldPauseAfterAiError(error)) {
+                batchPausedByRateLimit = true;
+                requestStream?.cancelPending(error);
+              }
+              throw error;
+            }
           },
         });
 
@@ -590,14 +613,17 @@
             updateBatchSnapshot(batchMeta.label + "当前条失败", task.displayName, true);
           } else {
             batchSummaryAccumulator.addResult(entry.value);
-            if (!String(entry.value?.listenText || "")) {
+            if (entry.value?.needHumanReview === true || !String(entry.value?.listenText || "")) {
               processedTaskCount += 1;
               completedCount += 1;
               failures.push(
                 buildBatchFailureEntry({
                   task: task,
                   stage: "empty_result",
-                  message: "该蓝色区段未识别到文本，已标记为需人工复核且未填入、未保存。",
+                  message:
+                    String(entry.value?.listenText || "").trim() === "#N#"
+                      ? "该蓝色区段存在重叠或听不清内容，已标记为需人工复核且未填入、未保存。"
+                      : "该蓝色区段未识别到文本，已标记为需人工复核且未填入、未保存。",
                   result: entry.value,
                   batchConcurrency: batchConcurrency,
                 })
@@ -678,6 +704,14 @@
         }
 
         await requestStream.whenProducersDone;
+        if (batchPausedByRateLimit === true) {
+          updateBatchSnapshot(batchMeta.label + "因上游限流暂停", "", false);
+          panel.setStatus(
+            "检测到上游模型限流，已停止发起剩余区段，避免后续连续报错。请稍后运行“未完成的AI批量识别”继续。",
+            "warning"
+          );
+          return;
+        }
         updateBatchSnapshot(batchMeta.label + "已完成", "", false);
         panel.setStatus(
           failures.length > 0

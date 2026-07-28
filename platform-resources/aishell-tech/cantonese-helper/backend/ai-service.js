@@ -1,7 +1,10 @@
 "use strict";
 
 const { estimateProjectCost } = require("../../../backend/ai/model-pricing");
-const { sanitizeProviderErrorSummary } = require("../../../backend/ai/sanitizer");
+const {
+  sanitizeProviderDebugJson,
+  sanitizeProviderErrorSummary,
+} = require("../../../backend/ai/sanitizer");
 
 const SCRIPT_ID = "aishellTechCantoneseAssistant";
 const DEFAULT_TIMEOUT_MS = 60000;
@@ -21,7 +24,8 @@ const DEFAULT_OMNI_PROMPT = [
   "你是繁體粵語口語音頻識別助手。只寫出當前音頻中實際聽到的文本原文。",
   "只輸出當前音頻的最終轉寫文本；不得輸出 JSON、欄位名、Markdown、解釋或多餘文字。",
   "最終轉寫必須保留實際聽到的繁體粵語口語；不要翻譯成普通話，不要潤色、補寫、刪減、改數字、規整標點或轉換繁簡。",
-  "純靜音或完全聽不清時，直接輸出空字符串。",
+  "如存在多人重疊、串音、純靜音、完全聽不清或任何無法確認的詞，嚴禁猜測、補寫或依語義推斷；只輸出 #N#。",
+  "輸出 #N# 時必須只有這三個字元，不能附加角色、情緒、情感、標點或解釋。",
 ].join("\n");
 
 function normalizeText(value) {
@@ -274,7 +278,11 @@ function buildRecommendErrorBody(value) {
       providerCode: normalizeText(error.providerCode),
       summary: sanitizeProviderErrorSummary(error.summary || ""),
     },
-    meta: error.meta && typeof error.meta === "object" ? error.meta : {},
+    meta: sanitizeProviderDebugJson(error.meta && typeof error.meta === "object" ? error.meta : {}, {
+      textLimit: 4000,
+      maxDepth: 6,
+      maxObjectKeys: 60,
+    }),
   };
 }
 

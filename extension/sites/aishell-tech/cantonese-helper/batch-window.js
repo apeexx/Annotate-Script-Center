@@ -9,6 +9,28 @@
     return numeric > 0 ? numeric : 1;
   }
 
+  function resolveBatchRequestPolicy(config) {
+    const source = config && typeof config === "object" ? config : {};
+    return {
+      configuredConcurrency: normalizeConcurrency(source.aiQualifiedAutofillConcurrency),
+      frontConcurrency: 1,
+      requestStaggerMs: 0,
+    };
+  }
+
+  function shouldPauseAfterAiError(error) {
+    const source = error && typeof error === "object" ? error : {};
+    const code = String(source.code || "").trim().toLowerCase();
+    const providerCode = String(source.providerCode || "").trim().toLowerCase();
+    const providerStatus = Number(source.providerStatus || source.statusCode || 0) || 0;
+    return (
+      code === "provider-rate-limited" ||
+      code === "qwen-burst-rate-limited" ||
+      providerStatus === 429 ||
+      ["limit_burst_rate", "throttling", "rate_limit", "limit_requests", "toomanyrequests"].includes(providerCode)
+    );
+  }
+
   function createRollingBatchWindow(tasks, concurrency) {
     const source = Array.isArray(tasks) ? tasks.slice() : [];
     const limit = normalizeConcurrency(concurrency);
@@ -54,6 +76,8 @@
 
   const api = {
     createRollingBatchWindow: createRollingBatchWindow,
+    resolveBatchRequestPolicy: resolveBatchRequestPolicy,
+    shouldPauseAfterAiError: shouldPauseAfterAiError,
   };
 
   if (typeof module !== "undefined" && module.exports) {

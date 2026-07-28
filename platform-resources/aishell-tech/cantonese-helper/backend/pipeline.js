@@ -1,8 +1,15 @@
 "use strict";
 
 const { requestOmniInputAudio } = require("../../thai-helper/backend/dashscope-omni-client");
+const { sanitizeProviderDebugJson } = require("../../../backend/ai/sanitizer");
 const { enqueueTask } = require("./queue");
 const { buildUsageMeta } = require("./ai-service");
+
+const HUMAN_REVIEW_MARKER = "#N#";
+const HUMAN_REVIEW_INSTRUCTION = [
+  "安全判定規則：多人重疊、串音、純靜音、完全聽不清，或任一關鍵詞不能確認時，必須只輸出 #N#。",
+  "不得猜詞、補寫、根據上下文推斷，也不得在 #N# 前後加入角色、情緒、情感、標點或解釋。",
+].join("\n");
 
 function normalizeText(value) {
   return String(value || "").trim();
@@ -28,6 +35,14 @@ function unwrapQueuedTaskResult(value) {
 function attachQueueFailureMeta(error, requestId) {
   const sourceError = error && typeof error === "object" ? error : new Error(String(error || "请求失败。"));
   const queueMeta = normalizeQueueMeta(sourceError.queueMeta);
+  const providerDebug =
+    sourceError.debugRawAiResponse && typeof sourceError.debugRawAiResponse === "object"
+      ? sanitizeProviderDebugJson(sourceError.debugRawAiResponse, {
+          textLimit: 4000,
+          maxDepth: 6,
+          maxObjectKeys: 60,
+        })
+      : null;
   sourceError.stage = normalizeText(sourceError.stage) || "recognize";
   sourceError.meta = Object.assign({}, sourceError.meta, {
     requestId: normalizeText(requestId),
@@ -39,12 +54,17 @@ function attachQueueFailureMeta(error, requestId) {
     retryCount: queueMeta.retryCount,
     cancelled: sourceError.code === "aborted" || sourceError.code === "ai-job-timeout",
   });
+  if (providerDebug) {
+    sourceError.meta.providerDebug = providerDebug;
+  }
   return sourceError;
 }
 
 function buildRawListenPrompt(request) {
   return {
-    systemPrompt: String(request?.aiOmni?.prompt || "").trim(),
+    systemPrompt: [String(request?.aiOmni?.prompt || "").trim(), HUMAN_REVIEW_INSTRUCTION]
+      .filter(Boolean)
+      .join("\n\n"),
     userPrompt: [
       "单次全模态原始听音上下文：",
       JSON.stringify(
@@ -65,6 +85,16 @@ function buildRawListenPrompt(request) {
       ),
     ].join("\n"),
   };
+}
+
+function needsHumanReview(rawText) {
+  const normalized = String(rawText || "").trim();
+  return !normalized || normalized.includes(HUMAN_REVIEW_MARKER);
+}
+
+function normalizeHumanReviewText(rawText) {
+  const source = typeof rawText === "string" ? rawText : "";
+  return source.includes(HUMAN_REVIEW_MARKER) ? HUMAN_REVIEW_MARKER : source;
 }
 
 function createRecommendPipeline(overrides) {
@@ -115,6 +145,7 @@ function createRecommendPipeline(overrides) {
     const result = queuedResult.value;
     const usageMeta = buildUsageMeta(normalizeText(result.model) || request.aiOmni?.model, result.usage);
     const rawText = typeof result.rawText === "string" ? result.rawText : "";
+    const listenText = normalizeHumanReviewText(rawText);
     return {
       data: {
         taskId: normalizeText(request.taskId),
@@ -129,8 +160,8 @@ function createRecommendPipeline(overrides) {
         endMs: Math.max(0, Number(request.endMs || 0) || 0),
         durationMs: Math.max(0, Number(request.durationMs || 0) || 0),
         selectionKey: normalizeText(request.selectionKey),
-        listenText: rawText,
-        needHumanReview: rawText.trim().length === 0,
+        listenText,
+        needHumanReview: needsHumanReview(listenText),
       },
       meta: {
         requestId,
@@ -163,4 +194,6 @@ function createRecommendPipeline(overrides) {
 module.exports = {
   buildRawListenPrompt,
   createRecommendPipeline,
+  needsHumanReview,
+  normalizeHumanReviewText,
 };

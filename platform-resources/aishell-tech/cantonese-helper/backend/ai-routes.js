@@ -372,7 +372,13 @@ function createRecommendRouteRuntime(overrides) {
         } catch (error) {
           deps.jobStore.markJobFailed(job.jobId, {
             errorBody: deps.buildRecommendErrorBody({ error: Object.assign(error, { requestId }) }),
-            debugPayload: sanitizeDebugPayload(error?.debugRawJson || error?.rawResponse || null),
+            debugPayload: sanitizeDebugPayload(
+              error?.meta?.providerDebug ||
+                error?.debugRawAiResponse ||
+                error?.debugRawJson ||
+                error?.rawResponse ||
+                null
+            ),
           });
         } finally {
           deps.clearTimeout(lifecycleTimer);

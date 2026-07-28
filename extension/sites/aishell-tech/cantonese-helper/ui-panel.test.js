@@ -252,6 +252,17 @@ test("Aishell Cantonese refuses to fill a result after only the selected blue se
   );
 });
 
+test("Aishell Cantonese never enables the fill action for a #N# human-review result", function () {
+  assert.equal(
+    panel.__test__.canFillCurrentResult({ listenText: "#N#", needHumanReview: true }),
+    false
+  );
+  assert.equal(
+    panel.__test__.canFillCurrentResult({ listenText: "聽到的粵語文本", needHumanReview: false }),
+    true
+  );
+});
+
 test("Aishell Cantonese keeps batch controls beside save when the legacy utility toolbar exists", function () {
   const previousDocument = global.document;
   const previousButton = global.HTMLButtonElement;

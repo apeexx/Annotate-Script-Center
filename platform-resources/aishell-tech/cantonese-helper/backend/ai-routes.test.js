@@ -33,6 +33,107 @@ test("Aishell Cantonese debug payload never retains cropped audio or source URLs
   assert.equal(sanitized.nested.providerStatus, 502);
 });
 
+test("Aishell Cantonese never exposes unsafe provider diagnostics in sync or job failure responses", async function () {
+  function createRequest() {
+    const request = new EventEmitter();
+    request.destroy = function () {};
+    process.nextTick(function () {
+      request.emit("data", Buffer.from(JSON.stringify({
+        requestId: "unsafe-debug-request",
+        taskId: "task-1",
+        taskItemId: "item-1",
+        aiUsageOperatorName: "test-operator",
+      })));
+      request.emit("end");
+    });
+    return request;
+  }
+
+  function createUnsafeError() {
+    return Object.assign(new Error("provider failed"), {
+      code: "qwen-empty-response",
+      statusCode: 502,
+      meta: {
+        providerDebug: {
+          url: "https://example.invalid/private-path?signature=fake-signature",
+          secret: "fake-secret",
+          password: "fake-password",
+          accessKeySecret: "fake-access-key-secret",
+          audioDataUrl: "data:audio/wav;base64,ZmFrZQ==",
+          sourceUrl: "https://example.invalid/source.wav",
+          streamCompleted: false,
+        },
+      },
+    });
+  }
+
+  function assertNoUnsafeDiagnostics(body) {
+    const serialized = JSON.stringify(body);
+    assert.doesNotMatch(serialized, /example\.invalid/);
+    assert.doesNotMatch(serialized, /fake-(?:signature|secret|password|access-key-secret)/);
+    assert.doesNotMatch(serialized, /data:audio/i);
+    const meta = body?.meta || body?.error?.meta || {};
+    assert.equal(meta?.providerDebug?.streamCompleted, false);
+  }
+
+  const job = {
+    jobId: "unsafe-debug-job",
+    requestId: "unsafe-debug-request",
+    routeKey: "/api/aishell-tech/cantonese-helper/ai/recommend",
+    status: "pending",
+    createdAt: 1,
+    updatedAt: 1,
+    startedAt: 0,
+    finishedAt: 0,
+    itemId: "item-1",
+    textId: "task-1",
+    responseBody: null,
+    errorBody: null,
+    hasDebugPayload: false,
+  };
+  const runtime = routes.createRecommendRouteRuntime({
+    jobStore: {
+      createJob: function () { return job; },
+      getJob: function () { return job; },
+      getJobSignal: function () { return new AbortController().signal; },
+      markJobRunning: function () { job.status = "running"; },
+      markJobSucceeded: function () { return { ignored: false }; },
+      markJobFailed: function (_jobId, options) {
+        job.status = "failed";
+        job.errorBody = options.errorBody;
+      },
+    },
+    normalizeRecommendRequest: function (body) { return body; },
+    pipeline: { run: async function () { throw createUnsafeError(); } },
+    buildRecommendCacheKey: function () { return "unsafe-debug-cache-key"; },
+    getCachedRecommendResult: function () { return null; },
+    setCachedRecommendResult: function () {},
+    sendJson: function (target, statusCode, body) {
+      target.statusCode = statusCode;
+      target.body = body;
+      target.writableEnded = true;
+    },
+    setTimeout: function () { return {}; },
+    clearTimeout: function () {},
+  });
+
+  const syncResponse = new EventEmitter();
+  syncResponse.destroyed = false;
+  syncResponse.writableEnded = false;
+  await runtime.handleRecommend({ request: createRequest(), response: syncResponse });
+  assert.equal(syncResponse.statusCode, 502);
+  assertNoUnsafeDiagnostics(syncResponse.body);
+
+  const createResponse = {};
+  await runtime.handleCreateRecommendJob({ request: createRequest(), response: createResponse });
+  await new Promise(function (resolve) { setImmediate(resolve); });
+  const pollResponse = {};
+  runtime.handleGetRecommendJobStatus({ response: pollResponse, params: { jobId: job.jobId } });
+  assert.equal(pollResponse.statusCode, 200);
+  assert.equal(pollResponse.body.status, "failed");
+  assertNoUnsafeDiagnostics(pollResponse.body);
+});
+
 test("Aishell Cantonese rejects a cropped WAV request larger than 3MB before it reaches the pipeline", async function () {
   const request = new EventEmitter();
   const response = new EventEmitter();
@@ -211,6 +312,82 @@ test("Aishell Cantonese creates a job and makes its raw listenText available thr
   assert.equal(pollResponse.statusCode, 200);
   assert.equal(pollResponse.body.status, "succeeded");
   assert.equal(pollResponse.body.data.data.listenText, "冇問題 ！");
+});
+
+test("Aishell Cantonese job keeps a sanitized empty-stream diagnostic for later inspection", async function () {
+  const request = new EventEmitter();
+  request.destroy = function () {};
+  const job = {
+    jobId: "cantonese-empty-stream-job",
+    requestId: "empty-stream-request",
+    routeKey: "/api/aishell-tech/cantonese-helper/ai/recommend",
+    status: "pending",
+    createdAt: 1,
+    updatedAt: 1,
+    startedAt: 0,
+    finishedAt: 0,
+    itemId: "item-1",
+    textId: "task-1",
+    responseBody: null,
+    errorBody: null,
+    hasDebugPayload: false,
+  };
+  let savedDebugPayload = null;
+  const upstreamError = Object.assign(new Error("DashScope Omni 接口未返回有效文本。"), {
+    code: "qwen-empty-response",
+    statusCode: 502,
+    debugRawAiResponse: {
+      provider: "aishell-dashscope-omni",
+      streamCompleted: false,
+      parsedChunksCount: 0,
+      rawSseText: "",
+      audioDataUrl: "data:audio/wav;base64,UklGRg==",
+    },
+  });
+  const jobStore = {
+    createJob: function () { return job; },
+    getJobSignal: function () { return new AbortController().signal; },
+    markJobRunning: function () { job.status = "running"; },
+    markJobSucceeded: function () { return { ignored: false }; },
+    markJobFailed: function (_jobId, options) {
+      job.status = "failed";
+      job.errorBody = options.errorBody;
+      savedDebugPayload = options.debugPayload;
+    },
+  };
+  const runtime = routes.createRecommendRouteRuntime({
+    jobStore,
+    normalizeRecommendRequest: function (body) { return body; },
+    pipeline: { run: async function () { throw upstreamError; } },
+    buildRecommendCacheKey: function () { return "empty-stream-cache-key"; },
+    getCachedRecommendResult: function () { return null; },
+    setCachedRecommendResult: function () {},
+    sendJson: function (target, statusCode, body) {
+      target.statusCode = statusCode;
+      target.body = body;
+      target.writableEnded = true;
+    },
+    setTimeout: function () { return {}; },
+    clearTimeout: function () {},
+  });
+
+  process.nextTick(function () {
+    request.emit("data", Buffer.from(JSON.stringify({
+      requestId: "empty-stream-request",
+      taskId: "task-1",
+      taskItemId: "item-1",
+      aiUsageOperatorName: "test-operator",
+    })));
+    request.emit("end");
+  });
+
+  await runtime.handleCreateRecommendJob({ request, response: {} });
+  await new Promise(function (resolve) { setImmediate(resolve); });
+
+  assert.equal(job.status, "failed");
+  assert.equal(savedDebugPayload.streamCompleted, false);
+  assert.equal(savedDebugPayload.parsedChunksCount, 0);
+  assert.doesNotMatch(JSON.stringify(savedDebugPayload), /data:audio\/wav/i);
 });
 
 test("Aishell Cantonese cancels an unfinished job at the fixed 60-second lifetime", async function () {

@@ -26,6 +26,10 @@
     return typeof value === "string" ? value : "";
   }
 
+  function isHumanReviewMarkerText(value) {
+    return normalizeCantoneseListenText(value).includes("#N#");
+  }
+
   function normalizeMarkCompareText(text) {
     return normalizeCantoneseListenText(text);
   }
@@ -1763,6 +1767,14 @@
     }
 
     async function fillAndSaveCurrent(value, options) {
+      const rawListenText = value && typeof value === "object" ? value.text : value;
+      if (isHumanReviewMarkerText(rawListenText)) {
+        return {
+          ok: false,
+          code: "human-review-marker",
+          message: "人工复核标记不能自动填入或保存。",
+        };
+      }
       if (isSaveStopRequested(options)) {
         return createStoppedSaveResult();
       }
@@ -1845,6 +1857,7 @@
       getBatchSegmentsForCurrentAudio,
       getItemByIndex,
       getItemByTask,
+      isHumanReviewMarkerText,
       getSegmentItemByTask,
       getSegmentCatalog,
       getRecordDisplayName,

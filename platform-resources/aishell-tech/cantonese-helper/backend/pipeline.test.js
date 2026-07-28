@@ -64,7 +64,8 @@ test("Aishell Cantonese pipeline sends only the cropped WAV and preserves raw li
 
   assert.equal(received.input.audioUrl, "data:audio/wav;base64,UklGRg==");
   assert.equal(received.queueGroup, "aishell_cantonese_qwen_omni");
-  assert.equal(received.prompt.systemPrompt, "只輸出原始繁體粵語。");
+  assert.match(received.prompt.systemPrompt, /只輸出原始繁體粵語。/);
+  assert.match(received.prompt.systemPrompt, /#N#/);
   assert.doesNotMatch(received.prompt.userPrompt, /平台参考文本/);
   assert.equal(received.options.enableThinking, false);
   assert.equal(received.options.allowEmptyText, true);
@@ -101,6 +102,70 @@ test("Aishell Cantonese pipeline keeps a normally completed blank listenText for
 
   assert.equal(result.data.listenText, "");
   assert.equal(result.data.needHumanReview, true);
+});
+
+test("Aishell Cantonese pipeline marks #N# as human review instead of a fillable transcript", async function () {
+  const api = loadModule();
+  const pipeline = api.createRecommendPipeline({
+    enqueueTask: async function (_groupName, task) {
+      return {
+        value: await task(),
+        queueMeta: { groupName: "aishell_cantonese_qwen_omni", queueWaitMs: 0, retryCount: 0 },
+      };
+    },
+    requestOmniInputAudio: async function () {
+      return { rawText: "#N#", model: "qwen3.5-omni-plus", usage: {} };
+    },
+  });
+
+  const result = await pipeline.run({
+    taskItemId: "item-review-marker",
+    audioDataUrl: "data:audio/wav;base64,UklGRg==",
+    regionId: "region-review-marker",
+    segmentNumber: 4,
+    startMs: 0,
+    endMs: 500,
+    durationMs: 500,
+    selectionKey: "region-review-marker:0-500",
+    aiOmni: { model: "qwen3.5-omni-plus" },
+  });
+
+  assert.equal(result.data.listenText, "#N#");
+  assert.equal(result.data.needHumanReview, true);
+});
+
+test("Aishell Cantonese pipeline canonicalizes every #N#-containing response as human review", async function () {
+  const api = loadModule();
+  const samples = [" #N# ", "#N# explanation", "before #N#\nafter"];
+
+  for (const rawText of samples) {
+    const pipeline = api.createRecommendPipeline({
+      enqueueTask: async function (_groupName, task) {
+        return {
+          value: await task(),
+          queueMeta: { groupName: "aishell_cantonese_qwen_omni", queueWaitMs: 0, retryCount: 0 },
+        };
+      },
+      requestOmniInputAudio: async function () {
+        return { rawText, model: "qwen3.5-omni-plus", usage: {} };
+      },
+    });
+
+    const result = await pipeline.run({
+      taskItemId: "item-marker-normalization",
+      audioDataUrl: "data:audio/wav;base64,UklGRg==",
+      regionId: "region-marker-normalization",
+      segmentNumber: 5,
+      startMs: 0,
+      endMs: 500,
+      durationMs: 500,
+      selectionKey: "region-marker-normalization:0-500",
+      aiOmni: { model: "qwen3.5-omni-plus" },
+    });
+
+    assert.equal(result.data.listenText, "#N#");
+    assert.equal(result.data.needHumanReview, true);
+  }
 });
 
 test("Aishell Cantonese pipeline preserves exhausted rate-limit retry diagnostics", async function () {
@@ -143,6 +208,50 @@ test("Aishell Cantonese pipeline preserves exhausted rate-limit retry diagnostic
         error?.providerCode === "limit_burst_rate" &&
         error?.meta?.retryCount === 3 &&
         error?.meta?.queue?.totalQueueWaitMs === 2400
+      );
+    }
+  );
+});
+
+test("Aishell Cantonese pipeline exposes a sanitized empty-stream summary without audio data", async function () {
+  const api = loadModule();
+  const upstreamError = Object.assign(new Error("DashScope Omni 接口未返回有效文本。"), {
+    code: "qwen-empty-response",
+    statusCode: 502,
+    debugRawAiResponse: {
+      provider: "aishell-dashscope-omni",
+      streamCompleted: false,
+      parsedChunksCount: 0,
+      audioDataUrl: "data:audio/wav;base64,UklGRg==",
+    },
+  });
+  const pipeline = api.createRecommendPipeline({
+    enqueueTask: async function () {
+      throw upstreamError;
+    },
+  });
+
+  await assert.rejects(
+    pipeline.run(
+      {
+        taskItemId: "item-empty-stream",
+        audioDataUrl: "data:audio/wav;base64,UklGRg==",
+        regionId: "region-empty-stream",
+        segmentNumber: 3,
+        startMs: 0,
+        endMs: 500,
+        durationMs: 500,
+        selectionKey: "region-empty-stream:0-500",
+        aiOmni: { model: "qwen3.5-omni-plus" },
+      },
+      { requestId: "req-empty-stream", timeoutMs: 60000 }
+    ),
+    function (error) {
+      const providerDebug = error?.meta?.providerDebug;
+      return (
+        providerDebug?.streamCompleted === false &&
+        providerDebug?.parsedChunksCount === 0 &&
+        !/data:audio\/wav/i.test(JSON.stringify(providerDebug))
       );
     }
   );

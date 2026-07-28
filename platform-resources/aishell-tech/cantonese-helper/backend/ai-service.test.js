@@ -27,6 +27,15 @@ test("Aishell Cantonese defaults use a direct raw-listen Omni contract", functio
   assert.equal(defaults.contract.enableThinking, false);
 });
 
+test("Aishell Cantonese default prompt requires #N# instead of guessing overlapping or unclear speech", function () {
+  const api = loadModule();
+  const prompt = api.createDefaultsPayload().defaults.aiOmni.prompt;
+
+  assert.match(prompt, /#N#/);
+  assert.match(prompt, /重疊|重叠/);
+  assert.match(prompt, /聽不清|听不清/);
+});
+
 test("Aishell Cantonese request keeps a saved prompt but always disables thinking", function () {
   const api = loadModule();
   const request = api.normalizeRecommendRequest({
@@ -168,7 +177,8 @@ test("Aishell Cantonese error body keeps safe provider diagnostics and queue ret
 
   assert.equal(body.error.providerStatus, 429);
   assert.equal(body.error.providerCode, "limit_burst_rate");
-  assert.match(body.error.summary, /oss\.example\.test/);
+  assert.match(body.error.summary, /\[url-redacted\]/);
+  assert.doesNotMatch(body.error.summary, /oss\.example\.test/);
   assert.doesNotMatch(body.error.summary, /signature=secret/);
   assert.equal(body.meta.retryCount, 3);
   assert.deepEqual(body.meta.queue.groups, ["aishell_cantonese_qwen_omni"]);

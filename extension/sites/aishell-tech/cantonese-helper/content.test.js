@@ -113,12 +113,13 @@ test("Aishell Cantonese keeps the request stream available to delayed clip-sessi
   assert.doesNotMatch(outerTryBlock, /let requestStream = null;/);
 });
 
-test("Aishell Cantonese marks an empty segment for review without filling or saving it", function () {
+test("Aishell Cantonese marks an empty or #N# segment for review without filling or saving it", function () {
   const batchStart = source.indexOf("async function runBatchRecommend(mode)");
-  const emptyStart = source.indexOf('if (!String(entry.value?.listenText || ""))', batchStart);
+  const emptyStart = source.indexOf("if (entry.value?.needHumanReview === true", batchStart);
   const saveStart = source.indexOf("let switchResult = null", emptyStart);
   const emptyBlock = source.slice(emptyStart, saveStart);
 
+  assert.match(emptyBlock, /needHumanReview/);
   assert.match(emptyBlock, /processedTaskCount \+= 1;\s*completedCount \+= 1;[\s\S]*continue;/);
   assert.doesNotMatch(emptyBlock, /nextSaveIndex/);
 });
