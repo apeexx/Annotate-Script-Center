@@ -227,6 +227,7 @@ async function readStreamCompletion(response) {
         parsedChunksCount: 1,
         extractedTextLength: String(extractDeltaText(parsed) || text || "").trim().length,
         finishReason: String(parsed?.choices?.[0]?.finish_reason || ""),
+        streamCompleted: false,
         lastChunkSummary: summarizeLastChunk(parsed),
       };
     } catch (_error) {
@@ -238,6 +239,7 @@ async function readStreamCompletion(response) {
         parsedChunksCount: 0,
         extractedTextLength: String(text || "").trim().length,
         finishReason: "",
+        streamCompleted: false,
         lastChunkSummary: null,
       };
     }
@@ -251,6 +253,7 @@ async function readStreamCompletion(response) {
   let rawSseText = "";
   let parsedChunksCount = 0;
   let finishReason = "";
+  let streamCompleted = false;
   let lastChunkSummary = null;
 
   function consumeLine(line) {
@@ -260,7 +263,11 @@ async function readStreamCompletion(response) {
     }
     rawSseText += String(line || "") + "\n";
     const payloadText = trimmed.slice(5).trim();
-    if (!payloadText || payloadText === "[DONE]") {
+    if (!payloadText) {
+      return;
+    }
+    if (payloadText === "[DONE]") {
+      streamCompleted = true;
       return;
     }
     try {
@@ -299,6 +306,7 @@ async function readStreamCompletion(response) {
     parsedChunksCount,
     extractedTextLength: String(aggregatedText || "").trim().length,
     finishReason,
+    streamCompleted,
     lastChunkSummary,
   };
 }
@@ -398,7 +406,8 @@ async function requestDashScopeOmniAudioText(input, prompt, options) {
     }
 
     const result = await readStreamCompletion(response);
-    if (!String(result.text || "").trim()) {
+    const allowCompletedEmptyText = options?.allowEmptyText === true && result.streamCompleted === true;
+    if (!String(result.text || "").trim() && !allowCompletedEmptyText) {
       const error = new Error("DashScope Omni 接口未返回有效文本。");
       error.code = "qwen-empty-response";
       error.statusCode = 502;
@@ -434,6 +443,7 @@ async function requestDashScopeOmniAudioText(input, prompt, options) {
       parsedChunksCount: Number(result.parsedChunksCount) || 0,
       extractedTextLength: Number(result.extractedTextLength) || 0,
       finishReason: String(result.finishReason || ""),
+      streamCompleted: result.streamCompleted === true,
       lastChunkSummary: result.lastChunkSummary || null,
       mock: false,
       enableThinkingRequested: true,

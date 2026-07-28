@@ -98,6 +98,7 @@ function createRecommendPipeline(overrides) {
               stage: "recognize",
               timeoutMs: Math.max(1000, Number(context.timeoutMs || request.timeoutMs) || 60000),
               enableThinking: false,
+              allowEmptyText: true,
               signal: context.signal || null,
             }
           );
@@ -129,7 +130,7 @@ function createRecommendPipeline(overrides) {
         durationMs: Math.max(0, Number(request.durationMs || 0) || 0),
         selectionKey: normalizeText(request.selectionKey),
         listenText: rawText,
-        needHumanReview: rawText === "",
+        needHumanReview: rawText.trim().length === 0,
       },
       meta: {
         requestId,

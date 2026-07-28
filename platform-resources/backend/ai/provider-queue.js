@@ -35,7 +35,7 @@ const DEFAULT_GROUP_SETTINGS = {
   },
   aishell_cantonese_qwen_omni: {
     rpmEnv: "AISHELL_CANTONESE_AI_QWEN_OMNI_RPM_LIMIT",
-    rpm: 20,
+    rpm: 8,
     concurrencyEnv: "AISHELL_CANTONESE_AI_QWEN_OMNI_CONCURRENCY",
     maxConcurrent: 1,
   },
@@ -497,6 +497,13 @@ class ProviderQueue {
     for (let attempt = 0; attempt <= settings.retryMax; attempt += 1) {
       if (isAbortSignalAborted(signal)) {
         throw createQueueAbortError(signal);
+      }
+      if (attempt > 0) {
+        const waitForProviderSlotMs = Math.max(0, this.nextAvailableAt - Date.now());
+        if (waitForProviderSlotMs > 0) {
+          await delay(waitForProviderSlotMs, signal);
+        }
+        this.nextAvailableAt = Date.now() + settings.intervalMs;
       }
       try {
         return await task();

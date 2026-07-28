@@ -44,7 +44,7 @@ function wait(ms) {
   });
 }
 
-test("Cantonese Qwen queue defaults to the safe 20 RPM single-request policy", function () {
+test("Cantonese Qwen queue defaults to the conservative 8 RPM single-request policy", function () {
   return withEnvironment(
     {
       AISHELL_CANTONESE_AI_QWEN_OMNI_RPM_LIMIT: undefined,
@@ -56,9 +56,46 @@ test("Cantonese Qwen queue defaults to the safe 20 RPM single-request policy", f
     },
     function () {
       const settings = queue.getGroupSettings("aishell_cantonese_qwen_omni");
-      assert.equal(settings.rpm, 20);
+      assert.equal(settings.rpm, 8);
       assert.equal(settings.maxConcurrent, 1);
       assert.equal(settings.retryMax, 3);
+    }
+  );
+});
+
+test("Cantonese Qwen queue spaces retry attempts and the next task from the last upstream attempt", async function () {
+  await withEnvironment(
+    {
+      AISHELL_CANTONESE_AI_QWEN_OMNI_RPM_LIMIT: 300,
+      AISHELL_CANTONESE_AI_QWEN_OMNI_CONCURRENCY: 1,
+      AISHELL_CANTONESE_AI_QWEN_OMNI_BURST_RETRY_MAX: 1,
+      AISHELL_CANTONESE_AI_QWEN_OMNI_BURST_RETRY_BASE_MS: 100,
+    },
+    async function () {
+      const startedAt = [];
+      const first = queue.enqueueProviderTask("aishell_cantonese_qwen_omni", async function () {
+        startedAt.push(Date.now());
+        if (startedAt.length === 1) {
+          throw createRateLimitError();
+        }
+        return "retried-result";
+      });
+      const second = queue.enqueueProviderTask("aishell_cantonese_qwen_omni", async function () {
+        startedAt.push(Date.now());
+        return "next-result";
+      });
+
+      await Promise.all([first, second]);
+
+      assert.equal(startedAt.length, 3);
+      assert.ok(
+        startedAt[1] - startedAt[0] >= 170,
+        "429 retry must wait for the configured provider interval"
+      );
+      assert.ok(
+        startedAt[2] - startedAt[1] >= 170,
+        "the next task must be paced from the final retry request"
+      );
     }
   );
 });

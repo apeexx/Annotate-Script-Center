@@ -9,7 +9,7 @@
 - `model-dispatcher.js`：统一模型调度层；按模型名决定走 JS 还是 Python 实现，并提供 `getModelMeta / listModelsByFamily / invokeModel / getModelDocs`。
 - `sanitizer.js`：统一脱敏工具，避免日志输出完整音频 URL、签名 URL、token、cookie。
 - `errors.js`：统一 provider / Python 运行时错误包装。
-- `provider-queue.js`：统一 provider 限流队列，当前支持 `qwen_omni`、`fun_asr`、`text_compare`，同时支持每个 group 独立 `maxConcurrent`。
+- `provider-queue.js`：统一 provider 限流队列，当前支持 `qwen_omni`、`fun_asr`、`text_compare` 和粤语专用 `aishell_cantonese_qwen_omni`，同时支持每个 group 独立 `maxConcurrent`。
 - `result-cache.js`：统一 TTL 内存缓存与缓存 key 生成。
 - `usage.js`：通用 usage 归一化。
 - `smoke-test-provider-queue.js`：本地并发自测脚本，用于验证 `fun_asr` 组在不同 `maxConcurrent` 下是否真正并发。
@@ -63,6 +63,7 @@
 - Fun-ASR 没有 thinking 参数；thinking 只影响 Qwen Omni / compare 阶段。
 - Fun-ASR 并发由 `DATABAKER_AI_FUN_ASR_CONCURRENCY` 控制，默认 `2`；如 `2 核 2G` 服务器压力高可继续调低，若资源充足也可手动调高。
 - `provider-queue.js` 现在会返回并记录 `pendingCount / activeCount / maxConcurrent / queueWaitMs / durationMs`，用于判断瓶颈是在前端发起、Fun-ASR 队列还是 compare 阶段。
+- 粤语专用队列默认 `8 RPM / 1` 个上游并发；429 重试会等待退避和该队列请求间隔中的较长者，并以最后一次真实上游调用重新计算后续请求间隔，避免重试后紧接着放行下一段。
 - `providers/funasr-rest.js` 会记录 `[FunASR][REST] submit start/finish` 与 `[FunASR][REST] poll start/finish`；不会输出完整 `audioUrl`、token 或 API Key。
 - `providers/funasr-python.js` 会记录 `[FunASR] spawn start/finish`；不会输出完整 `audioUrl`、token 或 API Key。
 - DataBaker 前端“AI连续填入合格项并发数量”是浏览器同时发往统一后端的请求数，当前按模型动态归一：

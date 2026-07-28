@@ -67,9 +67,40 @@ test("Aishell Cantonese pipeline sends only the cropped WAV and preserves raw li
   assert.equal(received.prompt.systemPrompt, "只輸出原始繁體粵語。");
   assert.doesNotMatch(received.prompt.userPrompt, /平台参考文本/);
   assert.equal(received.options.enableThinking, false);
+  assert.equal(received.options.allowEmptyText, true);
   assert.equal(result.data.listenText, "冇問題 ！");
   assert.equal(result.data.referenceText, "平台参考文本");
   assert.equal(result.meta.models.omniModel, "qwen3.5-omni-flash");
+});
+
+test("Aishell Cantonese pipeline keeps a normally completed blank listenText for human review", async function () {
+  const api = loadModule();
+  const pipeline = api.createRecommendPipeline({
+    enqueueTask: async function (_groupName, task) {
+      return {
+        value: await task(),
+        queueMeta: { groupName: "aishell_cantonese_qwen_omni", queueWaitMs: 0, retryCount: 0 },
+      };
+    },
+    requestOmniInputAudio: async function () {
+      return { rawText: "", model: "qwen3.5-omni-plus", usage: {} };
+    },
+  });
+
+  const result = await pipeline.run({
+    taskItemId: "item-empty",
+    audioDataUrl: "data:audio/wav;base64,UklGRg==",
+    regionId: "region-empty",
+    segmentNumber: 2,
+    startMs: 0,
+    endMs: 500,
+    durationMs: 500,
+    selectionKey: "region-empty:0-500",
+    aiOmni: { model: "qwen3.5-omni-plus" },
+  });
+
+  assert.equal(result.data.listenText, "");
+  assert.equal(result.data.needHumanReview, true);
 });
 
 test("Aishell Cantonese pipeline preserves exhausted rate-limit retry diagnostics", async function () {

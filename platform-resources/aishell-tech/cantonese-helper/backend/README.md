@@ -15,7 +15,7 @@
 
 ## 接口与任务
 
-接口见上级 README。同步推荐仅供兼容和诊断；运行时默认创建 `POST /jobs` 后轮询结果。任务使用公共 job store、缓存和粤语专用 `aishell_cantonese_qwen_omni` 队列；该队列不按具体模型名分流，默认上游并发 `1`、最多 `20 RPM`，前端的请求窗口会在队列中等待发送。识别到 `429`、`provider-rate-limited` 或 `limit_burst_rate` 时，后端最多执行 `3` 次带随机抖动的指数退避；耗尽后仅该任务失败，不影响同批其他区段。粤语 job 从创建时刻起（含排队）固定最多 `60000ms`，不受公共 `ASC_AI_JOB_TIMEOUT_MS` 放宽影响；超时、客户端断开或取消都会取消未完成的模型请求，且取消或失败的任务不写入成功缓存。
+接口见上级 README。同步推荐仅供兼容和诊断；运行时默认创建 `POST /jobs` 后轮询结果。任务使用公共 job store、缓存和粤语专用 `aishell_cantonese_qwen_omni` 队列；该队列不按具体模型名分流，默认上游并发 `1`、最多 `8 RPM`，前端的请求窗口会在队列中等待发送。识别到 `429`、`provider-rate-limited` 或 `limit_burst_rate` 时，后端最多执行 `3` 次带随机抖动的指数退避；每次重试会先等待其退避时间和本队列剩余请求间隔中的较长者，随后重置下一个请求间隔，耗尽后仅该任务失败，不影响同批其他区段。粤语 job 从创建时刻起（含排队）固定最多 `60000ms`，不受公共 `ASC_AI_JOB_TIMEOUT_MS` 放宽影响；超时、客户端断开或取消都会取消未完成的模型请求，且取消或失败的任务不写入成功缓存。
 
 可选服务端覆盖项为 `AISHELL_CANTONESE_AI_QWEN_OMNI_RPM_LIMIT`、`AISHELL_CANTONESE_AI_QWEN_OMNI_CONCURRENCY`、`AISHELL_CANTONESE_AI_QWEN_OMNI_BURST_RETRY_MAX` 与 `AISHELL_CANTONESE_AI_QWEN_OMNI_BURST_RETRY_BASE_MS`。失败响应保留脱敏后的上游诊断、状态码、provider code 与队列重试信息，不记录音频、凭据或完整请求内容。
 
@@ -26,4 +26,4 @@
 - `POST /api/aishell-tech/cantonese-helper/ai/recommend/jobs/:jobId/cancel`：取消已创建 job；不需要请求体，成功返回 `200` 与该 job 的轮询状态。当前路由器只支持 `GET/POST`，因此不使用 `DELETE`。
 - `GET /api/aishell-tech/cantonese-helper/ai/recommend/jobs/:jobId`：继续轮询 job。取消后或超时后返回 `status: "failed"`，并在 `error.error.code` 中返回 `aborted` 或 `ai-job-timeout`。
 
-成功结构固定为 `success + data + meta`，其中 `data.listenText` 是唯一识别结果。`meta` 包含模型、耗时、Token、人民币估算、队列/缓存状态及脱敏调试摘要。
+成功结构固定为 `success + data + meta`，其中 `data.listenText` 是唯一识别结果。仅当上游流收到正常 `[DONE]` 结束标记时，粤语调用可以把空文本作为成功结果返回并设置 `needHumanReview: true`；缺少结束标记的空文本仍返回脱敏接口异常。`meta` 包含模型、耗时、Token、人民币估算、队列/缓存状态及脱敏调试摘要。
