@@ -1,7 +1,7 @@
 "use strict";
 
 const { requestOmniInputAudio } = require("../../thai-helper/backend/dashscope-omni-client");
-const { enqueueTask } = require("../../thai-helper/backend/queue");
+const { enqueueTask } = require("./queue");
 const { buildUsageMeta } = require("./ai-service");
 
 function normalizeText(value) {
@@ -11,7 +11,7 @@ function normalizeText(value) {
 function normalizeQueueMeta(value) {
   const source = value && typeof value === "object" ? value : {};
   return {
-    groupName: normalizeText(source.groupName) || "aishell_qwen_omni",
+    groupName: normalizeText(source.groupName) || "aishell_cantonese_qwen_omni",
     queueWaitMs: Math.max(0, Number(source.queueWaitMs) || 0),
     retryCount: Math.max(0, Number(source.retryCount) || 0),
   };
@@ -23,6 +23,23 @@ function unwrapQueuedTaskResult(value) {
     value: source.value && typeof source.value === "object" ? source.value : source,
     queueMeta: normalizeQueueMeta(source.queueMeta),
   };
+}
+
+function attachQueueFailureMeta(error, requestId) {
+  const sourceError = error && typeof error === "object" ? error : new Error(String(error || "请求失败。"));
+  const queueMeta = normalizeQueueMeta(sourceError.queueMeta);
+  sourceError.stage = normalizeText(sourceError.stage) || "recognize";
+  sourceError.meta = Object.assign({}, sourceError.meta, {
+    requestId: normalizeText(requestId),
+    stage: sourceError.stage,
+    queue: {
+      totalQueueWaitMs: queueMeta.queueWaitMs,
+      groups: [queueMeta.groupName],
+    },
+    retryCount: queueMeta.retryCount,
+    cancelled: sourceError.code === "aborted" || sourceError.code === "ai-job-timeout",
+  });
+  return sourceError;
 }
 
 function buildRawListenPrompt(request) {
@@ -65,29 +82,34 @@ function createRecommendPipeline(overrides) {
     const context = runtime && typeof runtime === "object" ? runtime : {};
     const requestId = normalizeText(context.requestId || request.requestId);
     const startedAt = deps.now();
-    const queued = await deps.enqueueTask(
-      "aishell_qwen_omni",
-      function () {
-        return deps.requestOmniInputAudio(
-          {
-            audioUrl: normalizeText(request.audioDataUrl),
-            aiOptions: request.aiOmni?.params || {},
-          },
-          buildRawListenPrompt(request),
-          {
-            model: normalizeText(request.aiOmni?.model),
-            stage: "recognize",
-            timeoutMs: Math.max(1000, Number(context.timeoutMs || request.timeoutMs) || 60000),
-            enableThinking: false,
-            signal: context.signal || null,
-          }
-        );
-      },
-      {
-        modelName: normalizeText(request.aiOmni?.model),
-        signal: context.signal || null,
-      }
-    );
+    let queued;
+    try {
+      queued = await deps.enqueueTask(
+        "aishell_cantonese_qwen_omni",
+        function () {
+          return deps.requestOmniInputAudio(
+            {
+              audioUrl: normalizeText(request.audioDataUrl),
+              aiOptions: request.aiOmni?.params || {},
+            },
+            buildRawListenPrompt(request),
+            {
+              model: normalizeText(request.aiOmni?.model),
+              stage: "recognize",
+              timeoutMs: Math.max(1000, Number(context.timeoutMs || request.timeoutMs) || 60000),
+              enableThinking: false,
+              signal: context.signal || null,
+            }
+          );
+        },
+        {
+          modelName: normalizeText(request.aiOmni?.model),
+          signal: context.signal || null,
+        }
+      );
+    } catch (error) {
+      throw attachQueueFailureMeta(error, requestId);
+    }
     const queuedResult = unwrapQueuedTaskResult(queued);
     const result = queuedResult.value;
     const usageMeta = buildUsageMeta(normalizeText(result.model) || request.aiOmni?.model, result.usage);

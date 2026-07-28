@@ -149,3 +149,27 @@ test("Aishell Cantonese success body preserves raw listenText", function () {
   assert.equal(body.data.listenText, rawListenText);
   assert.equal(body.data.referenceText, "没有问题。");
 });
+
+test("Aishell Cantonese error body keeps safe provider diagnostics and queue retry metadata", function () {
+  const api = loadModule();
+  const body = api.buildRecommendErrorBody({
+    error: {
+      code: "provider-rate-limited",
+      message: "上游模型限流，后端已重试仍失败。",
+      providerStatus: 429,
+      providerCode: "limit_burst_rate",
+      summary: "request https://oss.example.test/audio.wav?signature=secret was rate limited",
+      meta: {
+        retryCount: 3,
+        queue: { totalQueueWaitMs: 2400, groups: ["aishell_cantonese_qwen_omni"] },
+      },
+    },
+  });
+
+  assert.equal(body.error.providerStatus, 429);
+  assert.equal(body.error.providerCode, "limit_burst_rate");
+  assert.match(body.error.summary, /oss\.example\.test/);
+  assert.doesNotMatch(body.error.summary, /signature=secret/);
+  assert.equal(body.meta.retryCount, 3);
+  assert.deepEqual(body.meta.queue.groups, ["aishell_cantonese_qwen_omni"]);
+});

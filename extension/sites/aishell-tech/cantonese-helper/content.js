@@ -314,22 +314,11 @@
     };
     let batchStopRequested = false;
     let activeBatchContext = null;
-    const activeRequestControllers = new Set();
     let activeSaveController = null;
 
     function syncBusyState(nextState) {
       currentBusyState = Object.assign({}, currentBusyState, nextState || {});
       panel.setBusy(currentBusyState);
-    }
-
-    function abortActiveRequests() {
-      activeRequestControllers.forEach(function (controller) {
-        try {
-          controller.abort();
-        } catch (_error) {
-          // A best-effort stop must not prevent the rest of the batch from closing.
-        }
-      });
     }
 
     function abortActiveSave() {
@@ -411,18 +400,12 @@
       if (activeBatchContext?.requestStream?.cancelPending) {
         activeBatchContext.requestStream.cancelPending("批量识别已手动停止。");
       }
-      if (typeof activeBatchContext?.abortActiveRequests === "function") {
-        activeBatchContext.abortActiveRequests();
-      }
-      if (typeof activeBatchContext?.releaseClipSession === "function") {
-        activeBatchContext.releaseClipSession();
-      }
       if (typeof activeBatchContext?.notifyStopSignal === "function") {
         activeBatchContext.notifyStopSignal();
       }
       const batchMeta = getBatchModeMeta(activeBatchContext?.mode);
       panel.setStatus(
-        "已请求停止，正在取消已发起的 AI 任务并结束本轮" + batchMeta.label + "。",
+        "已请求停止，不再发起新识别或保存；已发起的 AI 任务会自然结束。",
         "warning"
       );
       panel.updateBatch({
@@ -435,6 +418,7 @@
       const batchMeta = getBatchModeMeta(mode);
       let batchClosed = false;
       let clipSession = null;
+      let requestStream = null;
       syncBusyState({ batch: true });
       batchStopRequested = false;
       panel.setStatus("正在准备" + batchMeta.label + "...", "info");
@@ -484,7 +468,6 @@
         let processedTaskCount = 0;
         let currentPhaseText = batchMeta.label + "开始";
         let currentDisplayText = tasks[0].displayName || "";
-        let requestStream = null;
         clipSession = segmentClipper.createAudioClipSession(tasks[0].audioUrl);
         let resolveStopSignal = null;
         const stopSignalPromise = new Promise(function (resolve) {
@@ -550,25 +533,8 @@
               String(item.selectionKey || "unknown"),
             ].join(":");
             item.frontConcurrency = batchConcurrency;
-            const controller =
-              typeof AbortController === "function" ? new AbortController() : null;
-            if (controller) {
-              activeRequestControllers.add(controller);
-            }
-            try {
-              const croppedItem = await buildCroppedSegmentItem(
-                item,
-                clipSession,
-                controller ? controller.signal : undefined
-              );
-              return await aiClient.recommend(croppedItem, {
-                signal: controller ? controller.signal : undefined,
-              });
-            } finally {
-              if (controller) {
-                activeRequestControllers.delete(controller);
-              }
-            }
+            const croppedItem = await buildCroppedSegmentItem(item, clipSession);
+            return aiClient.recommend(croppedItem);
           },
         });
 
@@ -577,42 +543,29 @@
           requestStream: requestStream,
           batchRunId: batchRunId,
           notifyStopSignal: notifyStopSignal,
-          abortActiveRequests: abortActiveRequests,
-          releaseClipSession: function () {
-            releaseClipSession(clipSession);
-          },
         };
 
         updateBatchSnapshot(batchMeta.label + "开始", tasks[0].displayName, true);
 
-        const pendingEntriesByIndex = new Map();
-        let nextSaveIndex = 0;
         while (processedTaskCount < tasks.length) {
-          if (batchStopRequested === true) {
+          const outcome = batchStopRequested === true
+            ? { type: "stop" }
+            : await Promise.race([
+                requestStream.nextResult().then(function (nextEntry) {
+                  return {
+                    type: "result",
+                    entry: nextEntry,
+                  };
+                }),
+                stopSignalPromise,
+              ]);
+          if (outcome?.type === "stop") {
             break;
           }
-          let entry = pendingEntriesByIndex.get(nextSaveIndex) || null;
+          const entry = outcome?.entry || null;
           if (!entry) {
-            const outcome = await Promise.race([
-              requestStream.nextResult().then(function (nextEntry) {
-                return {
-                  type: "result",
-                  entry: nextEntry,
-                };
-              }),
-              stopSignalPromise,
-            ]);
-            if (outcome?.type === "stop") {
-              break;
-            }
-            const arrivedEntry = outcome?.entry || null;
-            if (!arrivedEntry) {
-              break;
-            }
-            pendingEntriesByIndex.set(arrivedEntry.index, arrivedEntry);
-            continue;
+            break;
           }
-          pendingEntriesByIndex.delete(nextSaveIndex);
           if (batchStopRequested === true) {
             break;
           }
@@ -650,7 +603,6 @@
                 })
               );
               updateBatchSnapshot(batchMeta.label + "需人工复核", task.displayName, true);
-              nextSaveIndex += 1;
               continue;
             }
             let switchResult = null;
@@ -717,7 +669,6 @@
               updateBatchSnapshot(batchMeta.label + "当前条失败", task.displayName, true);
             }
           }
-          nextSaveIndex += 1;
         }
 
         if (batchStopRequested === true) {
@@ -738,7 +689,13 @@
         panel.setStatus(error?.message || String(error), "error");
       } finally {
         batchClosed = true;
-        releaseClipSession(clipSession);
+        if (requestStream?.getSnapshot?.().producersDone !== true) {
+          void requestStream.whenProducersDone.then(function () {
+            releaseClipSession(clipSession);
+          });
+        } else {
+          releaseClipSession(clipSession);
+        }
         activeBatchContext = null;
         batchStopRequested = false;
         syncBusyState({ batch: false });

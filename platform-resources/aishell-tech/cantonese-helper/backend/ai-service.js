@@ -1,6 +1,7 @@
 "use strict";
 
 const { estimateProjectCost } = require("../../../backend/ai/model-pricing");
+const { sanitizeProviderErrorSummary } = require("../../../backend/ai/sanitizer");
 
 const SCRIPT_ID = "aishellTechCantoneseAssistant";
 const DEFAULT_TIMEOUT_MS = 60000;
@@ -270,6 +271,8 @@ function buildRecommendErrorBody(value) {
       stage: normalizeText(error.stage) || "recognize",
       retryable: error.retryable === true,
       providerStatus: Number(error.providerStatus || error.statusCode || 0) || 0,
+      providerCode: normalizeText(error.providerCode),
+      summary: sanitizeProviderErrorSummary(error.summary || ""),
     },
     meta: error.meta && typeof error.meta === "object" ? error.meta : {},
   };

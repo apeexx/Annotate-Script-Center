@@ -15,7 +15,9 @@
 
 ## 接口与任务
 
-接口见上级 README。同步推荐仅供兼容和诊断；运行时默认创建 `POST /jobs` 后轮询结果。任务使用公共 job store、缓存和 `aishell_qwen_omni` 队列，但粤语 job 从创建时刻起（含排队）固定最多 `60000ms`，不受公共 `ASC_AI_JOB_TIMEOUT_MS` 放宽影响；超时、客户端断开或取消都会取消未完成的模型请求，且取消或失败的任务不写入成功缓存。
+接口见上级 README。同步推荐仅供兼容和诊断；运行时默认创建 `POST /jobs` 后轮询结果。任务使用公共 job store、缓存和粤语专用 `aishell_cantonese_qwen_omni` 队列；该队列不按具体模型名分流，默认上游并发 `1`、最多 `20 RPM`，前端的请求窗口会在队列中等待发送。识别到 `429`、`provider-rate-limited` 或 `limit_burst_rate` 时，后端最多执行 `3` 次带随机抖动的指数退避；耗尽后仅该任务失败，不影响同批其他区段。粤语 job 从创建时刻起（含排队）固定最多 `60000ms`，不受公共 `ASC_AI_JOB_TIMEOUT_MS` 放宽影响；超时、客户端断开或取消都会取消未完成的模型请求，且取消或失败的任务不写入成功缓存。
+
+可选服务端覆盖项为 `AISHELL_CANTONESE_AI_QWEN_OMNI_RPM_LIMIT`、`AISHELL_CANTONESE_AI_QWEN_OMNI_CONCURRENCY`、`AISHELL_CANTONESE_AI_QWEN_OMNI_BURST_RETRY_MAX` 与 `AISHELL_CANTONESE_AI_QWEN_OMNI_BURST_RETRY_BASE_MS`。失败响应保留脱敏后的上游诊断、状态码、provider code 与队列重试信息，不记录音频、凭据或完整请求内容。
 
 原始听写要求有效的 `taskItemId`、裁剪 WAV 与区段身份；`audioUrl` 只可作来源上下文，绝不传给模型。`referenceText` 仅作为可为空的条目上下文保留在请求和结果中，不参与 Prompt，也不作为拒绝条件。
 

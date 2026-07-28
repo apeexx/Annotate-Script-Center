@@ -33,6 +33,12 @@ const DEFAULT_GROUP_SETTINGS = {
     concurrencyEnv: "DATABAKER_AI_TEXT_CONCURRENCY",
     maxConcurrent: 5,
   },
+  aishell_cantonese_qwen_omni: {
+    rpmEnv: "AISHELL_CANTONESE_AI_QWEN_OMNI_RPM_LIMIT",
+    rpm: 20,
+    concurrencyEnv: "AISHELL_CANTONESE_AI_QWEN_OMNI_CONCURRENCY",
+    maxConcurrent: 1,
+  },
 };
 const queueRegistry = new Map();
 
@@ -137,6 +143,15 @@ function getRetryMaxDelayMs() {
 }
 
 function getGroupRetryMax(groupName) {
+  if (groupName === "aishell_cantonese_qwen_omni") {
+    return parsePositiveInteger(
+      process.env.AISHELL_CANTONESE_AI_QWEN_OMNI_BURST_RETRY_MAX ||
+        process.env.AISHELL_CANTONESE_AI_QWEN_BURST_RETRY_MAX,
+      DEFAULT_RETRY_MAX,
+      0,
+      10
+    );
+  }
   if (isModelQueueKey(groupName)) {
     return parsePositiveInteger(
       process.env.ASC_AI_QWEN_BURST_RETRY_MAX || process.env.DATABAKER_AI_QWEN_BURST_RETRY_MAX,
@@ -157,6 +172,15 @@ function getGroupRetryMax(groupName) {
 }
 
 function getGroupRetryBaseDelayMs(groupName) {
+  if (groupName === "aishell_cantonese_qwen_omni") {
+    return parsePositiveInteger(
+      process.env.AISHELL_CANTONESE_AI_QWEN_OMNI_BURST_RETRY_BASE_MS ||
+        process.env.AISHELL_CANTONESE_AI_QWEN_BURST_RETRY_BASE_MS,
+      getRetryBaseDelayMs(),
+      100,
+      60000
+    );
+  }
   if (isModelQueueKey(groupName)) {
     return parsePositiveInteger(
       process.env.ASC_AI_QWEN_BURST_RETRY_BASE_MS || process.env.DATABAKER_AI_QWEN_BURST_RETRY_BASE_MS,
@@ -228,6 +252,7 @@ function getGroupSettings(groupName) {
     return getModelQueueSettings(groupName);
   }
   const preset = DEFAULT_GROUP_SETTINGS[groupName] || DEFAULT_GROUP_SETTINGS.text_compare;
+  const maxSize = getGlobalQueueMaxSize();
   const rpm = parsePositiveInteger(process.env[preset.rpmEnv], preset.rpm, 1, 10000);
   const maxConcurrent = parsePositiveInteger(
     process.env[preset.concurrencyEnv],
@@ -241,7 +266,8 @@ function getGroupSettings(groupName) {
     rpm,
     intervalMs: Math.max(1, Math.ceil(60000 / rpm)),
     maxConcurrent,
-    maxSize: getGlobalQueueMaxSize(),
+    maxSize,
+    totalCapacity: groupName === "aishell_cantonese_qwen_omni" ? maxSize : undefined,
     retryMax: getGroupRetryMax(groupName),
     retryBaseDelayMs: getGroupRetryBaseDelayMs(groupName),
     retryMaxDelayMs: getRetryMaxDelayMs(),
