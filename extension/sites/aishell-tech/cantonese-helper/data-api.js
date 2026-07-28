@@ -1660,6 +1660,12 @@
     }
 
     async function clickSaveAndWait(options) {
+      const expectedText = normalizeCantoneseListenText(options?.expectedText);
+      const taskItemId = normalizeText(options?.taskItemId);
+      const packageId = normalizeText(options?.packageId);
+      const previousIndex = Number.isInteger(Number(options?.selectedIndex))
+        ? Number(options.selectedIndex)
+        : getSelectedIndex();
       if (isSaveStopRequested(options)) {
         return createStoppedSaveResult();
       }
@@ -1709,6 +1715,44 @@
             ok: false,
             message: toastMessage.text || "平台保存失败，请检查页面提示。",
           };
+        }
+        if (isSaveCompletionState(previousIndex, captureListState(previousIndex))) {
+          return {
+            ok: true,
+            message: "已触发平台真实保存按钮，并检测到列表条目已切换完成。",
+          };
+        }
+        const now = Date.now();
+        if (now - networkCheckAt >= 450) {
+          networkCheckAt = now;
+          if (taskItemId && expectedText) {
+            try {
+              const shortMarkResult = await getShortMarkResult(taskItemId);
+              const savedText = extractSavedMarkText(shortMarkResult);
+              if (savedText && normalizeCantoneseListenText(savedText) === expectedText) {
+                return {
+                  ok: true,
+                  message: "已触发平台真实保存按钮，并确认平台已保存当前原样文本。",
+                };
+              }
+            } catch (_error) {}
+          }
+          if (packageId && taskItemId) {
+            try {
+              const packageEntry = await refreshPackageItems(packageId);
+              const matchedRecord = Array.isArray(packageEntry?.items)
+                ? packageEntry.items.find(function (item) {
+                    return normalizeText(item?.id) === taskItemId;
+                  })
+                : null;
+              if (isPackageItemSaved(matchedRecord)) {
+                return {
+                  ok: true,
+                  message: "已触发平台真实保存按钮，并检测到平台条目状态已更新为已标注。",
+                };
+              }
+            } catch (_error) {}
+          }
         }
         await sleep(150);
       }
@@ -1764,6 +1808,10 @@
       return clickSaveAndWait({
         timeoutMs: options?.timeoutMs || 15000,
         signal: options?.signal,
+        expectedText: listenText,
+        taskItemId: currentItem.taskItemId,
+        packageId: currentItem.packageId,
+        selectedIndex: expectedSelectedIndex,
         validateBeforeSave: function () {
           return assertExpectedSaveTarget({
             expectedTaskItemId: expectedTaskItemId,

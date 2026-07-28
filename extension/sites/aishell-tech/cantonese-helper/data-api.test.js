@@ -722,6 +722,109 @@ test("Aishell Cantonese does not fill or save when stopped while current-item lo
   }
 });
 
+test("Aishell Cantonese confirms a native save from the persisted raw listenText when no toast is rendered", async function () {
+  const previousGlobals = {
+    HTMLElement: globalThis.HTMLElement,
+    HTMLButtonElement: globalThis.HTMLButtonElement,
+    document: globalThis.document,
+    fetch: globalThis.fetch,
+    location: globalThis.location,
+    window: globalThis.window,
+  };
+  class FakeElement {
+    constructor() {
+      this.classList = { contains: function () { return false; } };
+    }
+  }
+  class FakeButton extends FakeElement {
+    constructor() {
+      super();
+      this.disabled = false;
+      this.textContent = "保存";
+      this.clickCount = 0;
+    }
+    focus() {}
+    click() {
+      this.clickCount += 1;
+    }
+  }
+
+  const saveButton = new FakeButton();
+  const listItem = new FakeElement();
+  listItem.textContent = "1: sample.wav";
+  listItem.classList = {
+    contains: function (name) {
+      return name === "list-item-selected";
+    },
+  };
+  listItem.querySelector = function () {
+    return new FakeElement();
+  };
+  const requests = [];
+  globalThis.HTMLElement = FakeElement;
+  globalThis.HTMLButtonElement = FakeButton;
+  globalThis.location = {
+    hostname: "mark.aishelltech.com",
+    pathname: "/mytask/mark",
+    search: "?taskId=task-1&packageId=package-1",
+  };
+  globalThis.window = {
+    localStorage: {
+      length: 1,
+      key: function () { return "token"; },
+      getItem: function () { return "a.b.c"; },
+    },
+    sessionStorage: { length: 0, key: function () { return null; }, getItem: function () { return null; } },
+    setTimeout: globalThis.setTimeout,
+  };
+  globalThis.document = {
+    querySelector: function () { return null; },
+    querySelectorAll: function (selector) {
+      if (selector === ".list .list-item, .list .list-item-selected, .list .list-item-finshed") {
+        return [listItem];
+      }
+      if (selector === ".mark-area button.el-button--primary") {
+        return [saveButton];
+      }
+      return [];
+    },
+  };
+  globalThis.fetch = async function (url) {
+    requests.push(String(url));
+    if (String(url).endsWith("/api/mark/getShortMark/item-1")) {
+      return {
+        ok: true,
+        status: 200,
+        json: async function () {
+          return { data: { result: { mark: JSON.stringify({ text: "原样 粤语文本" }) } } };
+        },
+      };
+    }
+    throw new Error("unexpected request: " + url);
+  };
+
+  const harness = loadApi();
+  try {
+    const result = await harness.api.createRuntime().clickSaveAndWait({
+      expectedText: "原样 粤语文本",
+      taskItemId: "item-1",
+      packageId: "package-1",
+      selectedIndex: 0,
+      timeoutMs: 3000,
+    });
+
+    assert.equal(result.ok, true, result.message);
+    assert.equal(saveButton.clickCount, 1);
+    assert.equal(
+      requests.some(function (url) { return url.endsWith("/api/mark/getShortMark/item-1"); }),
+      true
+    );
+  } finally {
+    harness.cleanup();
+    Object.assign(globalThis, previousGlobals);
+  }
+});
+
 test("Aishell Cantonese validates the selected item and blue segment again immediately before native save", function () {
   const source = fs.readFileSync(path.resolve(__dirname, "data-api.js"), "utf8");
   const fillStart = source.indexOf("async function fillAndSaveCurrent(value, options)");
