@@ -1108,6 +1108,42 @@
             <div id="haitian-utrans-status" class="status-text"></div>
           </section>
 
+          <section id="detail-pulse-ego-annotation-helper-panel" class="detail-panel detail-panel-base hidden">
+            <div class="detail-section-head">
+              <div>
+                <strong>禁用词表</strong>
+                <span>导入仅保存在当前浏览器，不会上传文件，也不会同步到其他标注员电脑。</span>
+              </div>
+            </div>
+            <div id="pulse-forbidden-terms-current" class="field-card"></div>
+            <input
+              id="pulse-forbidden-terms-file-input"
+              class="pulse-forbidden-terms-file-input"
+              type="file"
+              accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            />
+            <div
+              id="pulse-forbidden-terms-drop-zone"
+              class="pulse-forbidden-terms-drop-zone"
+              role="button"
+              tabindex="0"
+              aria-describedby="pulse-forbidden-terms-status"
+            >
+              <strong>拖入 .xlsx 禁用词表</strong>
+              <span>或点击此处选择文件。文件内容只在本地解析，确认替换前不会修改当前词表。</span>
+            </div>
+            <div id="pulse-forbidden-terms-preview" class="pulse-forbidden-terms-preview hidden"></div>
+            <div class="field-actions">
+              <button id="pulse-forbidden-terms-confirm" class="primary-button" type="button" disabled>
+                确认替换当前词表
+              </button>
+              <button id="pulse-forbidden-terms-reset" class="secondary-button" type="button">
+                恢复内置默认词表
+              </button>
+            </div>
+            <div id="pulse-forbidden-terms-status" class="status-text"></div>
+          </section>
+
           <section id="detail-shared-asr-ai-panel" class="detail-panel detail-ai-panel hidden"></section>
 
           <section id="detail-abaka-ai-panel" class="detail-panel detail-ai-panel hidden">
@@ -1293,6 +1329,9 @@
     <script src="../shared/constants.js"></script>
     <script src="../shared/storage.js"></script>
     <script src="../shared/ai-usage-meta.js"></script>
+    <script src="../sites/pulse/ego-annotation-helper/forbidden-terms.js"></script>
+    <script src="../sites/pulse/ego-annotation-helper/forbidden-terms-xlsx.js"></script>
+    <script src="../sites/pulse/ego-annotation-helper/forbidden-terms-import.js"></script>
     <script src="./options-route-state.js"></script>
     <script src="./options-workbench-state.js"></script>
     <script src="./options-project-download-supplier.js"></script>

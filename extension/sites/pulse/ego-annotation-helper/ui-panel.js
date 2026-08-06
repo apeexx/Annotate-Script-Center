@@ -340,6 +340,10 @@
       renderUnverified("内容已变更，请重新检查。");
     }
 
+    function resetForbiddenTermsCheck() {
+      renderUnverified("禁用词表已更新，请重新检查。");
+    }
+
     async function handleCheck() {
       const value = String(textarea.value || "");
       if (!value) {
@@ -409,6 +413,7 @@
       refresh: function () {
         refreshTaskContext();
       },
+      resetForbiddenTermsCheck: resetForbiddenTermsCheck,
       destroy: function () {
         if (destroyed) {
           return;

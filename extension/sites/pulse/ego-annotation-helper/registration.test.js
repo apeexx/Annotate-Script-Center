@@ -79,6 +79,8 @@ test("内容脚本只读页面、在路由离开或关闭时移除自身 UI", fu
   assert.match(content, /isTargetRoute/);
   assert.match(content, /isScriptRuntimeAccessible/);
   assert.match(content, /loadMatcherFromExtension/);
+  assert.match(content, /isCustomTermsStorageChange/);
+  assert.match(content, /resetForbiddenTermsCheck/);
   assert.match(content, /MutationObserver/);
   assert.match(content, /removeAll/);
   assert.doesNotMatch(content, /fetch\s*\(\s*["']https?:\/\//);

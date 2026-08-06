@@ -11,7 +11,7 @@
 - `abaka-ai/`：Abaka AI Task21 资料与后端。
 - `haitian-utrans/`：uTrans 音频下载助手资料。
 - `jd-tts-annotation/`：京东 TTS 上海话文本回填助手资料、脱敏 Network / DOM 参考和后端。
-- `pulse/`：Pulse `ego-annotation-gui` 分段计时、规则和禁用词只读核查资料。
+- `pulse/`：Pulse `ego-annotation-gui` 分段计时、规则和本地 Excel 禁用词核查资料。
 - `backend/`：统一后端入口、公共管理接口、下载与日志能力。
 
 ## 目录约定

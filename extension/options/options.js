@@ -2,6 +2,8 @@
   const constants = globalThis.ASREdgeConstants || {};
   const storage = globalThis.ASREdgeStorage || null;
   const aiUsageMeta = globalThis.ASREdgeAiUsageMeta || {};
+  const pulseForbiddenTerms = globalThis.ASREdgePulseForbiddenTerms || {};
+  const pulseForbiddenTermsImport = globalThis.ASREdgePulseForbiddenTermsImport || {};
   const projectDownloadSupplierHelper = globalThis.ASREdgeOptionsProjectDownloadSupplier || {};
   const platformLibrary = constants.PLATFORM_LIBRARY || {};
   const scriptLibrary = constants.SCRIPT_LIBRARY || {};
@@ -989,6 +991,7 @@
   let betaUnlockTapCount = 0;
   let betaUnlockTapTimer = null;
   let topToastHideTimer = null;
+  let pulseForbiddenTermsImportDraft = null;
   const PLATFORM_REORDER_HOVER_DELAY_MS = 200;
   const PLATFORM_REORDER_EDGE_SCROLL_MARGIN = 92;
   const PLATFORM_REORDER_EDGE_SCROLL_STEP = 22;
@@ -13189,6 +13192,198 @@
     }
   }
 
+  function setPulseForbiddenTermsStatus(message) {
+    setStatus("pulse-forbidden-terms-status", message);
+  }
+
+  function renderPulseForbiddenTermsDraft() {
+    const preview = getElement("pulse-forbidden-terms-preview");
+    const confirmButton = getElement("pulse-forbidden-terms-confirm");
+    if (!(preview instanceof HTMLElement) || !(confirmButton instanceof HTMLButtonElement)) {
+      return;
+    }
+    const draft = pulseForbiddenTermsImportDraft;
+    confirmButton.disabled = !draft;
+    preview.classList.toggle("hidden", !draft);
+    preview.textContent = "";
+    if (!draft) {
+      return;
+    }
+    const previewTerms = draft.terms.slice(0, 12);
+    const remainingCount = Math.max(0, draft.terms.length - previewTerms.length);
+    preview.textContent =
+      "待确认导入：" +
+      draft.sourceFileName +
+      "\n首个有内容列：" +
+      (draft.sourceColumn || "未知") +
+      "\n有效词：" +
+      draft.terms.length +
+      " 个（去重前 " +
+      draft.rawTermCount +
+      " 项）\n预览：" +
+      previewTerms.join("、") +
+      (remainingCount ? "……另有 " + remainingCount + " 个" : "");
+  }
+
+  async function renderPulseForbiddenTermsPanel() {
+    const currentNode = getElement("pulse-forbidden-terms-current");
+    if (!(currentNode instanceof HTMLElement)) {
+      return;
+    }
+    renderPulseForbiddenTermsDraft();
+    if (typeof pulseForbiddenTerms.loadCustomTerms !== "function") {
+      currentNode.textContent = "禁用词表模块不可用。";
+      return;
+    }
+    currentNode.textContent = "正在读取当前禁用词表……";
+    try {
+      const customTerms = await pulseForbiddenTerms.loadCustomTerms();
+      if (getCurrentDetailScriptId() !== pulseEgoAnnotationScriptId) {
+        return;
+      }
+      currentNode.textContent = customTerms
+        ? "当前使用本地导入词表：" +
+          customTerms.sourceFileName +
+          "（" +
+          customTerms.terms.length +
+          " 个词，导入时间 " +
+          customTerms.importedAt +
+          "）"
+        : "当前使用内置默认词表（扩展内置 84 个词）。";
+    } catch (error) {
+      currentNode.textContent = "读取当前词表失败：" + (error?.message || String(error));
+    }
+  }
+
+  async function preparePulseForbiddenTermsImport(file) {
+    const preview = getElement("pulse-forbidden-terms-preview");
+    const confirmButton = getElement("pulse-forbidden-terms-confirm");
+    pulseForbiddenTermsImportDraft = null;
+    if (preview instanceof HTMLElement) {
+      preview.classList.add("hidden");
+      preview.textContent = "";
+    }
+    if (confirmButton instanceof HTMLButtonElement) {
+      confirmButton.disabled = true;
+    }
+    if (typeof pulseForbiddenTermsImport.createImportDraft !== "function") {
+      setPulseForbiddenTermsStatus("Excel 导入模块不可用。");
+      return;
+    }
+    setPulseForbiddenTermsStatus("正在本地解析 Excel 词表……");
+    try {
+      const draft = await pulseForbiddenTermsImport.createImportDraft(file);
+      if (getCurrentDetailScriptId() !== pulseEgoAnnotationScriptId) {
+        return;
+      }
+      pulseForbiddenTermsImportDraft = draft;
+      renderPulseForbiddenTermsDraft();
+      setPulseForbiddenTermsStatus("解析完成，请确认替换当前词表。");
+    } catch (error) {
+      setPulseForbiddenTermsStatus("解析失败：" + (error?.message || String(error)));
+    }
+  }
+
+  async function confirmPulseForbiddenTermsImport() {
+    const draft = pulseForbiddenTermsImportDraft;
+    if (!draft) {
+      setPulseForbiddenTermsStatus("请先选择并解析 .xlsx 禁用词表。");
+      return;
+    }
+    if (typeof pulseForbiddenTerms.saveCustomTerms !== "function") {
+      setPulseForbiddenTermsStatus("禁用词表存储模块不可用。");
+      return;
+    }
+    const confirmButton = getElement("pulse-forbidden-terms-confirm");
+    if (confirmButton instanceof HTMLButtonElement) {
+      confirmButton.disabled = true;
+    }
+    setPulseForbiddenTermsStatus("正在保存本地禁用词表……");
+    try {
+      const saved = await pulseForbiddenTerms.saveCustomTerms({
+        sourceFileName: draft.sourceFileName,
+        importedAt: new Date().toISOString(),
+        terms: draft.terms,
+      });
+      pulseForbiddenTermsImportDraft = null;
+      renderPulseForbiddenTermsDraft();
+      await renderPulseForbiddenTermsPanel();
+      setPulseForbiddenTermsStatus("已保存 " + saved.terms.length + " 个禁用词；Pulse 页面请重新检查。");
+    } catch (error) {
+      renderPulseForbiddenTermsDraft();
+      setPulseForbiddenTermsStatus("保存失败：" + (error?.message || String(error)));
+    }
+  }
+
+  async function resetPulseForbiddenTermsToDefault() {
+    if (typeof pulseForbiddenTerms.clearCustomTerms !== "function") {
+      setPulseForbiddenTermsStatus("禁用词表存储模块不可用。");
+      return;
+    }
+    setPulseForbiddenTermsStatus("正在恢复内置默认词表……");
+    try {
+      await pulseForbiddenTerms.clearCustomTerms();
+      pulseForbiddenTermsImportDraft = null;
+      renderPulseForbiddenTermsDraft();
+      await renderPulseForbiddenTermsPanel();
+      setPulseForbiddenTermsStatus("已恢复内置默认词表；Pulse 页面请重新检查。");
+    } catch (error) {
+      setPulseForbiddenTermsStatus("恢复失败：" + (error?.message || String(error)));
+    }
+  }
+
+  function bindPulseForbiddenTermsImportControls() {
+    const input = getElement("pulse-forbidden-terms-file-input");
+    const dropZone = getElement("pulse-forbidden-terms-drop-zone");
+    const confirmButton = getElement("pulse-forbidden-terms-confirm");
+    const resetButton = getElement("pulse-forbidden-terms-reset");
+    if (input instanceof HTMLInputElement) {
+      input.addEventListener("change", function () {
+        const file = input.files && input.files[0];
+        input.value = "";
+        if (file) {
+          void preparePulseForbiddenTermsImport(file);
+        }
+      });
+    }
+    if (dropZone instanceof HTMLElement && input instanceof HTMLInputElement) {
+      dropZone.addEventListener("click", function () {
+        input.click();
+      });
+      dropZone.addEventListener("keydown", function (event) {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          input.click();
+        }
+      });
+      dropZone.addEventListener("dragover", function (event) {
+        event.preventDefault();
+        dropZone.classList.add("is-dragging");
+      });
+      dropZone.addEventListener("dragleave", function () {
+        dropZone.classList.remove("is-dragging");
+      });
+      dropZone.addEventListener("drop", function (event) {
+        event.preventDefault();
+        dropZone.classList.remove("is-dragging");
+        const file = event.dataTransfer && event.dataTransfer.files ? event.dataTransfer.files[0] : null;
+        if (file) {
+          void preparePulseForbiddenTermsImport(file);
+        }
+      });
+    }
+    if (confirmButton instanceof HTMLButtonElement) {
+      confirmButton.addEventListener("click", function () {
+        void confirmPulseForbiddenTermsImport();
+      });
+    }
+    if (resetButton instanceof HTMLButtonElement) {
+      resetButton.addEventListener("click", function () {
+        void resetPulseForbiddenTermsToDefault();
+      });
+    }
+  }
+
   function showDetailPanel(scriptId) {
     getElement("detail-transcription-panel").classList.toggle("hidden", scriptId !== transcriptionProjectId);
     getElement("detail-judgement-panel").classList.toggle("hidden", scriptId !== judgementProjectId);
@@ -13238,6 +13433,10 @@
       "hidden",
       scriptId !== haitianUtransAudioDownloadHelperScriptId
     );
+    getElement("detail-pulse-ego-annotation-helper-panel").classList.toggle(
+      "hidden",
+      scriptId !== pulseEgoAnnotationScriptId
+    );
   }
 
   function renderDetail(settings, scriptId) {
@@ -13247,6 +13446,9 @@
     renderAsrVoiceAiSettingsSection(settings, scriptId);
     renderDetailSupportPanel(settings, scriptId);
     updateDetailLayout(scriptId);
+    if (scriptId === pulseEgoAnnotationScriptId) {
+      void renderPulseForbiddenTermsPanel();
+    }
     ensureInlineHelpDots(getElement("detail-view"));
     updateAsrVoiceAiDefaultsTip(scriptId, getAsrVoiceAiDefaultsCached(scriptId));
     if (supportsAsrVoiceAiSettings(scriptId)) {
@@ -15739,6 +15941,7 @@
     restorePendingTopToast();
     ensurePublicHeroShell();
     ensureAdminWorkspace();
+    bindPulseForbiddenTermsImportControls();
     const stageLabel = getElement("stage-label");
     if (stageLabel) {
       stageLabel.addEventListener("click", function () {

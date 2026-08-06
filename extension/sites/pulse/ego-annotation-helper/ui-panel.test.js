@@ -191,3 +191,81 @@ test("React 重绘后已有面板不会重复挂载，规则不再使用固定�
   assert.equal(api.hasMountedPanel({ querySelector: () => null }), false);
   assert.equal(api.RULE_TEXT, undefined);
 });
+
+function createPanelTestDocument() {
+  function createNode(tagName) {
+    const listeners = new Map();
+    return {
+      tagName,
+      children: [],
+      style: {},
+      attributes: {},
+      ownerDocument: documentLike,
+      setAttribute: function (name, value) {
+        this.attributes[name] = value;
+      },
+      append: function () {
+        Array.from(arguments).forEach((child) => this.appendChild(child));
+      },
+      appendChild: function (child) {
+        this.children.push(child);
+        return child;
+      },
+      replaceChildren: function () {
+        this.children = Array.from(arguments);
+      },
+      addEventListener: function (name, callback) {
+        listeners.set(name, callback);
+      },
+      removeEventListener: function (name) {
+        listeners.delete(name);
+      },
+      remove: function () {},
+    };
+  }
+  const documentLike = {
+    createElement: createNode,
+    createTextNode: function (text) {
+      return { textContent: text };
+    },
+  };
+  return documentLike;
+}
+
+test("禁用词表更新会清除旧核查状态并要求重新检查", function () {
+  const api = loadApi();
+  const documentLike = createPanelTestDocument();
+  const textarea = {
+    value: "原始文本",
+    insertAdjacentElement: function (_position, panel) {
+      this.panel = panel;
+    },
+    addEventListener: function () {},
+    removeEventListener: function () {},
+  };
+  const group = {
+    ownerDocument: documentLike,
+    querySelector: function (selector) {
+      return selector === "textarea" ? textarea : null;
+    },
+  };
+  const label = {
+    textContent: "中文翻译",
+    parentElement: { parentElement: group },
+  };
+  const root = {
+    querySelectorAll: function (selector) {
+      return selector === "span" ? [label] : [];
+    },
+  };
+  const handle = api.mount(root, function () {
+    return Promise.resolve({ find: function () { return []; } });
+  });
+
+  assert.equal(typeof handle.resetForbiddenTermsCheck, "function");
+  handle.resetForbiddenTermsCheck();
+  const actionRow = handle.node.children[0];
+  const mirror = handle.node.children[1];
+  assert.equal(actionRow.children[1].textContent, "禁用词表已更新，请重新检查。");
+  assert.equal(mirror.children[0].textContent, "原始文本");
+});

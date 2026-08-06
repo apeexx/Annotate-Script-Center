@@ -115,7 +115,18 @@
     }
   }
 
-  function handleStorageChange() {
+  function handleStorageChange(changes, areaName) {
+    const customTermsChanged =
+      typeof forbiddenTerms.isCustomTermsStorageChange === "function" &&
+      forbiddenTerms.isCustomTermsStorageChange(changes, areaName);
+    if (customTermsChanged) {
+      if (typeof forbiddenTerms.invalidateMatcherCache === "function") {
+        forbiddenTerms.invalidateMatcherCache();
+      }
+      if (panelHandle && typeof panelHandle.resetForbiddenTermsCheck === "function") {
+        panelHandle.resetForbiddenTermsCheck();
+      }
+    }
     void reconcile();
   }
 
