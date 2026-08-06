@@ -1,12 +1,139 @@
 (function () {
   const PANEL_ATTR = "data-asr-edge-pulse-translation-panel";
-  const RULE_TEXT = [
-    "【物品名称和动作按照视频内的实际情况写，不要照抄模板】",
-    "x手扶着架子，x手在桌面上翻面x色的颜料罐",
-    "x手扶着架子，x手拿起桌面上的x色的颜料罐放到 上/下层 架子上（两个或三个相同颜色的颜料罐需要消歧）",
-    "（超过10s分开切：",
-    "x手扶着架子，x手拿起桌面上x色的颜料罐",
-  ].join("\n");
+  const PANEL_HANDLE_KEY = "__asrEdgePulsePanelHandle";
+  const TASK_TEMPLATE_ICON_SELECTOR = "span.anticon-file-text";
+  const ANNOTATION_STEPS_TITLE = "标注步骤";
+  const RULE_LOAD_TIMEOUT_MS = 2500;
+
+  function normalizeText(value) {
+    return String(value || "").trim();
+  }
+
+  function findTaskTemplateButton(root) {
+    const buttons = Array.from(root && root.querySelectorAll ? root.querySelectorAll("button") : []);
+    return (
+      buttons.find(function (button) {
+        return Boolean(button && typeof button.querySelector === "function" && button.querySelector(TASK_TEMPLATE_ICON_SELECTOR));
+      }) || null
+    );
+  }
+
+  function findAnnotationStepsSection(root) {
+    const sections = Array.from(root && root.querySelectorAll ? root.querySelectorAll("section") : []);
+    return (
+      sections.find(function (section) {
+        const headings = Array.from(section && section.querySelectorAll ? section.querySelectorAll("div") : []);
+        return headings.some(function (heading) {
+          return normalizeText(heading && heading.textContent) === ANNOTATION_STEPS_TITLE;
+        });
+      }) || null
+    );
+  }
+
+  function extractAnnotationSteps(section) {
+    return Array.from(section && section.querySelectorAll ? section.querySelectorAll("ol > li") : [])
+      .map(function (item) {
+        return normalizeText(item && item.textContent);
+      })
+      .filter(Boolean);
+  }
+
+  function createTaskContextKey(locationLike, templateButton) {
+    const pathname = normalizeText(locationLike && locationLike.pathname);
+    const templateName = normalizeText(templateButton && templateButton.textContent);
+    return pathname && templateName ? pathname + "|" + templateName : "";
+  }
+
+  function buildAnnotationStepsResult(section, openedByAssistant) {
+    if (!section) {
+      return { status: "missing_annotation_steps" };
+    }
+    const steps = extractAnnotationSteps(section);
+    if (!steps.length) {
+      return { status: "empty_annotation_steps" };
+    }
+    return {
+      status: "ready",
+      steps: steps,
+      openedByAssistant: Boolean(openedByAssistant),
+    };
+  }
+
+  function waitForAnnotationStepsSection(root, options) {
+    const existing = findAnnotationStepsSection(root);
+    if (existing) {
+      return Promise.resolve(existing);
+    }
+    const config = options && typeof options === "object" ? options : {};
+    const timeoutMs = Number.isFinite(config.timeoutMs) ? config.timeoutMs : RULE_LOAD_TIMEOUT_MS;
+    const Observer = config.MutationObserver || globalThis.MutationObserver;
+    const scheduleTimeout = config.setTimeout || globalThis.setTimeout;
+    const cancelTimeout = config.clearTimeout || globalThis.clearTimeout;
+    return new Promise(function (resolve) {
+      let observer = null;
+      let timeoutId = null;
+      let completed = false;
+      function finish(section) {
+        if (completed) {
+          return;
+        }
+        completed = true;
+        if (observer && typeof observer.disconnect === "function") {
+          observer.disconnect();
+        }
+        if (timeoutId != null && typeof cancelTimeout === "function") {
+          cancelTimeout(timeoutId);
+        }
+        resolve(section || null);
+      }
+      if (typeof Observer === "function") {
+        observer = new Observer(function () {
+          const section = findAnnotationStepsSection(root);
+          if (section) {
+            finish(section);
+          }
+        });
+        try {
+          observer.observe((root && root.documentElement) || root, { childList: true, subtree: true });
+        } catch (_error) {
+          observer = null;
+        }
+      }
+      if (typeof scheduleTimeout === "function") {
+        timeoutId = scheduleTimeout(function () {
+          finish(findAnnotationStepsSection(root));
+        }, Math.max(0, timeoutMs));
+        return;
+      }
+      finish(findAnnotationStepsSection(root));
+    });
+  }
+
+  async function loadAnnotationSteps(root, options) {
+    const initialSection = findAnnotationStepsSection(root);
+    if (initialSection) {
+      return buildAnnotationStepsResult(initialSection, false);
+    }
+    const templateButton = findTaskTemplateButton(root);
+    if (!templateButton || typeof templateButton.click !== "function") {
+      return { status: "missing_template_button" };
+    }
+    const config = options && typeof options === "object" ? options : {};
+    let openedByAssistant = false;
+    try {
+      templateButton.click();
+      openedByAssistant = true;
+      const waitForSection = typeof config.waitForSection === "function" ? config.waitForSection : waitForAnnotationStepsSection;
+      const section = await waitForSection(root, config);
+      return buildAnnotationStepsResult(section, openedByAssistant);
+    } catch (_error) {
+      return { status: "missing_annotation_steps" };
+    } finally {
+      if (openedByAssistant) {
+        templateButton.click();
+      }
+    }
+  }
 
   function findTranslationGroup(root) {
     const labels = Array.from(root && root.querySelectorAll ? root.querySelectorAll("span") : []);
@@ -81,6 +208,35 @@
     });
   }
 
+  function renderAnnotationSteps(container, steps) {
+    const doc = container.ownerDocument;
+    container.replaceChildren();
+    const list = doc.createElement("ol");
+    list.style.margin = "0";
+    list.style.paddingLeft = "18px";
+    list.style.whiteSpace = "pre-wrap";
+    list.style.wordBreak = "break-word";
+    (Array.isArray(steps) ? steps : []).forEach(function (step) {
+      const item = doc.createElement("li");
+      item.textContent = step;
+      list.appendChild(item);
+    });
+    container.appendChild(list);
+  }
+
+  function getDocumentTaskContextKey(doc, fallbackKey) {
+    const locationLike = (doc && doc.defaultView && doc.defaultView.location) || globalThis.location || null;
+    const directKey = createTaskContextKey(locationLike, findTaskTemplateButton(doc));
+    if (directKey) {
+      return directKey;
+    }
+    const pathname = normalizeText(locationLike && locationLike.pathname);
+    const previousKey = normalizeText(fallbackKey);
+    const separatorIndex = previousKey.indexOf("|");
+    const fallbackTemplateName = separatorIndex >= 0 ? previousKey.slice(separatorIndex + 1) : "";
+    return pathname && fallbackTemplateName ? pathname + "|" + fallbackTemplateName : "";
+  }
+
   function createPanel(group, textarea, getMatcher) {
     const doc = group.ownerDocument;
     const panel = doc.createElement("section");
@@ -131,15 +287,49 @@
     summary.style.fontSize = "12px";
     summary.style.fontWeight = "600";
     const rules = doc.createElement("div");
-    rules.textContent = RULE_TEXT;
-    rules.style.whiteSpace = "pre-wrap";
     rules.style.marginTop = "6px";
     rules.style.fontSize = "12px";
     rules.style.lineHeight = "1.6";
     rules.style.color = "var(--xdof-slate, #5b6472)";
-    details.append(summary, rules);
+    const rulesStatus = doc.createElement("div");
+    rulesStatus.setAttribute("data-asr-edge-pulse-rules-status", "true");
+    rulesStatus.style.marginTop = "6px";
+    rulesStatus.style.fontSize = "12px";
+    rulesStatus.style.color = "var(--xdof-slate, #5b6472)";
+    details.append(summary, rulesStatus, rules);
     panel.append(actionRow, mirror, details);
     textarea.insertAdjacentElement("afterend", panel);
+
+    let destroyed = false;
+    let rulesLoading = false;
+    let cachedRuleSteps = null;
+    let taskContextKey = getDocumentTaskContextKey(doc);
+
+    function clearRules(message) {
+      rules.replaceChildren();
+      rulesStatus.textContent = message;
+    }
+
+    function renderLoadedRules(steps) {
+      renderAnnotationSteps(rules, steps);
+      rulesStatus.textContent = "已读取当前任务的标注步骤。";
+    }
+
+    function refreshTaskContext(options) {
+      const config = options && typeof options === "object" ? options : {};
+      const nextKey = getDocumentTaskContextKey(doc, taskContextKey);
+      if (!nextKey || nextKey === taskContextKey) {
+        return false;
+      }
+      taskContextKey = nextKey;
+      cachedRuleSteps = null;
+      rulesLoading = false;
+      clearRules("展开标注规则以加载当前任务规则。");
+      if (config.keepOpen !== true) {
+        details.open = false;
+      }
+      return true;
+    }
 
     function renderUnverified(message) {
       renderHighlightParts(mirror, textarea.value, []);
@@ -175,17 +365,64 @@
       }
     }
 
+    async function handleRulesToggle() {
+      if (!details.open) {
+        return;
+      }
+      refreshTaskContext({ keepOpen: true });
+      if (cachedRuleSteps) {
+        renderLoadedRules(cachedRuleSteps);
+        return;
+      }
+      if (rulesLoading) {
+        return;
+      }
+      const requestedTaskKey = getDocumentTaskContextKey(doc, taskContextKey);
+      rulesLoading = true;
+      clearRules("正在读取当前任务规则…");
+      const result = await loadAnnotationSteps(doc);
+      if (destroyed) {
+        return;
+      }
+      const currentTaskKey = getDocumentTaskContextKey(doc, requestedTaskKey);
+      if (requestedTaskKey && currentTaskKey && requestedTaskKey !== currentTaskKey) {
+        rulesLoading = false;
+        refreshTaskContext({ keepOpen: true });
+        return;
+      }
+      rulesLoading = false;
+      if (result.status === "ready") {
+        cachedRuleSteps = result.steps;
+        renderLoadedRules(result.steps);
+        return;
+      }
+      clearRules("未找到当前任务的标注步骤，可再次展开重试。");
+    }
+
     textarea.addEventListener("input", handleInput);
     checkButton.addEventListener("click", handleCheck);
+    details.addEventListener("toggle", handleRulesToggle);
     renderUnverified("点击“检查禁用词”开始核查。");
-    return {
+    clearRules("展开标注规则以加载当前任务规则。");
+    const handle = {
       node: panel,
+      refresh: function () {
+        refreshTaskContext();
+      },
       destroy: function () {
+        if (destroyed) {
+          return;
+        }
+        destroyed = true;
         textarea.removeEventListener("input", handleInput);
         checkButton.removeEventListener("click", handleCheck);
+        details.removeEventListener("toggle", handleRulesToggle);
+        delete panel[PANEL_HANDLE_KEY];
         panel.remove();
       },
     };
+    panel[PANEL_HANDLE_KEY] = handle;
+    return handle;
   }
 
   function mount(root, getMatcher) {
@@ -195,7 +432,12 @@
       return null;
     }
     if (hasMountedPanel(group)) {
-      return { node: group.querySelector("[" + PANEL_ATTR + "]"), destroy: function () {} };
+      const panel = group.querySelector("[" + PANEL_ATTR + "]");
+      const handle = panel && panel[PANEL_HANDLE_KEY];
+      if (handle && typeof handle.refresh === "function") {
+        handle.refresh();
+      }
+      return handle || { node: panel, destroy: function () {} };
     }
     return createPanel(group, textarea, getMatcher);
   }
@@ -203,6 +445,11 @@
   function removeAll(root) {
     Array.from(root && root.querySelectorAll ? root.querySelectorAll("[" + PANEL_ATTR + "]") : []).forEach(
       function (node) {
+        const handle = node && node[PANEL_HANDLE_KEY];
+        if (handle && typeof handle.destroy === "function") {
+          handle.destroy();
+          return;
+        }
         node.remove();
       }
     );
@@ -210,10 +457,15 @@
 
   globalThis.ASREdgePulseUiPanel = {
     PANEL_ATTR: PANEL_ATTR,
-    RULE_TEXT: RULE_TEXT,
     findTranslationGroup: findTranslationGroup,
     hasMountedPanel: hasMountedPanel,
     createHighlightParts: createHighlightParts,
+    findTaskTemplateButton: findTaskTemplateButton,
+    findAnnotationStepsSection: findAnnotationStepsSection,
+    extractAnnotationSteps: extractAnnotationSteps,
+    createTaskContextKey: createTaskContextKey,
+    waitForAnnotationStepsSection: waitForAnnotationStepsSection,
+    loadAnnotationSteps: loadAnnotationSteps,
     mount: mount,
     removeAll: removeAll,
   };
