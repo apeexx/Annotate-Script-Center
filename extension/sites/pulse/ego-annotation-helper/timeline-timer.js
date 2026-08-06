@@ -60,6 +60,49 @@
     return (delta >= 0 ? "+" : "-") + formatTimecode(Math.abs(delta), rate);
   }
 
+  function formatDurationSeconds(frame, frameRate) {
+    const safeFrameRate = Number(frameRate);
+    if (!Number.isFinite(safeFrameRate) || safeFrameRate <= 0) {
+      return "";
+    }
+    const seconds = Math.max(0, Number(frame) || 0) / safeFrameRate;
+    return seconds.toFixed(1) + "s";
+  }
+
+  function calculateDurationDeltaSeconds(currentDurationFrames, baselineDurationFrames, frameRate) {
+    const delta = Math.round(Number(currentDurationFrames) || 0) - Math.round(Number(baselineDurationFrames) || 0);
+    return (delta >= 0 ? "+" : "-") + formatDurationSeconds(Math.abs(delta), frameRate);
+  }
+
+  function calculateDragPreview(input) {
+    const left = Number(input && input.left);
+    const width = Number(input && input.width);
+    const delta = Number(input && input.delta);
+    const trackWidth = Number(input && input.trackWidth);
+    const mode = String(input && input.mode || "move");
+    if (
+      !Number.isFinite(left) ||
+      !Number.isFinite(width) ||
+      width < 0 ||
+      !Number.isFinite(delta) ||
+      !Number.isFinite(trackWidth) ||
+      trackWidth <= 0
+    ) {
+      return null;
+    }
+
+    const end = Math.max(left, Math.min(trackWidth, left + width));
+    if (mode === "start") {
+      const nextLeft = Math.max(0, Math.min(end, left + delta));
+      return { left: nextLeft, width: end - nextLeft };
+    }
+    if (mode === "end") {
+      const nextEnd = Math.max(left, Math.min(trackWidth, end + delta));
+      return { left: left, width: nextEnd - left };
+    }
+    return null;
+  }
+
   function parsePixels(value) {
     const pixels = Number.parseFloat(String(value || ""));
     return Number.isFinite(pixels) ? pixels : NaN;
@@ -139,6 +182,54 @@
     });
   }
 
+  function getDragMode(segment, event) {
+    const bounds = segment && typeof segment.getBoundingClientRect === "function" ? segment.getBoundingClientRect() : null;
+    const clientX = Number(event && event.clientX);
+    if (!bounds || !Number.isFinite(clientX) || !Number.isFinite(bounds.left) || !Number.isFinite(bounds.width)) {
+      return null;
+    }
+    const edgeWidth = Math.min(12, Math.max(4, bounds.width / 3));
+    if (clientX - bounds.left <= edgeWidth) {
+      return "start";
+    }
+    if (bounds.left + bounds.width - clientX <= edgeWidth) {
+      return "end";
+    }
+    return null;
+  }
+
+  function findSegmentBoundary(track, event) {
+    const clientX = Number(event && event.clientX);
+    if (!Number.isFinite(clientX)) {
+      return null;
+    }
+    return (
+      getSegments(track)
+        .map(function (segment) {
+          const mode = getDragMode(segment, event);
+          if (!mode) {
+            return null;
+          }
+          const bounds = segment.getBoundingClientRect();
+          const boundaryX = mode === "start" ? bounds.left : bounds.left + bounds.width;
+          return { segment: segment, mode: mode, distance: Math.abs(clientX - boundaryX) };
+        })
+        .filter(Boolean)
+        .sort(function (left, right) {
+          return left.distance - right.distance;
+        })[0] || null
+    );
+  }
+
+  function getTrackScale(track) {
+    const styleWidth = parsePixels(track && track.style.width);
+    const bounds = track && typeof track.getBoundingClientRect === "function" ? track.getBoundingClientRect() : null;
+    const renderedWidth = Number(bounds && bounds.width);
+    return Number.isFinite(styleWidth) && styleWidth > 0 && Number.isFinite(renderedWidth) && renderedWidth > 0
+      ? styleWidth / renderedWidth
+      : 1;
+  }
+
   function createController(rootDocument, rootWindow) {
     const doc = rootDocument || document;
     const win = rootWindow || window;
@@ -147,6 +238,8 @@
     let baseline = null;
     let selectedSegment = null;
     let dragging = false;
+    let dragState = null;
+    let dragPreview = null;
     let scheduled = false;
 
     function scheduleRefresh() {
@@ -191,9 +284,29 @@
       }
     }
 
+    function renderResult(result, frameInfo) {
+      const change = dragging && baseline
+        ? " · 变化 " + calculateDurationDeltaSeconds(result.durationFrames, baseline.durationFrames, frameInfo.frameRate)
+        : "";
+      render("分段长度 " + formatDurationSeconds(result.durationFrames, frameInfo.frameRate) + change);
+    }
+
     function refresh() {
       const track = findTimelineTrack(doc);
       const frameInfo = readFrameInfo(doc);
+      if (dragging && dragPreview) {
+        const previewResult = calculateSegmentTime({
+          left: dragPreview.left,
+          width: dragPreview.width,
+          trackWidth: dragPreview.trackWidth,
+          totalFrames: frameInfo && frameInfo.totalFrames,
+          frameRate: frameInfo && frameInfo.frameRate,
+        });
+        if (previewResult.status === "ready") {
+          renderResult(previewResult, frameInfo);
+          return previewResult;
+        }
+      }
       const segment = selectedSegment && selectedSegment.isConnected ? selectedSegment : findSelectedSegment(track);
       if (!track || !frameInfo || !segment) {
         render("时间信息待加载");
@@ -204,40 +317,77 @@
         render(result.reason);
         return result;
       }
-      const change = dragging && baseline
-        ? " · 变化 " + calculateDurationDelta(result.durationFrames, baseline.durationFrames, frameInfo.frameRate)
-        : "";
-      render(
-        "起 " +
-          result.startTimecode +
-          " · 终 " +
-          result.endTimecode +
-          " · 时长 " +
-          result.durationTimecode +
-          change
-      );
+      renderResult(result, frameInfo);
       return result;
     }
 
     function handlePointerDown(event) {
       const track = findTimelineTrack(doc);
-      const target = event.target;
-      const segment = getSegments(track).find(function (node) {
-        return node === target || node.contains(target);
-      });
-      if (!segment) {
+      const boundary = findSegmentBoundary(track, event);
+      if (!boundary) {
         return;
       }
+      const segment = boundary.segment;
+      const dragMode = boundary.mode;
       selectedSegment = segment;
       const result = toSegmentResult(track, segment, readFrameInfo(doc));
       baseline = result.status === "ready" ? result : null;
       dragging = Boolean(baseline);
+      const left = parsePixels(segment.style.left);
+      const width = parsePixels(segment.style.width);
+      const trackWidth = parsePixels(track && track.style.width);
+      const pointerStartX = Number(event.clientX);
+      dragPreview = null;
+      dragState =
+        dragging &&
+        Number.isFinite(left) &&
+        Number.isFinite(width) &&
+        Number.isFinite(trackWidth) &&
+        trackWidth > 0 &&
+        Number.isFinite(pointerStartX)
+          ? {
+              left: left,
+              width: width,
+              trackWidth: trackWidth,
+              pointerStartX: pointerStartX,
+              scale: getTrackScale(track),
+              mode: dragMode,
+              pointerId: event.pointerId,
+            }
+          : null;
       scheduleRefresh();
     }
 
-    function handlePointerUp() {
+    function handlePointerMove(event) {
+      if (!dragging || !dragState || (dragState.pointerId != null && event.pointerId !== dragState.pointerId)) {
+        return;
+      }
+      const clientX = Number(event.clientX);
+      if (!Number.isFinite(clientX)) {
+        return;
+      }
+      const preview = calculateDragPreview({
+        left: dragState.left,
+        width: dragState.width,
+        trackWidth: dragState.trackWidth,
+        delta: (clientX - dragState.pointerStartX) * dragState.scale,
+        mode: dragState.mode,
+      });
+      if (!preview) {
+        return;
+      }
+      dragPreview = Object.assign({ trackWidth: dragState.trackWidth }, preview);
+      scheduleRefresh();
+    }
+
+    function handlePointerUp(event) {
+      if (dragState && dragState.pointerId != null && event && event.pointerId !== dragState.pointerId) {
+        return;
+      }
       dragging = false;
       baseline = null;
+      dragState = null;
+      dragPreview = null;
       scheduleRefresh();
     }
 
@@ -246,7 +396,9 @@
         return;
       }
       doc.addEventListener("pointerdown", handlePointerDown, true);
+      doc.addEventListener("pointermove", handlePointerMove, true);
       doc.addEventListener("pointerup", handlePointerUp, true);
+      doc.addEventListener("pointercancel", handlePointerUp, true);
       observer = new MutationObserver(scheduleRefresh);
       observer.observe(doc.documentElement || doc, {
         childList: true,
@@ -263,7 +415,9 @@
         observer = null;
       }
       doc.removeEventListener("pointerdown", handlePointerDown, true);
+      doc.removeEventListener("pointermove", handlePointerMove, true);
       doc.removeEventListener("pointerup", handlePointerUp, true);
+      doc.removeEventListener("pointercancel", handlePointerUp, true);
       if (timerNode) {
         timerNode.remove();
       }
@@ -271,6 +425,8 @@
       baseline = null;
       selectedSegment = null;
       dragging = false;
+      dragState = null;
+      dragPreview = null;
     }
 
     return { start: start, stop: stop, refresh: refresh };
@@ -281,6 +437,11 @@
     formatTimecode: formatTimecode,
     calculateSegmentTime: calculateSegmentTime,
     calculateDurationDelta: calculateDurationDelta,
+    formatDurationSeconds: formatDurationSeconds,
+    calculateDurationDeltaSeconds: calculateDurationDeltaSeconds,
+    calculateDragPreview: calculateDragPreview,
+    getDragMode: getDragMode,
+    findSegmentBoundary: findSegmentBoundary,
     createController: createController,
   };
 })();
