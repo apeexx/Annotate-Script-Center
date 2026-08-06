@@ -106,6 +106,16 @@
               },
             },
           },
+          pulse: {
+            enabled: false,
+            activeScriptId: "",
+            scripts: {
+              egoAnnotationHelper: {
+                id: "pulseEgoAnnotationHelper",
+                enabled: false,
+              },
+            },
+          },
         },
         asr: {},
         debug: { enabled: false },
@@ -139,6 +149,8 @@
       AISHELL_TECH_MINNAN_SCRIPT_ID: "aishellTechMinnanAssistant",
       JD_TTS_ANNOTATION_PLATFORM_ID: "jdTtsAnnotation",
       JD_TTS_SHANGHAINESE_SCRIPT_ID: "jdTtsShanghaineseAssistant",
+      PULSE_PLATFORM_ID: "pulse",
+      PULSE_EGO_ANNOTATION_HELPER_SCRIPT_ID: "pulseEgoAnnotationHelper",
       ABAKA_AI_PLATFORM_ID: "abakaAi",
       ABAKA_AI_TASK_PAGE_CAPTURE_SCRIPT_ID: "abakaAiTaskPageCapture",
       HAITIAN_UTRANS_PLATFORM_ID: "haitianUtrans",
@@ -3828,6 +3840,43 @@
     return platform;
   }
 
+  function ensurePulseRoot(settings) {
+    const constants = getConstants();
+    const defaults = clone(constants.DEFAULT_SETTINGS || {});
+    const defaultPlatform =
+      defaults?.platforms?.pulse || constants.DEFAULT_PULSE_PLATFORM_SETTINGS || {
+        enabled: false,
+        activeScriptId: "",
+        scripts: {
+          egoAnnotationHelper: {
+            id: constants.PULSE_EGO_ANNOTATION_HELPER_SCRIPT_ID || "pulseEgoAnnotationHelper",
+            enabled: false,
+          },
+        },
+      };
+    if (!isPlainObject(settings.platforms)) settings.platforms = {};
+    const sourcePlatform = isPlainObject(settings.platforms.pulse) ? settings.platforms.pulse : {};
+    const defaultScript = defaultPlatform.scripts?.egoAnnotationHelper || {};
+    const scriptId =
+      String(defaultScript.id || constants.PULSE_EGO_ANNOTATION_HELPER_SCRIPT_ID || "pulseEgoAnnotationHelper").trim() ||
+      "pulseEgoAnnotationHelper";
+    const scriptSource = isPlainObject(sourcePlatform.scripts?.egoAnnotationHelper)
+      ? sourcePlatform.scripts.egoAnnotationHelper
+      : {};
+    const enabled = scriptSource.enabled === true;
+    settings.platforms.pulse = {
+      enabled: sourcePlatform.enabled === true && enabled,
+      activeScriptId: sourcePlatform.enabled === true && enabled ? scriptId : "",
+      scripts: {
+        egoAnnotationHelper: {
+          id: scriptId,
+          enabled: enabled,
+        },
+      },
+    };
+    return settings.platforms.pulse;
+  }
+
   function normalizeSettings(input) {
     const constants = getConstants();
     const defaults = clone(constants.DEFAULT_SETTINGS || {});
@@ -3842,6 +3891,7 @@
     ensureAbakaAiRoot(settings);
     ensureHaitianUtransRoot(settings);
     ensureJdTtsAnnotationRoot(settings);
+    ensurePulseRoot(settings);
     ensureGlobalBackendEndpointMode(settings, input || {}, defaults);
     ensureGlobalBackendBaseUrls(settings, input || {}, defaults);
 
@@ -4372,6 +4422,23 @@
                 id: constants.JD_TTS_SHANGHAINESE_SCRIPT_ID || "jdTtsShanghaineseAssistant",
                 enabled: nextEnabled,
                 aiRecommendEnabled: nextEnabled,
+              },
+            },
+          },
+        },
+      });
+    }
+
+    if (scriptId === constants.PULSE_EGO_ANNOTATION_HELPER_SCRIPT_ID) {
+      return patchSettings({
+        platforms: {
+          pulse: {
+            enabled: nextEnabled,
+            activeScriptId: nextEnabled ? scriptId : "",
+            scripts: {
+              egoAnnotationHelper: {
+                id: constants.PULSE_EGO_ANNOTATION_HELPER_SCRIPT_ID || "pulseEgoAnnotationHelper",
+                enabled: nextEnabled,
               },
             },
           },

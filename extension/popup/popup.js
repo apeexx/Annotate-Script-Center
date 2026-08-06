@@ -26,6 +26,8 @@
     constants.HAITIAN_UTRANS_AUDIO_DOWNLOAD_HELPER_SCRIPT_ID || "haitianUtransAudioDownloadHelper";
   const jdTtsShanghaineseScriptId =
     constants.JD_TTS_SHANGHAINESE_SCRIPT_ID || "jdTtsShanghaineseAssistant";
+  const pulseEgoAnnotationScriptId =
+    constants.PULSE_EGO_ANNOTATION_HELPER_SCRIPT_ID || "pulseEgoAnnotationHelper";
   let currentScriptId = "";
   let currentSettings = null;
 
@@ -148,6 +150,12 @@
     if (url.hostname === constants.JD_TTS_ANNOTATION_PLATFORM?.host) {
       return String(url.hash || "").toLowerCase().startsWith("#/annotation/dataset/annotate")
         ? jdTtsShanghaineseScriptId
+        : "";
+    }
+
+    if (url.hostname === constants.PULSE_PLATFORM?.host) {
+      return String(url.pathname || "").startsWith("/annotation/my/corrector/ego-annotation-gui/")
+        ? pulseEgoAnnotationScriptId
         : "";
     }
 

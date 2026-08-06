@@ -18,6 +18,7 @@
     "https://work.magicdatatech.com/*",
     "https://mark.aishelltech.com/*",
     "https://markapi.aishelltech.com/*",
+    "https://pulse.xdof.cn/*",
     "http://abao.fortidyndns.com:30473/*",
     "http://47.108.254.138:3101/*",
     "http://127.0.0.1:3101/*",
@@ -372,6 +373,23 @@
     },
     {
       "matches": [
+        "https://pulse.xdof.cn/annotation/my/corrector/ego-annotation-gui/*"
+      ],
+      "js": [
+        "shared/build-meta.js",
+        "shared/constants.js",
+        "shared/storage.js",
+        "sites/pulse/ego-annotation-helper/forbidden-terms.js",
+        "sites/pulse/ego-annotation-helper/timeline-timer.js",
+        "sites/pulse/ego-annotation-helper/ui-panel.js",
+        "sites/pulse/ego-annotation-helper/content.js"
+      ],
+      "all_frames": false,
+      "run_at": "document_idle",
+      "world": "ISOLATED"
+    },
+    {
+      "matches": [
         "http://*/*"
       ],
       "js": [
@@ -400,6 +418,14 @@
       ],
       "matches": [
         "http://*/*"
+      ]
+    },
+    {
+      "resources": [
+        "sites/pulse/ego-annotation-helper/data/forbidden-terms.json"
+      ],
+      "matches": [
+        "https://pulse.xdof.cn/*"
       ]
     }
   ]

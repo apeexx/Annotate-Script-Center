@@ -49,3 +49,9 @@
 - 平台资料：`platform-resources/jd-tts-annotation/README.md`
 - 上海话助手资料：`platform-resources/jd-tts-annotation/shanghainese-helper/README.md`
 - 后端说明：`platform-resources/jd-tts-annotation/shanghainese-helper/backend/README.md`
+
+## Pulse
+
+- 运行时代码：`extension/sites/pulse/ego-annotation-helper/`
+- 平台资料：`platform-resources/pulse/README.md`
+- 分段标注助手资料：`platform-resources/pulse/ego-annotation-helper/README.md`

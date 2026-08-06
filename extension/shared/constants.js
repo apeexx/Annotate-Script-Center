@@ -41,7 +41,7 @@
   const DATABAKER_AI_REQUEST_STAGGER_MS = 50;
   const STAGE_ID = "labelx-script-center";
   const STAGE_LABEL = "脚本中心";
-  const SCHEMA_VERSION = 29;
+  const SCHEMA_VERSION = 30;
   const RELEASE_CHANNEL_PUBLIC = "public";
   const RELEASE_VISIBILITY_PUBLIC = "public";
   const ALIBABA_LABELX_PLATFORM_ID = "alibabaLabelx";
@@ -52,6 +52,7 @@
   const HAITIAN_UTRANS_PLATFORM_ID = "haitianUtrans";
   const AISHELL_TECH_PLATFORM_ID = "aishellTech";
   const JD_TTS_ANNOTATION_PLATFORM_ID = "jdTtsAnnotation";
+  const PULSE_PLATFORM_ID = "pulse";
   const TRANSCRIPTION_PROJECT_ID = "transcription";
   const JUDGEMENT_PROJECT_ID = "judgement";
   const LIGHTWHEEL_VIEW_PANEL_SCRIPT_ID = "lightwheelViewPanel";
@@ -66,6 +67,7 @@
   const AISHELL_TECH_CANTONESE_SCRIPT_ID = "aishellTechCantoneseAssistant";
   const AISHELL_TECH_CN_EN_SHORT_DRAMA_SCRIPT_ID = "aishellTechCnEnShortDrama";
   const JD_TTS_SHANGHAINESE_SCRIPT_ID = "jdTtsShanghaineseAssistant";
+  const PULSE_EGO_ANNOTATION_HELPER_SCRIPT_ID = "pulseEgoAnnotationHelper";
   const BACKEND_ENDPOINT_MODE_SERVER = "server";
   const BACKEND_ENDPOINT_MODE_LOCAL = "local";
   const BUILD_META = globalThis.ASREdgeBuildMeta || {};
@@ -774,6 +776,13 @@
     matches: ["https://tts-biaozhu-pub.jd.com/*"],
   };
 
+  const PULSE_PLATFORM = {
+    id: "pulse",
+    label: "Pulse",
+    host: "pulse.xdof.cn",
+    matches: ["https://pulse.xdof.cn/annotation/my/corrector/ego-annotation-gui/*"],
+  };
+
   const PAGE_OPTIONS = [
     "1 条/页",
     "2 条/页",
@@ -1257,6 +1266,14 @@
       runtimeBridge: "jd-tts-shanghainese-helper",
       description: "京东 TTS 标注页当前文本框上海话识别与回填助手。",
     },
+    pulse: {
+      id: PULSE_PLATFORM_ID,
+      label: "Pulse",
+      host: PULSE_PLATFORM.host,
+      matches: clone(PULSE_PLATFORM.matches),
+      runtimeBridge: "pulse-ego-annotation-helper",
+      description: "Pulse ego-annotation-gui 分段计时、规则与禁用词只读核查助手。",
+    },
   };
 
   const SCRIPT_LIBRARY = {
@@ -1427,6 +1444,19 @@
       detailView: "jd-tts-shanghainese-helper",
       host: JD_TTS_ANNOTATION_PLATFORM.host,
       matchUrl: "https://tts-biaozhu-pub.jd.com/#/annotation/dataset/annotate",
+    },
+    pulseEgoAnnotationHelper: {
+      id: PULSE_EGO_ANNOTATION_HELPER_SCRIPT_ID,
+      platformId: PULSE_PLATFORM_ID,
+      label: "Pulse 分段标注助手",
+      shortLabel: "分段标注助手",
+      description: "显示当前分段时间、标注规则及中文翻译禁用词核查，不写入平台。",
+      note: "仅观察页面 DOM 和扩展内置词表；不保存、不提交、不审核，也不调用 Pulse 接口。",
+      capabilityScope: "readonly-local-timeline-and-text-check",
+      statusLabel: "Pulse 分段辅助",
+      detailView: "pulse-ego-annotation-helper",
+      host: PULSE_PLATFORM.host,
+      matchUrl: "https://pulse.xdof.cn/annotation/my/corrector/ego-annotation-gui/…",
     },
     aishellTechCantoneseAssistant: {
       id: AISHELL_TECH_CANTONESE_SCRIPT_ID,
@@ -2006,6 +2036,19 @@
     };
   }
 
+  function createDefaultPulsePlatformSettings() {
+    return {
+      enabled: false,
+      activeScriptId: "",
+      scripts: {
+        egoAnnotationHelper: {
+          id: PULSE_EGO_ANNOTATION_HELPER_SCRIPT_ID,
+          enabled: false,
+        },
+      },
+    };
+  }
+
   const DEFAULT_SETTINGS = {
     stage: STAGE_ID,
     scriptCenter: {
@@ -2119,6 +2162,7 @@
       haitianUtrans: createDefaultHaitianUtransPlatformSettings(),
       aishellTech: createDefaultAishellTechPlatformSettings(),
       jdTtsAnnotation: createDefaultJdTtsAnnotationPlatformSettings(),
+      pulse: createDefaultPulsePlatformSettings(),
     },
     asr: clone(DEFAULT_ASR_CONFIG),
     debug: {
@@ -2241,6 +2285,14 @@
       );
     }
 
+    if (script.platformId === PULSE_PLATFORM_ID) {
+      return Boolean(
+        settings?.platforms?.pulse?.enabled === true &&
+          settings?.platforms?.pulse?.activeScriptId === PULSE_EGO_ANNOTATION_HELPER_SCRIPT_ID &&
+          settings?.platforms?.pulse?.scripts?.egoAnnotationHelper?.enabled === true
+      );
+    }
+
     if (script.platformId === MAGIC_DATA_PLATFORM_ID) {
       const activeScriptId = String(settings?.platforms?.magicData?.activeScriptId || "").trim();
       const scriptKey =
@@ -2281,6 +2333,7 @@
     ABAKA_AI_PLATFORM: ABAKA_AI_PLATFORM,
     AISHELL_TECH_PLATFORM: AISHELL_TECH_PLATFORM,
     JD_TTS_ANNOTATION_PLATFORM: JD_TTS_ANNOTATION_PLATFORM,
+    PULSE_PLATFORM: PULSE_PLATFORM,
     PLATFORM_LIBRARY: clone(PLATFORM_LIBRARY),
     MESSAGE_TYPES: MESSAGE_TYPES,
     PAGE_OPTIONS: PAGE_OPTIONS,
@@ -2302,6 +2355,7 @@
     HAITIAN_UTRANS_PLATFORM_ID: HAITIAN_UTRANS_PLATFORM_ID,
     AISHELL_TECH_PLATFORM_ID: AISHELL_TECH_PLATFORM_ID,
     JD_TTS_ANNOTATION_PLATFORM_ID: JD_TTS_ANNOTATION_PLATFORM_ID,
+    PULSE_PLATFORM_ID: PULSE_PLATFORM_ID,
     DATA_BAKER_ROUND_ONE_QUALITY_SCRIPT_ID: DATA_BAKER_ROUND_ONE_QUALITY_SCRIPT_ID,
     MAGIC_DATA_ANNOTATOR_SCRIPT_ID: MAGIC_DATA_ANNOTATOR_SCRIPT_ID,
     MAGIC_DATA_MINNAN_SCRIPT_ID: MAGIC_DATA_MINNAN_SCRIPT_ID,
@@ -2314,6 +2368,7 @@
     AISHELL_TECH_CANTONESE_SCRIPT_ID: AISHELL_TECH_CANTONESE_SCRIPT_ID,
     AISHELL_TECH_CN_EN_SHORT_DRAMA_SCRIPT_ID: AISHELL_TECH_CN_EN_SHORT_DRAMA_SCRIPT_ID,
     JD_TTS_SHANGHAINESE_SCRIPT_ID: JD_TTS_SHANGHAINESE_SCRIPT_ID,
+    PULSE_EGO_ANNOTATION_HELPER_SCRIPT_ID: PULSE_EGO_ANNOTATION_HELPER_SCRIPT_ID,
     DATABAKER_AI_RECOMMEND_SERVER_ENDPOINT: DATABAKER_AI_RECOMMEND_SERVER_ENDPOINT,
     DATABAKER_AI_RECOMMEND_LOCAL_ENDPOINT: DATABAKER_AI_RECOMMEND_LOCAL_ENDPOINT,
     DATABAKER_AI_RECOMMEND_PATH: DATABAKER_AI_RECOMMEND_PATH,
@@ -2441,6 +2496,7 @@
     DEFAULT_HAITIAN_UTRANS_PLATFORM_SETTINGS: createDefaultHaitianUtransPlatformSettings(),
     DEFAULT_AISHELL_TECH_PLATFORM_SETTINGS: createDefaultAishellTechPlatformSettings(),
     DEFAULT_JD_TTS_ANNOTATION_PLATFORM_SETTINGS: createDefaultJdTtsAnnotationPlatformSettings(),
+    DEFAULT_PULSE_PLATFORM_SETTINGS: createDefaultPulsePlatformSettings(),
     DEFAULT_SETTINGS: clone(DEFAULT_SETTINGS),
     LEGACY_ROOT_DEBUG_KEY: LEGACY_ROOT_DEBUG_KEY,
     LEGACY_ROOT_CACHE_KEYS: Object.assign({}, LEGACY_ROOT_CACHE_KEYS),

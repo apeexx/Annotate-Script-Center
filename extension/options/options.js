@@ -40,6 +40,8 @@
     constants.HAITIAN_UTRANS_AUDIO_DOWNLOAD_HELPER_SCRIPT_ID || "haitianUtransAudioDownloadHelper";
   const jdTtsShanghaineseScriptId =
     constants.JD_TTS_SHANGHAINESE_SCRIPT_ID || "jdTtsShanghaineseAssistant";
+  const pulseEgoAnnotationScriptId =
+    constants.PULSE_EGO_ANNOTATION_HELPER_SCRIPT_ID || "pulseEgoAnnotationHelper";
   const backendModeServer = constants.BACKEND_ENDPOINT_MODE_SERVER || "server";
   const backendModeLocal = constants.BACKEND_ENDPOINT_MODE_LOCAL || "local";
   const backendModeBeta = constants.BACKEND_ENDPOINT_MODE_BETA || "beta";
@@ -4457,6 +4459,10 @@
     return scriptId === jdTtsShanghaineseScriptId;
   }
 
+  function isPulseEgoAnnotationScript(scriptId) {
+    return scriptId === pulseEgoAnnotationScriptId;
+  }
+
   function isAishellTechCantoneseScript(scriptId) {
     return scriptId === aishellTechCantoneseScriptId;
   }
@@ -5019,6 +5025,7 @@
         defaults.stages?.refine || {}
       );
     }
+
     return {
       defaults: normalizedDefaults,
       supportedParams: Object.assign({}, fallback.supportedParams, supportedParams, {
@@ -8288,6 +8295,14 @@
       );
     }
 
+    if (isPulseEgoAnnotationScript(scriptId)) {
+      return Boolean(
+        settings?.platforms?.pulse?.enabled === true &&
+          settings?.platforms?.pulse?.activeScriptId === pulseEgoAnnotationScriptId &&
+          settings?.platforms?.pulse?.scripts?.egoAnnotationHelper?.enabled === true
+      );
+    }
+
     if (isLabelxScript(scriptId)) {
       return Boolean(
         settings?.platforms?.alibabaLabelx?.enabled &&
@@ -8405,6 +8420,12 @@
     }
 
     if (isJdTtsShanghaineseScript(scriptId)) {
+      return isScriptEnabled(settings, scriptId)
+        ? { text: "已启用", tone: "enabled" }
+        : { text: "未启用", tone: "disabled" };
+    }
+
+    if (isPulseEgoAnnotationScript(scriptId)) {
       return isScriptEnabled(settings, scriptId)
         ? { text: "已启用", tone: "enabled" }
         : { text: "未启用", tone: "disabled" };
