@@ -39,6 +39,12 @@ const DEFAULT_GROUP_SETTINGS = {
     concurrencyEnv: "AISHELL_CANTONESE_AI_QWEN_OMNI_CONCURRENCY",
     maxConcurrent: 1,
   },
+  aishell_english_transcription_qwen_omni: {
+    rpmEnv: "AISHELL_ENGLISH_TRANSCRIPTION_AI_QWEN_OMNI_RPM_LIMIT",
+    rpm: 8,
+    concurrencyEnv: "AISHELL_ENGLISH_TRANSCRIPTION_AI_QWEN_OMNI_CONCURRENCY",
+    maxConcurrent: 1,
+  },
 };
 const queueRegistry = new Map();
 
@@ -152,6 +158,15 @@ function getGroupRetryMax(groupName) {
       10
     );
   }
+  if (groupName === "aishell_english_transcription_qwen_omni") {
+    return parsePositiveInteger(
+      process.env.AISHELL_ENGLISH_TRANSCRIPTION_AI_QWEN_OMNI_BURST_RETRY_MAX ||
+        process.env.AISHELL_ENGLISH_TRANSCRIPTION_AI_QWEN_BURST_RETRY_MAX,
+      DEFAULT_RETRY_MAX,
+      0,
+      10
+    );
+  }
   if (isModelQueueKey(groupName)) {
     return parsePositiveInteger(
       process.env.ASC_AI_QWEN_BURST_RETRY_MAX || process.env.DATABAKER_AI_QWEN_BURST_RETRY_MAX,
@@ -176,6 +191,15 @@ function getGroupRetryBaseDelayMs(groupName) {
     return parsePositiveInteger(
       process.env.AISHELL_CANTONESE_AI_QWEN_OMNI_BURST_RETRY_BASE_MS ||
         process.env.AISHELL_CANTONESE_AI_QWEN_BURST_RETRY_BASE_MS,
+      getRetryBaseDelayMs(),
+      100,
+      60000
+    );
+  }
+  if (groupName === "aishell_english_transcription_qwen_omni") {
+    return parsePositiveInteger(
+      process.env.AISHELL_ENGLISH_TRANSCRIPTION_AI_QWEN_OMNI_BURST_RETRY_BASE_MS ||
+        process.env.AISHELL_ENGLISH_TRANSCRIPTION_AI_QWEN_BURST_RETRY_BASE_MS,
       getRetryBaseDelayMs(),
       100,
       60000
@@ -267,7 +291,10 @@ function getGroupSettings(groupName) {
     intervalMs: Math.max(1, Math.ceil(60000 / rpm)),
     maxConcurrent,
     maxSize,
-    totalCapacity: groupName === "aishell_cantonese_qwen_omni" ? maxSize : undefined,
+    totalCapacity:
+      groupName === "aishell_cantonese_qwen_omni" || groupName === "aishell_english_transcription_qwen_omni"
+        ? maxSize
+        : undefined,
     retryMax: getGroupRetryMax(groupName),
     retryBaseDelayMs: getGroupRetryBaseDelayMs(groupName),
     retryMaxDelayMs: getRetryMaxDelayMs(),

@@ -14,6 +14,9 @@ const {
   registerRoutes: registerAishellTechCantoneseRoutes,
 } = require("../aishell-tech/cantonese-helper/backend");
 const {
+  registerRoutes: registerAishellTechEnglishTranscriptionRoutes,
+} = require("../aishell-tech/english-transcription-helper/backend");
+const {
   registerRoutes: registerAishellTechVietnameseRoutes,
 } = require("../aishell-tech/vietnamese-helper/backend");
 const {
@@ -68,6 +71,7 @@ function registerProjectRoutes(router, options) {
   registerAbakaTask21AiRoutes(router, config.abakaTask21Ai || {});
   registerAishellTechMinnanRoutes(router, config.aishellTechMinnanHelper || {});
   registerAishellTechCantoneseRoutes(router, config.aishellTechCantoneseHelper || {});
+  registerAishellTechEnglishTranscriptionRoutes(router, config.aishellTechEnglishTranscriptionHelper || {});
   registerAishellTechVietnameseRoutes(router, config.aishellTechVietnameseHelper || {});
   registerAishellTechThaiRoutes(router, config.aishellTechThaiHelper || {});
   registerJdTtsShanghaineseRoutes(router, config.jdTtsShanghaineseHelper || {});
