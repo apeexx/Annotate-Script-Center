@@ -1,6 +1,6 @@
 "use strict";
 
-const fs = require("fs");
+const { loadLexicon } = require("../../../backend/lexicon-database");
 const path = require("path");
 
 const DEFAULT_LEXICON_PATH = path.join(__dirname, "lexicon", "shanghainese-lexicon.json");
@@ -71,15 +71,18 @@ function rewriteText(text, rules) {
 }
 
 function createOrthographyRuntime(overrides) {
-  const deps = Object.assign({ readFileSync: fs.readFileSync, lexiconPath: DEFAULT_LEXICON_PATH }, overrides || {});
+  const deps = Object.assign({ loadLexicon: () => loadLexicon("jd-tts-annotation/shanghainese-helper") }, overrides || {});
+  let cachedRules;
 
   function readRules() {
+    if (cachedRules) return cachedRules;
     try {
-      const raw = deps.readFileSync(deps.lexiconPath, "utf8");
-      const validated = validateLexicon(JSON.parse(raw));
-      return validated.valid ? { status: "ready", rules: validated.rules } : { status: "invalid", rules: [] };
+      const loaded = deps.loadLexicon();
+      if (!loaded.enabled) return (cachedRules = { status: loaded.status === "missing" ? "missing" : "invalid", rules: [] });
+      const validated = validateLexicon(loaded.document);
+      return (cachedRules = validated.valid ? { status: "ready", rules: validated.rules } : { status: "invalid", rules: [] });
     } catch (error) {
-      return { status: error?.code === "ENOENT" ? "missing" : "invalid", rules: [] };
+      return (cachedRules = { status: error?.code === "ENOENT" ? "missing" : "invalid", rules: [] });
     }
   }
 

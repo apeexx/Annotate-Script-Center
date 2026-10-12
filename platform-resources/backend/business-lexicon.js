@@ -43,7 +43,7 @@ function normalizeAttributes(value, entryId) {
   return Object.assign({}, value);
 }
 
-function validateLexiconEntry(entry, index, seenIds) {
+function validateLexiconEntry(entry, index, seenIds, options) {
   if (!isPlainObject(entry)) {
     throw new Error("entry at index " + String(index) + " must be an object");
   }
@@ -64,7 +64,7 @@ function validateLexiconEntry(entry, index, seenIds) {
   if (!display) {
     throw new Error('entry "' + id + '" is missing required field "display"');
   }
-  if (!mandarin) {
+  if (!mandarin && !(options.allowEmptyMandarin && typeof entry.mandarin === "string")) {
     throw new Error('entry "' + id + '" is missing required field "mandarin"');
   }
   return {
@@ -79,7 +79,7 @@ function validateLexiconEntry(entry, index, seenIds) {
   };
 }
 
-function validateBusinessLexiconDocument(document) {
+function validateBusinessLexiconDocument(document, options = {}) {
   if (!isPlainObject(document)) {
     throw new Error("business lexicon document must be an object");
   }
@@ -105,7 +105,7 @@ function validateBusinessLexiconDocument(document) {
   }
   const seenIds = new Set();
   const entries = document.entries.map(function (entry, index) {
-    return validateLexiconEntry(entry, index, seenIds);
+    return validateLexiconEntry(entry, index, seenIds, options);
   });
   return {
     schemaVersion,
@@ -172,23 +172,9 @@ function findFirstExistingReferenceFile(referencePaths) {
   return "";
 }
 
-function loadBusinessLexiconSource(filePath, options) {
-  const source = options && typeof options === "object" ? options : {};
-  const referenceFilePath = findFirstExistingReferenceFile(source.referencePaths || []);
-  const loaded = loadBusinessLexiconJson(filePath);
-  if (loaded.status === "missing" && referenceFilePath) {
-    return Object.assign({}, loaded, {
-      status: "reference_only",
-      referenceExists: true,
-      referenceFilePath,
-      warningMessage: normalizeText(source.warningMessage || "没有字词对应表"),
-    });
-  }
-  return Object.assign({}, loaded, {
-    referenceExists: Boolean(referenceFilePath),
-    referenceFilePath,
-    warningMessage: "",
-  });
+// Runtime reads SQLite only. JSON helpers above are for import validation.
+function loadBusinessLexiconSource(lexiconKey, options) {
+  return require("./lexicon-database").loadLexicon(lexiconKey, options);
 }
 
 module.exports = {

@@ -64,3 +64,8 @@ Thumbs.db
 .agent
 .playwright-mcp/
 .superpowers/
+
+# 本地正字表数据库
+/platform-resources/backend/runtime-data/
+*.sqlite
+*.sqlite-*

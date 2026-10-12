@@ -125,27 +125,17 @@ test("findFirstExistingReferenceFile returns the first local reference source", 
   );
 });
 
-test("loadBusinessLexiconSource degrades to reference_only only when local csv exists", function () {
+test("runtime loader does not fall back to reference files when database is missing", function (t) {
   const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "asc-business-lexicon-source-"));
+  t.after(() => fs.rmSync(tempDir, { recursive: true, force: true }));
   const csvPath = path.join(tempDir, "reference.csv");
   fs.writeFileSync(csvPath, "词,义\n", "utf8");
-  const missingJsonPath = path.join(tempDir, "missing.json");
-
-  const referenceOnlyState = loadBusinessLexiconSource(missingJsonPath, {
-    referencePaths: [csvPath],
-    warningMessage: "没有字词对应表",
+  const state = loadBusinessLexiconSource("magic-data/minnan-helper", {
+    dbPath: path.join(tempDir, "missing.sqlite"), referencePaths: [csvPath],
   });
-  const missingState = loadBusinessLexiconSource(missingJsonPath, {
-    referencePaths: [path.join(tempDir, "missing-reference.csv")],
-    warningMessage: "没有字词对应表",
-  });
-
-  assert.equal(referenceOnlyState.enabled, false);
-  assert.equal(referenceOnlyState.status, "reference_only");
-  assert.equal(referenceOnlyState.referenceExists, true);
-  assert.equal(referenceOnlyState.referenceFilePath, csvPath);
-  assert.equal(referenceOnlyState.warningMessage, "没有字词对应表");
-  assert.equal(missingState.status, "missing");
-  assert.equal(missingState.referenceExists, false);
-  assert.equal(missingState.warningMessage, "");
+  assert.equal(state.enabled, false);
+  assert.equal(state.status, "missing");
+  assert.equal(state.source, "sqlite");
+  assert.equal(state.referenceExists, false);
+  assert.match(state.warningMessage, /初始化/);
 });

@@ -56,8 +56,6 @@ const TRADITIONAL_TO_SIMPLIFIED_MAP = {
 };
 
 let cachedState = null;
-let warnedMissing = false;
-let warnedError = false;
 
 function normalizeText(value) {
   return String(value || "")
@@ -74,6 +72,10 @@ function normalizeHeader(value) {
 function parsePriority(value) {
   const numericValue = Number(value);
   return Number.isFinite(numericValue) ? numericValue : 9999;
+}
+
+function uniqueTerms(values) {
+  return Array.from(new Set(values.map(normalizeText).filter(Boolean)));
 }
 
 function splitTerms(value) {
@@ -164,7 +166,7 @@ function getSuggestedTermForFrom(suggested, from) {
 
 function addRewriteRule(rules, seen, mandarin, suggested, sourceTag) {
   splitTerms(mandarin).forEach(function (from) {
-    if (!from || (sourceTag === "csv" && from.length < 2)) {
+    if (!from || (sourceTag === "sqlite" && from.length < 2)) {
       return;
     }
     const to = getSuggestedTermForFrom(suggested, from);
@@ -192,7 +194,7 @@ function buildRewriteRules() {
     addRewriteRule(rules, seen, entry.mandarin, entry.suggested, "base");
   });
   getLexiconState().rows.forEach(function (entry) {
-    addRewriteRule(rules, seen, entry.mandarin, entry.unified, "csv");
+    addRewriteRule(rules, seen, entry.mandarin, entry.unified, "sqlite");
   });
   return rules.sort(function (left, right) {
     return right.from.length - left.from.length;
@@ -373,58 +375,12 @@ function mapBusinessLexiconEntries(entries) {
 }
 
 function getLexiconState() {
-  if (cachedState) {
-    return cachedState;
-  }
-  const loaded = loadBusinessLexiconSource(MINNAN_JSON_PATH, {
-    referencePaths: [MINNAN_CSV_PATH],
-    warningMessage: "没有字词对应表",
-  });
-  if (loaded.status === "reference_only") {
-    if (!warnedMissing) {
-      warnedMissing = true;
-      console.warn("[MagicData][minnan][ai] 没有字词对应表，检测到本地参考 CSV，复核将按无词表模式继续。", {
-        referenceCsvExists: true,
-      });
-    }
-    cachedState = {
-      enabled: false,
-      status: "reference_only",
-      rows: [],
-      source: "json",
-    };
-    return cachedState;
-  }
-  if (loaded.status === "missing") {
-    cachedState = {
-      enabled: false,
-      status: "missing",
-      rows: [],
-      source: "json",
-    };
-    return cachedState;
-  }
-  if (!loaded.enabled || loaded.status !== "ready") {
-    if (!warnedError) {
-      warnedError = true;
-      console.warn("[MagicData][minnan][ai] 闽南语词表 JSON 读取失败，复核将降级为无词表模式。", {
-        message: loaded.errorMessage || "",
-        status: loaded.status,
-      });
-    }
-    cachedState = {
-      enabled: false,
-      status: loaded.status || "error",
-      rows: [],
-      source: "json",
-    };
-    return cachedState;
-  }
+  if (cachedState) return cachedState;
+  const loaded = loadBusinessLexiconSource("magic-data/minnan-helper");
   cachedState = {
-    enabled: true,
-    status: "ready",
+    ...loaded,
+    enabled: loaded.enabled,
     rows: mapBusinessLexiconEntries(loaded.entries),
-    source: "json",
   };
   return cachedState;
 }

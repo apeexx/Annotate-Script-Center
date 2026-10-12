@@ -39,7 +39,7 @@
 - 强制 `enableThinking=false`，仅执行单阶段原始上海话听写。
 - 专属队列组：`jd_tts_qwen_omni`，与其他平台的队列隔离。
 - 请求体上限 3 MiB；内存缓存默认保留 12 小时、最多 100 项。缓存键包含语句身份、WAV 摘要、模型、Prompt、参数和执行链路；缓存只保留百炼原始结果，每次返回前都重新应用当前正字词表。
-- `lexicon/shanghainese-lexicon.json` 是运行时主词表，使用统一 JSON schema。仅允许人工确认的 `aliases → display` 字面量最长匹配；不做普通话反推、繁简转换、标点清洗、Unicode 归一化或第二次模型调用。缺失、无匹配或不合法词表均保留原文。
+- `lexicon/shanghainese-lexicon.json` 是初始导入来源，运行时从 SQLite 读取，保留上海话专属验证规则。仅允许人工确认的 `aliases → display` 字面量最长匹配；不做普通话反推、繁简转换、标点清洗、Unicode 归一化或第二次模型调用。缺失、无匹配或不合法词表均保留原文。
 
 ## 文件与日志
 
@@ -50,3 +50,7 @@
 - `cache.js`：仅内存的结果缓存。
 - `config.js`：60 秒超时和缓存边界配置。
 - `../data/ai-call-log.js`：仅记录 Token、人民币估算、耗时、队列摘要、语句身份摘要和安全错误摘要；不记录音频、资源地址、转写文本或鉴权数据。
+
+## 数据库维护
+
+运行时词表标识：`jd-tts-annotation/shanghainese-helper`。首次启动前在仓库根目录执行 `node scripts/import-lexicons.js`；更新源文件后执行 `node scripts/import-lexicons.js --replace --lexicon jd-tts-annotation/shanghainese-helper` 并重启后端。运行环境要求 Node.js 24，数据库路径由 `ASC_LEXICON_DB_PATH` 配置。完整备份、恢复和自定义来源说明见 `platform-resources/backend/README.md`。

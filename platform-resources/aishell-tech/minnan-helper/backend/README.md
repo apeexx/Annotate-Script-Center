@@ -39,14 +39,14 @@
 ## 推荐模式
 
 - 当前不再使用旧“模型方案 + 识别策略”，后端统一按三个阶段执行：
-  - `转换`：先按 `minnan-lexicon.json` 的 `对应华语 -> 建议用字` 规则做最长匹配替换；参考源 `minnan-lexicon.csv` 只保留给人工整理和外部 AI 处理。只有命中多候选或切分冲突时，才会调用文本模型做歧义兜底，输出 `convertedText`。
+  - `转换`：先按 SQLite 词表的 `对应华语 -> 建议用字` 规则做最长匹配替换；参考源 `minnan-lexicon.csv` 只保留给人工整理和外部 AI 处理。只有命中多候选或切分冲突时，才会调用文本模型做歧义兜底，输出 `convertedText`。
   - `听音`：按实际发音输出 `heardText`；可选 `Fun-ASR` 或 `Omni`，但都只负责听音本身。
   - `比较`：必须等待转换完成后执行最终判断：
     - `compareFamily=qwen`：复用文本队列做纯文本比较。
     - `compareFamily=omni`：复用 Omni 队列做独立的第三段音频比较请求。
 - `compareAdoptionThreshold` 默认 `0.75`；当 `correctionConfidence` 低于阈值时，后端会优先保留 `heardText`，并把 `needHumanReview` 置为 `true`。
 - 后处理 `lexicon.rewriteMode` 固定为 `off`，不会再做强制词表改写。
-- 当前仓库口径补充：Aishell 与 DataBaker 闽南语运行时主词表现已同步落为同一份内容，但仍分别保留各自 JSON 路径，便于后续按平台独立演进。
+- 当前仓库口径补充：Aishell 与 DataBaker 闽南语运行时主词表现已同步落为同一份内容，但数据库按平台独立保存，JSON 仅保留为导入来源。
 
 ## 返回契约
 
@@ -118,3 +118,7 @@
 - 后端只返回 AI 辅助结果，不保存平台标注数据。
 - 不记录 token、cookie、authorization、完整音频 URL、完整签名 URL。
 - 取消、超时、中途断开只保留必要诊断摘要，不伪装成成功请求。
+
+## 数据库维护
+
+运行时词表标识：`aishell-tech/minnan-helper`。首次启动前在仓库根目录执行 `node scripts/import-lexicons.js`；更新源文件后执行 `node scripts/import-lexicons.js --replace --lexicon aishell-tech/minnan-helper` 并重启后端。运行环境要求 Node.js 24，数据库路径由 `ASC_LEXICON_DB_PATH` 配置。完整备份、恢复和自定义来源说明见 `platform-resources/backend/README.md`。

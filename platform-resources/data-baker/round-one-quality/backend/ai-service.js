@@ -64,6 +64,8 @@ const {
   normalizeText: normalizeBusinessLexiconText,
 } = require("../../../backend/business-lexicon");
 
+const { resolveLexiconDbPath } = require("../../../backend/lexicon-database");
+
 const RULE_VERSION = "data-baker-round-one-quality-ai-v11-direct-recommend-60s";
 const DEFAULT_OMNI_SINGLE_TEMPLATE = [
   "你要一次完成：听音、对比页面候选文本、输出最终推荐文本。",
@@ -308,8 +310,6 @@ const CSV_COLUMNS = [
 ];
 
 let lexiconCache = null;
-let warnedMissing = false;
-let warnedReadFailure = false;
 
 function createRequestId() {
   const now = new Date();
@@ -1343,72 +1343,12 @@ function mapLexiconEntryFromBusinessJson(entry) {
 }
 
 function getLexiconState() {
-  if (lexiconCache) {
-    return lexiconCache;
-  }
-  const loaded = loadBusinessLexiconSource(MINNAN_LEXICON_JSON_PATH, {
-    referencePaths: [MINNAN_LEXICON_REFERENCE_CSV_PATH],
-    warningMessage: "没有字词对应表",
-  });
-  if (loaded.status === "reference_only") {
-    if (!warnedMissing) {
-      warnedMissing = true;
-      console.warn("[DataBaker][round-one-quality][ai] 没有字词对应表，检测到本地参考 CSV，已按无词表模式继续返回。", {
-        fileName: path.basename(MINNAN_LEXICON_JSON_PATH),
-        referenceFileName: path.basename(loaded.referenceFilePath || MINNAN_LEXICON_REFERENCE_CSV_PATH),
-      });
-    }
-    lexiconCache = {
-      exists: false,
-      status: "reference_only",
-      source: "json",
-      rows: [],
-      warningMessage: loaded.warningMessage,
-      referenceExists: true,
-      referenceFilePath: loaded.referenceFilePath,
-    };
-    return lexiconCache;
-  }
-  if (loaded.status === "missing") {
-    lexiconCache = {
-      exists: false,
-      status: "missing",
-      source: "json",
-      rows: [],
-      warningMessage: "",
-      referenceExists: false,
-      referenceFilePath: "",
-    };
-    return lexiconCache;
-  }
-  if (!loaded.enabled || loaded.status !== "ready") {
-    if (!warnedReadFailure) {
-      warnedReadFailure = true;
-      console.warn("[DataBaker][round-one-quality][ai] 闽南业务词表 JSON 读取失败，已跳过词表上下文。", {
-        fileName: path.basename(MINNAN_LEXICON_JSON_PATH),
-        status: loaded.status,
-        message: loaded.errorMessage || "",
-      });
-    }
-    lexiconCache = {
-      exists: false,
-      status: loaded.status || "error",
-      source: "json",
-      rows: [],
-      warningMessage: "",
-      referenceExists: Boolean(loaded.referenceExists),
-      referenceFilePath: loaded.referenceFilePath || "",
-    };
-    return lexiconCache;
-  }
+  if (lexiconCache) return lexiconCache;
+  const loaded = loadBusinessLexiconSource("data-baker/round-one-quality");
   lexiconCache = {
-    exists: true,
-    status: "ready",
-    source: "json",
+    ...loaded,
+    exists: loaded.enabled,
     rows: loaded.entries.map(mapLexiconEntryFromBusinessJson).filter(Boolean),
-    warningMessage: "",
-    referenceExists: Boolean(loaded.referenceExists),
-    referenceFilePath: loaded.referenceFilePath || "",
   };
   return lexiconCache;
 }
@@ -1425,8 +1365,8 @@ function buildLexiconResultMeta(lexiconState, runtimeLexicon) {
   return {
     enabled: runtime.enabled === true,
     status: String(source.status || "missing"),
-    source: String(source.source || "json"),
-    sourceFile: path.basename(source.filePath || MINNAN_LEXICON_JSON_PATH),
+    source: String(source.source || "sqlite"),
+    sourceFile: path.basename(source.filePath || resolveLexiconDbPath()),
     referenceSourceFile: path.basename(
       source.referenceFilePath || MINNAN_LEXICON_REFERENCE_CSV_PATH
     ),
@@ -1481,7 +1421,7 @@ function getSuggestedTermForFrom(suggested, from) {
 
 function addRewriteRule(rules, seen, mandarin, suggested, source) {
   splitTerms(mandarin).forEach(function (from) {
-    if (!from || (source === "json" && from.length < 2)) {
+    if (!from || (source === "sqlite" && from.length < 2)) {
       return;
     }
     const to = getSuggestedTermForFrom(suggested, from);
@@ -1510,7 +1450,7 @@ function buildRewriteRules() {
     addRewriteRule(rules, seen, entry.mandarin, entry.suggested, "base");
   });
   state.rows.forEach(function (entry) {
-    addRewriteRule(rules, seen, entry.mandarin, entry.suggested, "json");
+    addRewriteRule(rules, seen, entry.mandarin, entry.suggested, "sqlite");
   });
   return rules.sort(function (left, right) {
     return right.from.length - left.from.length;
@@ -1625,7 +1565,7 @@ function buildLexiconContext(options) {
       id: entry.id,
       mandarin: entry.mandarin,
       suggested: entry.suggested,
-      source: "json",
+      source: "sqlite",
     });
   });
 
@@ -2028,8 +1968,8 @@ function createHealthPayload() {
     lexicon: {
       enabled: lexiconState.exists === true,
       status: String(lexiconState.status || "missing"),
-      source: "json",
-      sourceFile: path.basename(MINNAN_LEXICON_JSON_PATH),
+      source: "sqlite",
+      sourceFile: path.basename(resolveLexiconDbPath()),
       referenceSourceFile: path.basename(MINNAN_LEXICON_REFERENCE_CSV_PATH),
       rowCount: Array.isArray(lexiconState.rows) ? lexiconState.rows.length : 0,
       warningMessage: String(lexiconState.warningMessage || ""),

@@ -298,7 +298,7 @@ platform-resources\backend\.venv\bin\python
 
 ## 闽南方言字词表
 
-业务词表 JSON 路径：
+业务词表 JSON 导入来源路径：
 
 ```text
 platform-resources/data-baker/round-one-quality/backend/reference/minnan-lexicon.json
@@ -321,21 +321,21 @@ Prompt 简繁规则（2026-05-17 热修）：
 
 - 听音输出 `heardText` 与推荐输出 `recommendedText` 的普通中文字符要求统一为简体中文。
 - 若 `pageText`、`heardText` 出现普通繁体字，推荐文本应转换为普通简体字形。
-- `minnan-lexicon.json` 位于 `backend/reference/` 目录，作为 DataBaker 业务词表运行时主文件，不属于统一 AI 基座。
+- `minnan-lexicon.json` 位于 `backend/reference/` 目录，作为 DataBaker 业务词表导入来源，不属于统一 AI 基座。
 - `minnan-lexicon.csv` 继续保留为参考源。
-- `minnan-lexicon.json` 命中的“建议用字”不参与普通简繁转换，命中后必须保留。
+- SQLite 词表命中的“建议用字”不参与普通简繁转换，命中后必须保留。
 - 词表建议用字优先于普通简繁转换，不可把方言建议字形改回普通话同义词。
 
 后端结果归一化补充（2026-05-18 热修）：
 
 - 除了 prompt 约束，后端会在模型返回后对 `heardText` 和 `recommendedText` 再做一次普通繁体转简体归一化。
-- 归一化前会先保护词表建议用字（来自 `BASE_ENTRIES + minnan-lexicon.json`），归一化后再恢复，避免方言建议用字被覆盖。
+- 归一化前会先保护词表建议用字（来自 `BASE_ENTRIES + SQLite 词表`），归一化后再恢复，避免方言建议用字被覆盖。
 - `pageText` 保持页面原始文本，不做改写，仅作为比较输入来源。
 - 若显式切到 Python provider，`platform-resources/backend/ai/python/funasr_client.py` 还会在 Python 阶段先用 `opencc-python-reimplemented`（OpenCC `t2s`）做一轮繁转简；如果 OpenCC 不可用，再退回内置映射。
 - 默认 REST provider 下，`two_stage + fun-asr` 的 `heardText` 主要在 DataBaker 结果组装阶段做统一繁转简；Python provider 时则会再多一层“Python 源头繁转简”。
 - `阮 / 汝 / 伊 / 诶` 等命中词表建议用字的字符会继续保留，不改回普通话同义词。
 
-强替换只修改返回给前端展示的 `recommendedText`，不会修改原始 `pageText`，也不会触发自动保存、自动提交、批量识别或流转。后端会对 `heardText` 和最终 `recommendedText` 删除空格、Tab、换行和全角空格，日志记录的也是清理后的文本，不额外保存清理前文本。可通过 `DATABAKER_AI_LEXICON_REWRITE_MODE=off` 关闭强替换，只保留 prompt 上下文。词表缺失时后端仍可运行，但会跳过 JSON 主词表上下文，推荐效果可能下降。后续更新词条内容时应先维护 JSON 主词表，CSV 只作参考源保留，不要把词表内容硬编码进 JS。
+强替换只修改返回给前端展示的 `recommendedText`，不会修改原始 `pageText`，也不会触发自动保存、自动提交、批量识别或流转。后端会对 `heardText` 和最终 `recommendedText` 删除空格、Tab、换行和全角空格，日志记录的也是清理后的文本，不额外保存清理前文本。可通过 `DATABAKER_AI_LEXICON_REWRITE_MODE=off` 关闭强替换，只保留 prompt 上下文。词表缺失时后端仍可运行，但会跳过数据库词表上下文，推荐效果可能下降。后续更新词条内容时应维护导入源，并显式替换入库、重启后端，不要把词表内容硬编码进 JS。
 
 词表清洗规则：
 
@@ -437,3 +437,7 @@ Fun-ASR `403` 的常见原因：
 - 批量请求会附带 `batchRunId`、`batchItemIndex`、`batchProcessKey`、`clientRequestId`。
 - 后端新增内存级 in-flight 去重：仅当 `batchRunId + batchProcessKey` 同时存在时启用，避免旧 content runtime 或重复点击导致同一题重复打上游模型。
 - health 返回 `dedupe.activeCount/joinedCount/completedCount/failedCount/maxSize/ttlMs`，排查重复请求时优先看悬浮窗的“唯一任务数/重复跳过”和 health 的 `dedupe.joinedCount`。
+
+## 数据库维护
+
+运行时词表标识：`data-baker/round-one-quality`。首次启动前在仓库根目录执行 `node scripts/import-lexicons.js`；更新源文件后执行 `node scripts/import-lexicons.js --replace --lexicon data-baker/round-one-quality` 并重启后端。运行环境要求 Node.js 24，数据库路径由 `ASC_LEXICON_DB_PATH` 配置。完整备份、恢复和自定义来源说明见 `platform-resources/backend/README.md`。

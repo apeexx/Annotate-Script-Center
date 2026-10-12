@@ -3,9 +3,24 @@
 const assert = require("node:assert/strict");
 const test = require("node:test");
 
+const fs = require("node:fs");
+const os = require("node:os");
+const path = require("node:path");
+const { importLexicons } = require("../../../backend/lexicon-database");
+const { defaultSources } = require("../../../../scripts/import-lexicons");
+const tempDir = fs.mkdtempSync(path.join(os.tmpdir(), "asc-hakka-test-"));
+const previousDbPath = process.env.ASC_LEXICON_DB_PATH;
+process.env.ASC_LEXICON_DB_PATH = path.join(tempDir, "lexicons.sqlite");
+importLexicons(defaultSources().filter((item) => item.key === "magic-data/hakka-helper"));
+test.after(() => {
+  if (previousDbPath === undefined) delete process.env.ASC_LEXICON_DB_PATH;
+  else process.env.ASC_LEXICON_DB_PATH = previousDbPath;
+  fs.rmSync(tempDir, { recursive: true, force: true });
+});
+
 const lexiconModule = require("./ai-lexicon.js");
 
-test("Magic Data Hakka runtime lexicon JSON loads as ready", function () {
+test("Magic Data Hakka runtime lexicon SQLite loads as ready", function () {
   lexiconModule.__test__?.resetLexiconStateCache?.();
   const state = lexiconModule.getLexiconState();
   assert.equal(state.status, "ready");

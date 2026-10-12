@@ -32,8 +32,7 @@ function createEntry(id, canonical, aliases) {
 
 function createRuntimeWithLexicon(lexicon) {
   return orthography.createOrthographyRuntime({
-    readFileSync: function () { return JSON.stringify(lexicon); },
-    lexiconPath: "memory.json",
+    loadLexicon: function () { return { enabled: true, document: lexicon }; },
   });
 }
 
@@ -76,12 +75,11 @@ test("Shanghai orthography keeps text unchanged when a valid lexicon has no matc
 
 test("Shanghai orthography safely keeps the provider text when the lexicon is missing or invalid", function () {
   const missingRuntime = orthography.createOrthographyRuntime({
-    readFileSync: function () {
+    loadLexicon: function () {
       const error = new Error("missing");
       error.code = "ENOENT";
       throw error;
     },
-    lexiconPath: "missing.json",
   });
   const invalidRuntime = createRuntimeWithLexicon(createLexicon([
     createEntry("word-1", "侬", ["农"]),

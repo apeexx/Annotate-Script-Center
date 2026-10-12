@@ -10,7 +10,7 @@
 ## 当前能力
 
 - 仅处理当前完整 WAV；成功业务结果同时返回百炼 `rawListenText` 与加工后的 `listenText`，页面仅回填后者。
-- 后端读取 `backend/lexicon/shanghainese-lexicon.json` 的人工确认别名，将 `aliases` 字面量最长优先替换为对应 `display` 正字；不使用普通话释义、不调用第二个模型，词表缺失、无匹配或不合法时安全原样返回。
+- 后端读取 SQLite 中的人工确认别名（初始来源为 `backend/lexicon/shanghainese-lexicon.json`），将 `aliases` 字面量最长优先替换为对应 `display` 正字；不使用普通话释义、不调用第二个模型，词表缺失、无匹配或不合法时安全原样返回。
 - 默认模型为 `qwen3.5-omni-plus`，可选 `qwen3.5-omni-flash`；强制关闭 thinking，任务从创建起最长 60 秒。
 - 脚本中心上海话详情页提供 AI 开关、固定 `60000ms` 超时、固定关闭 thinking、模型、可选 Prompt 和单阶段生成参数的保存入口；继续使用既有 defaults 与运行时配置读取链路。
 - 前端以 `utteranceId + checksum` 验证 AI 是否回显本次请求，并在回填前以完整 WAV 内容验证目标仍属同一整条音频。画段引起的快照变化不会阻断回填；完整 WAV 不同才拒绝旧结果。
@@ -45,3 +45,7 @@
 - 不支持批量保存、快捷键或自动提交。
 - 不保留资源地址、签名参数、音频 Data URL、Cookie、Authorization 或真实转写内容。
 - 不在卡片或错误摘要中暴露 jobId、临时资源地址、音频内容或鉴权字段。
+
+## 数据库维护
+
+运行时词表标识：`jd-tts-annotation/shanghainese-helper`。首次启动前在仓库根目录执行 `node scripts/import-lexicons.js`；更新源文件后执行 `node scripts/import-lexicons.js --replace --lexicon jd-tts-annotation/shanghainese-helper` 并重启后端。运行环境要求 Node.js 24，数据库路径由 `ASC_LEXICON_DB_PATH` 配置。完整备份、恢复和自定义来源说明见 `platform-resources/backend/README.md`。

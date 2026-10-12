@@ -11,11 +11,11 @@
 - `backend/ai-routes.js`：客家话助手 AI 路由；`review-current` 已改为通过统一 `ai-framework` route factory 驱动，同时保留旧 `annotator` 兼容 API。
 - `backend/ai-review-request.js`：客家话助手请求归一 helper，供 adapter 与旧业务层共用。
 - `backend/ai-*.js`：客家话助手 AI 能力实现（模型调用、Prompt、词表、日志、成本估算）。
-- `backend/lexicon/hakka-lexicon.json`：客家话业务词表运行时主文件。
+- `backend/lexicon/hakka-lexicon.json`：客家话业务词表导入来源。
 - `backend/lexicon/hakka-lexicon.csv`：客家话词表参考源。
 - `backend/lexicon/客家话-正字表.xlsx`：词表原始来源文件（当前为 7 月版；运行时采集“正字”和“补充正字”工作表，“疑问”表不导入）。
 - `backend/tools/convert-hakka-lexicon.js`：词表转换脚本。
-- `backend/lexicon/hakka-lexicon.json` 当前已作为运行时主词表接入，继续复用统一 `business-lexicon` schema 校验。
+- `backend/lexicon/hakka-lexicon.json` 当前仅作为 SQLite 导入来源，继续复用统一 `business-lexicon` schema 校验。
 - 运行时缺少 `hakka-lexicon.json` 但本地 `hakka-lexicon.csv` 仍存在时，页面会在右下角弹出一次“没有字词对应表”提示，停留约 1 秒后自动消失；复核链路继续按无词表模式返回，不回退成 CSV 主读取。
 - `network/.gitkeep`：当前无助手专属 Network 差异；共用结构见平台根目录 `network/`。
 - `page-structure/.gitkeep`：当前无助手专属页面结构差异；共用结构见平台根目录 `page-structure/`。
@@ -71,7 +71,7 @@
 - 客家话后端当前新增“最终建议文本 exact 正字归一化”：
   - 只作用于 `dialectTextCheck.suggestedValue`、`recommendations.dialectText`、`recognitionConvert.convertedDialectText`
   - `audioCheck.heardDialectText` 保持听音证据原样，不参与归一化
-  - 归一化来源优先使用 `hakka-lexicon.json` 精确命中规则，代码内仅保留少量高频错字兜底
+  - 归一化来源优先使用 SQLite 词表精确命中规则，代码内仅保留少量高频错字兜底
 - `mandarin_to_dialect` 当前已真实走“普通话识别 -> 按词表转客家话 -> 三项质检”的后端链路，不再只是前端配置项。
 - `page-world/network-observer.js` 已同时桥接 `annotateDetailInfo` 与 `annotateHeaderInfo`；
   - `data-collector.js` 新增 header cache、`waitForAsrmarkReady()` 与提交按钮可点击判定；
@@ -118,3 +118,7 @@
 | direct + qwen3.5-plus | 0.8313 | 0.7398 | 0.9269 | 0.88 | 0.86 | 约28.75万 |
 | mandarin_to_dialect + qwen3.5-flash | 0.8258 | 0.7123 | 0.9237 | 0.96 | 0.86 | 约27.36万 |
 | mandarin_to_dialect + qwen3.5-plus | 0.8318 | 0.7113 | 0.9307 | 0.96 | 0.90 | 约28.42万 |
+
+## 数据库维护
+
+运行时词表标识：`magic-data/hakka-helper`。首次启动前在仓库根目录执行 `node scripts/import-lexicons.js`；更新源文件后执行 `node scripts/import-lexicons.js --replace --lexicon magic-data/hakka-helper` 并重启后端。运行环境要求 Node.js 24，数据库路径由 `ASC_LEXICON_DB_PATH` 配置。完整备份、恢复和自定义来源说明见 `platform-resources/backend/README.md`。

@@ -27,6 +27,7 @@
 在仓库根目录运行：
 
 ```powershell
+node scripts/import-lexicons.js
 node platform-resources/backend/server.js
 ```
 
@@ -41,7 +42,7 @@ http://127.0.0.1:3333
 ## 安装与前置
 
 - 当前仓库没有根级 `package.json`，不是 `npm install / npm run` 型项目。
-- 本地至少需要 Node.js、Chrome 或 Edge，以及可加载扩展开发模式的桌面环境。
+- 本地至少需要 Node.js 24、Chrome 或 Edge，以及可加载扩展开发模式的桌面环境。
 - 服务端部署可按需准备 PM2、`config/env/backend.env` 与 `config/env/ai.env`。
 - 正式 CRX 打包需要既有的 `config/secrets/annotation-script-center.pem` 与 `config/package-crx-release.json`；私钥缺失时脚本会中止，绝不自动生成新私钥。
 

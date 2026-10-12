@@ -16,6 +16,41 @@ node platform-resources/backend/server.js
 http://127.0.0.1:3333
 ```
 
+## 正字表数据库
+
+运行环境要求 Node.js 24，使用内置 `node:sqlite`，无需 npm 安装数据库依赖。
+首次启动前，在仓库根目录执行：
+
+```powershell
+node scripts/import-lexicons.js
+node platform-resources/backend/server.js
+```
+
+默认数据库为 `platform-resources/backend/runtime-data/lexicons.sqlite`；可在 `config/env/backend.env` 或进程环境中设置 `ASC_LEXICON_DB_PATH`，相对路径以启动命令的工作目录为准。导入命令和后端加载相同环境文件。
+
+| 词表标识 | 默认导入来源 | 初始条数 |
+|---|---|---:|
+| data-baker/round-one-quality | reference/minnan-lexicon.json | 529 |
+| aishell-tech/minnan-helper | reference/minnan-lexicon.json | 529 |
+| magic-data/hakka-helper | lexicon/hakka-lexicon.json | 690 |
+| magic-data/minnan-helper | lexicon/minnan-lexicon.csv | 562 |
+| jd-tts-annotation/shanghainese-helper | lexicon/shanghainese-lexicon.json | 0 |
+
+来源路径相对各脚本 `backend/`。原始 JSON/CSV/XLSX 仅为导入源与备份；运行时通过参数化 SQL 查询 `lexicons` 和 `lexicon_entries`，按原始顺序读取，数组和扩展属性以 JSON 列存储。各平台独立保存。上海话保留合法空词表；Magic Data 闽南语保留原 CSV 的空释义及原始字段。
+
+重复初始化会跳过已有词表，且不读取其源文件。显式更新单份词表：
+
+```powershell
+node scripts/import-lexicons.js --replace --lexicon magic-data/hakka-helper
+node scripts/import-lexicons.js --replace --lexicon magic-data/minnan-helper --source ./updated-minnan.csv
+```
+
+`--source` 需要同时指定 `--lexicon`，支持词表 JSON；Magic Data 闽南语额外支持现有三列表头 CSV 及转换工具的七列表头 CSV。已有 `ASC_AISHELL_MINNAN_LEXICON_JSON_PATH` 仅控制 Aishell 导入来源，不再改变业务读取路径。Excel 转换工具仅生成导入源，并提示后续入库命令。
+
+一次命令的所有导入在同一事务内完成，校验或写入失败会回滚。导入完成后重启后端使内存缓存生效。数据库缺失、损坏或未导入对应词表时，日志报告词表不可用，业务沿用原有无词表降级，不读取 JSON/CSV 兜底。
+
+备份前停止后端和导入进程，复制 SQLite 文件到备份位置；恢复时停止进程，将备份复制回配置路径，再启动后端。运行数据库及日志文件不提交 Git；新部署必须执行初始化。
+
 ## 当前注册范围
 
 - Alibaba LabelX 转写和快判。

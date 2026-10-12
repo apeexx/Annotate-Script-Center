@@ -1,5 +1,7 @@
 "use strict";
 
+const path = require("node:path");
+
 const {
   DEFAULT_AUDIO_FIRST_REFERENCE_CORRECTION_THRESHOLD,
   DEFAULT_COMPARE_MODEL,
@@ -385,10 +387,10 @@ function buildLexiconState() {
   return {
     enabled: Number(state?.rowCount || 0) > 0 && normalizeText(state?.status) === "ready",
     status: normalizeText(state?.status) || "missing",
-    source: "json",
-    sourceFile: "minnan-lexicon.json",
+    source: "sqlite",
+    sourceFile: path.basename(state.filePath),
     referenceSourceFile: "minnan-lexicon.csv",
-    sourcePath: normalizeText(state?.filePath) || LEXICON_JSON_PATH,
+    sourcePath: normalizeText(state?.filePath),
     referenceSourcePath: LEXICON_REFERENCE_CSV_PATH,
     rowCount: Number(state?.rowCount || 0) || 0,
     message: normalizeText(state?.warningMessage || state?.errorMessage).slice(0, 160),
@@ -402,7 +404,7 @@ function buildRecommendLexiconMeta(metaLexicon, dataLexicon) {
   const fallback = buildLexiconState();
   return {
     status: normalizeText(metaSource.status || fallback.status) || "missing",
-    source: normalizeText(metaSource.source || fallback.source) || "json",
+    source: normalizeText(metaSource.source || fallback.source) || "sqlite",
     sourceFile: normalizeText(metaSource.sourceFile || fallback.sourceFile),
     referenceSourceFile: normalizeText(
       metaSource.referenceSourceFile || fallback.referenceSourceFile

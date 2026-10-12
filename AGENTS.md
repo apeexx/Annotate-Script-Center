@@ -7,7 +7,7 @@
 - 平台资料与后端主目录：`platform-resources/`
 - 统一后端入口：`platform-resources/backend/server.js`
 - 当前扩展版本以 `extension/manifest.json` 为准
-- GitHub 主仓库：`git@github.com:XiangTianzhen/annotation-script-center.git`
+- GitHub 主仓库：`https://github.com/apeexx/Annotate-Script-Center.git`
 - Gitee 镜像：`git@gitee.com:XiangTianzhen/annotation-script-center.git`
 
 ## 2. 文档职责与必读顺序
@@ -262,48 +262,15 @@
 
 ## 7. 业务词表治理规则
 
-- 当前纳入统一治理的业务词表主格式固定为 `JSON`。
-- `CSV / XLSX` 只保留为参考源、原始来源或导入来源。
-- 当前统一治理范围仅指以下 5 份业务词表：
-  - `platform-resources/data-baker/round-one-quality/backend/reference/minnan-lexicon.json`
-  - `platform-resources/aishell-tech/minnan-helper/backend/reference/minnan-lexicon.json`
-  - `platform-resources/magic-data/hakka-helper/backend/lexicon/hakka-lexicon.json`
-  - `platform-resources/magic-data/minnan-helper/backend/lexicon/minnan-lexicon.json`
-- JSON 顶层字段固定为：
-  - `schemaVersion`
-  - `language`
-  - `mode`
-  - `sourceFiles`
-  - `updatedAt`
-  - `entries`
-- 每个 `entry` 固定字段为：
-  - `id`
-  - `normalized`
-  - `display`
-  - `mandarin`
-  - `aliases`
-  - `notes`
-  - `tags`
-  - `attributes`
-- 处理“字词表 / 词表 / lexicon”任务时，默认流程为：
-  1. 先确认当前只处理哪一份词表
-  2. 先输出一段交给网页端 AI 的单词表处理 Prompt
-  3. 用户自行上传或粘贴这一份词表内容
-  4. 用户自行维护整理后的 JSON
-  5. Codex 只做结构校验、代码接入、测试和文档同步
-- Codex 默认可改：
-  - JSON schema / 校验器
-  - 运行时代码接入
-  - 文档
-  - 测试
-  - 参考源到 JSON 的处理 Prompt
-- Codex 默认不改：
-  - 词表 JSON 中的具体词条内容
-  - 用户自行维护的释义、别名、备注
-- 运行时降级规则：
-  - JSON 主词表存在且合法：正常读取 JSON
-  - JSON 缺失但参考 CSV 仍在：业务按无词表模式继续，允许给出一次“没有字词对应表”提示
-  - JSON 与参考 CSV 都不存在：直接按无词表模式继续，不额外报错
+- 五个业务词表入口统一使用 SQLite：DataBaker 闽南语、Aishell Tech 闽南语、Magic Data 客家话、Magic Data 闽南语、京东上海话。
+- 后端使用 Node.js 24 内置 `node:sqlite`；数据库路径由 `ASC_LEXICON_DB_PATH` 配置，默认 `platform-resources/backend/runtime-data/lexicons.sqlite`。
+- JSON / CSV / XLSX 仅作为导入来源和备份，业务请求不得回退读取源文件。
+- 首次运行前执行 `node scripts/import-lexicons.js`。重复导入默认跳过已有词表；更新必须显式传入 `--replace`，推荐配合 `--lexicon` 选择单份词表。
+- 词表元信息和词条分表保存，平台/脚本标识隔离；字段、原始顺序、释义、别名、备注及扩展属性保持不变。
+- Magic Data 闽南语导入允许保留原始空释义，不擅自补写；上海话沿用专属验证和空词表语义。
+- Codex 可做结构校验、数据库迁移、代码接入、测试和文档同步；不得擅自改写用户维护的词条含义。
+- 数据库不可用时记录明确提示并按现有无词表行为降级。导入更新后重启后端清空缓存。
+- 数据库运行文件不提交 Git，备份和恢复步骤见统一后端 README。
 
 ## 8. Prompt、资料补充与文档同步
 

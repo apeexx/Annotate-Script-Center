@@ -94,7 +94,7 @@ round-one-quality/
 
 - `page-structure/README.md`：页面 DOM 结构、稳定选择器和当前可编辑文本框判断。
 - `network/README.md`：列表接口路径、请求参数、响应字段和缓存策略。
-- `backend/reference/minnan-lexicon.json`：闽南方言业务词表运行时主文件。
+- `backend/reference/minnan-lexicon.json`：闽南方言业务词表导入来源。
 - `backend/reference/minnan-lexicon.csv`：闽南方言字词表参考源，保留给人工整理、导入和外部 AI 处理使用，不再作为运行时主读取源。
 - `ai/`：DataBaker 接入统一 `platform-resources/backend/ai-framework/` 的项目 adapter 与未来 prompt/schema/lexicon 资产目录。
 - `data/`：DataBaker 脚本级数据逻辑目录。当前已开始收口 `adapter.js`、`field-mappings.js`、`scripts/csv.js`、`scripts/merge.js`、`scripts/download.js`、`scripts/upload.js`、`scripts/persist.js`、`scripts/fetch.js`，并补了 `assets/mappings` 与 `assets/samples`；真实导出运行数据仍在 `backend/export-data/`。
@@ -152,7 +152,7 @@ node platform-resources\backend\server.js
 
 ## 闽南方言词表
 
-后端当前已接入闽南方言业务词表 JSON：
+后端从 SQLite 读取闽南方言业务词表；初始导入 JSON：
 
 ```text
 platform-resources/data-baker/round-one-quality/backend/reference/minnan-lexicon.json
@@ -164,13 +164,13 @@ platform-resources/data-baker/round-one-quality/backend/reference/minnan-lexicon
 platform-resources/data-baker/round-one-quality/backend/reference/minnan-lexicon.csv
 ```
 
-业务词表既作为 Qwen prompt 上下文，也会默认以 `aggressive` 模式对最终推荐文本做强替换，用于帮助模型在“的/诶”“很/真”“喜欢/欢喜”“这位/即个”“他/伊”等场景中选择更合适的字形。强替换只影响推荐文本展示，不会触发自动提交、自动保存或批量识别；如需关闭，可设置 `DATABAKER_AI_LEXICON_REWRITE_MODE=off`。词表缺失时后端仍可运行，但推荐文本效果会下降；如果 `minnan-lexicon.json` 缺失但本地 `minnan-lexicon.csv` 仍在，页面会在右下角弹出一次“没有字词对应表”提示，停留约 1 秒后自动消失，同时继续按无词表模式运行，不会把 CSV 重新当成业务主读取源。后续更新词条内容时，应先整理 JSON 主词表；CSV 只作参考源保留。
+业务词表既作为 Qwen prompt 上下文，也会默认以 `aggressive` 模式对最终推荐文本做强替换，用于帮助模型在“的/诶”“很/真”“喜欢/欢喜”“这位/即个”“他/伊”等场景中选择更合适的字形。强替换只影响推荐文本展示，不会触发自动提交、自动保存或批量识别；如需关闭，可设置 `DATABAKER_AI_LEXICON_REWRITE_MODE=off`。词表缺失时后端仍可运行，但推荐文本效果会下降；数据库不可用时日志报告明确提示，业务按无词表模式继续；更新导入源后需要显式入库并重启后端。
 
 AI prompt 输出字形规则：
 
 - 普通中文输出统一为简体中文（包含 `heardText` 与 `recommendedText`）。
 - 若输入文本包含普通繁体字，推荐文本需转换为普通简体。
-- `minnan-lexicon.json` 命中的建议用字属于保留项，不参与普通简繁转换。
+- SQLite 词表命中的建议用字属于保留项，不参与普通简繁转换。
 - 词表命中优先于普通简繁转换，避免把方言建议用字改成普通话同义写法。
 
 后端也会在模型输出后对 `heardText` 与 `recommendedText` 做普通繁体转简体归一化（`pageText` 原始文本不改）；归一化前会先保护词表建议用字，保证 `阮/汝/伊/囡仔/诶` 等方言建议用字不被覆盖。
@@ -330,3 +330,7 @@ platform-resources/backend/ai/python/requirements.txt
 
 
 
+
+## 数据库维护
+
+运行时词表标识：`data-baker/round-one-quality`。首次启动前在仓库根目录执行 `node scripts/import-lexicons.js`；更新源文件后执行 `node scripts/import-lexicons.js --replace --lexicon data-baker/round-one-quality` 并重启后端。运行环境要求 Node.js 24，数据库路径由 `ASC_LEXICON_DB_PATH` 配置。完整备份、恢复和自定义来源说明见 `platform-resources/backend/README.md`。

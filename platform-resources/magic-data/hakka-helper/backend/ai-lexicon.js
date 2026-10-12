@@ -39,8 +39,6 @@ const FINAL_SUGGESTION_FALLBACK_RULES = [
 ];
 
 let cachedState = null;
-let warnedMissing = false;
-let warnedError = false;
 
 function normalizeText(value) {
   return String(value || "")
@@ -435,67 +433,15 @@ function convertMandarinToDialectByLexicon(recognizedMandarinText, options) {
 
 function resetLexiconStateCache() {
   cachedState = null;
-  warnedMissing = false;
-  warnedError = false;
 }
 
 function getLexiconState() {
-  if (cachedState) {
-    return cachedState;
-  }
-  const loaded = loadBusinessLexiconSource(HAKKA_JSON_PATH, {
-    referencePaths: [HAKKA_CSV_PATH],
-    warningMessage: "没有字词对应表",
-  });
-  if (loaded.status === "reference_only") {
-    if (!warnedMissing) {
-      warnedMissing = true;
-      console.warn("[MagicData][hakka][ai] 没有字词对应表，检测到本地参考 CSV，复核将按无词表模式继续。", {
-        referenceCsvExists: true,
-      });
-    }
-    cachedState = {
-      enabled: false,
-      status: "reference_only",
-      entries: [],
-      rows: [],
-      source: "json",
-    };
-    return cachedState;
-  }
-  if (loaded.status === "missing") {
-    cachedState = {
-      enabled: false,
-      status: "missing",
-      entries: [],
-      rows: [],
-      source: "json",
-    };
-    return cachedState;
-  }
-  if (!loaded.enabled || loaded.status !== "ready") {
-    if (!warnedError) {
-      warnedError = true;
-      console.warn("[MagicData][hakka][ai] 客家话词表 JSON 读取失败，复核将降级为无词表模式。", {
-        message: loaded.errorMessage || "",
-        status: loaded.status,
-      });
-    }
-    cachedState = {
-      enabled: false,
-      status: loaded.status || "error",
-      entries: [],
-      rows: [],
-      source: "json",
-    };
-    return cachedState;
-  }
+  if (cachedState) return cachedState;
+  const loaded = loadBusinessLexiconSource("magic-data/hakka-helper");
   cachedState = {
-    enabled: true,
-    status: "ready",
-    entries: loaded.entries.slice(),
+    ...loaded,
+    enabled: loaded.enabled,
     rows: mapBusinessLexiconEntries(loaded.entries),
-    source: "json",
   };
   return cachedState;
 }

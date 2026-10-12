@@ -155,6 +155,9 @@ function main() {
   fs.writeFileSync(csvOutputFile, csvText, "utf8");
   fs.writeFileSync(jsonOutputFile, JSON.stringify(document, null, 2) + "\n", "utf8");
   console.info("[convert-hakka-lexicon] 转换完成:", { csvOutputFile, jsonOutputFile, entryCount: converted.rows.length });
+  console.info("导出文件仅为导入源；执行以下命令写入 SQLite，随后重启后端：");
+  console.info('node scripts/import-lexicons.js --replace --lexicon magic-data/hakka-helper --source "' + jsonOutputFile + '"');
+
 }
 
 if (require.main === module) {

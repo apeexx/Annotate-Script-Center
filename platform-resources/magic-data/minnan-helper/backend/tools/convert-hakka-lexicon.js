@@ -74,6 +74,9 @@ function main() {
   fs.mkdirSync(path.dirname(outputFile), { recursive: true });
   fs.writeFileSync(outputFile, csvText, "utf8");
   console.info("[convert-minnan-lexicon] 转换完成:", outputFile);
+  console.info("导出文件仅为导入源；执行以下命令写入 SQLite，随后重启后端：");
+  console.info('node scripts/import-lexicons.js --replace --lexicon magic-data/minnan-helper --source "' + outputFile + '"');
+
 }
 
 if (require.main === module) {

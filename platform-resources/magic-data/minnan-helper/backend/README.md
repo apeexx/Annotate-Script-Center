@@ -61,3 +61,7 @@
 
 - 不记录完整签名音频 URL、token、cookie、authorization、API Key。
 - 只提供 AI 建议，不触发平台保存/提交/审核/流转接口。
+
+## 数据库维护
+
+运行时词表标识：`magic-data/minnan-helper`。首次启动前在仓库根目录执行 `node scripts/import-lexicons.js`；更新源文件后执行 `node scripts/import-lexicons.js --replace --lexicon magic-data/minnan-helper` 并重启后端。运行环境要求 Node.js 24，数据库路径由 `ASC_LEXICON_DB_PATH` 配置。完整备份、恢复和自定义来源说明见 `platform-resources/backend/README.md`。

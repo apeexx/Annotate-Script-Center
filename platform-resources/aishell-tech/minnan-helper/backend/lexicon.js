@@ -6,12 +6,12 @@ const {
   normalizeText: normalizeBusinessLexiconText,
 } = require("../../../backend/business-lexicon");
 
+const { resolveLexiconDbPath } = require("../../../backend/lexicon-database");
+
 const LEXICON_JSON_PATH = path.join(__dirname, "reference", "minnan-lexicon.json");
 const LEXICON_REFERENCE_CSV_PATH = path.join(__dirname, "reference", "minnan-lexicon.csv");
 
 let cachedLexiconState = null;
-let warnedReferenceOnly = false;
-let warnedReadFailure = false;
 
 function normalizeText(value) {
   return String(value || "")
@@ -120,7 +120,7 @@ function buildLexiconState(rows, status, source, errorMessage, filePath) {
     exists: safeRows.length > 0,
     rowCount: safeRows.length,
     status: normalizeText(status) || (safeRows.length > 0 ? "ready" : "missing"),
-    source: normalizeText(source) || "json",
+    source: normalizeText(source) || "sqlite",
     errorMessage: normalizeText(errorMessage),
     filePath: normalizeText(filePath),
     rows: safeRows,
@@ -130,35 +130,12 @@ function buildLexiconState(rows, status, source, errorMessage, filePath) {
 }
 
 function getLexiconState() {
-  const lexiconJsonPath = resolveLexiconJsonPath();
-  if (cachedLexiconState && cachedLexiconState.filePath === lexiconJsonPath) {
-    return cachedLexiconState;
-  }
-  const loaded = loadBusinessLexiconSource(lexiconJsonPath, {
-    referencePaths: [LEXICON_REFERENCE_CSV_PATH],
-    warningMessage: "没有字词对应表",
-  });
-  if (loaded.status === "reference_only" && !warnedReferenceOnly) {
-    warnedReferenceOnly = true;
-    console.warn("[Aishell][minnan-helper][ai] 没有字词对应表，检测到本地参考 CSV，已按无词表模式继续返回。", {
-      fileName: path.basename(lexiconJsonPath),
-      referenceFileName: path.basename(loaded.referenceFilePath || LEXICON_REFERENCE_CSV_PATH),
-    });
-  }
-  if (!loaded.enabled && loaded.status !== "missing" && loaded.status !== "reference_only" && !warnedReadFailure) {
-    warnedReadFailure = true;
-    console.warn("[Aishell][minnan-helper][ai] 闽南语词表 JSON 读取失败，已按无词表模式继续返回。", {
-      fileName: path.basename(lexiconJsonPath),
-      status: loaded.status,
-      message: loaded.errorMessage || "",
-    });
-  }
+  const dbPath = resolveLexiconDbPath();
+  if (cachedLexiconState && cachedLexiconState.filePath === dbPath) return cachedLexiconState;
+  const loaded = loadBusinessLexiconSource("aishell-tech/minnan-helper");
   cachedLexiconState = buildLexiconState(
-    parseStructuredLexiconRows(loaded.entries),
-    loaded.status,
-    "json",
-    loaded.warningMessage || loaded.errorMessage,
-    lexiconJsonPath
+    parseStructuredLexiconRows(loaded.entries), loaded.status, "sqlite",
+    loaded.warningMessage || loaded.errorMessage, dbPath
   );
   return cachedLexiconState;
 }

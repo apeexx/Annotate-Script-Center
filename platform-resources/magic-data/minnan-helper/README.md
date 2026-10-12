@@ -10,10 +10,10 @@
 - `backend/index.js`：闽南语助手后端注册入口。
 - `backend/ai-routes.js`：闽南语助手 AI 路由注册；`review-current` 已改为通过统一 `ai-framework` route factory 驱动，但外部响应结构保持兼容。
 - `backend/ai-*.js`：闽南语助手 AI 能力实现（模型调用、Prompt、词表、日志、成本估算）。
-- `backend/lexicon/minnan-lexicon.json`：闽南语业务词表运行时主文件。
+- `backend/lexicon/minnan-lexicon.json`：闽南语业务词表导入来源。
 - `backend/lexicon/minnan-lexicon.csv`：闽南语词表参考源。
 - `backend/tools/convert-hakka-lexicon.js`：闽南语词表转换脚本（文件名保留兼容，输入输出已是闽南语词表）。
-- 运行时缺少 `minnan-lexicon.json` 但本地 `minnan-lexicon.csv` 仍存在时，页面会在右下角弹出一次“没有字词对应表”提示，停留约 1 秒后自动消失；复核链路继续按无词表模式返回，不回退成 CSV 主读取。
+- 运行时只查询 SQLite，数据库不可用时记录提示并降级，不回退读取 JSON/CSV。
 - `network/.gitkeep`：当前无助手专属 Network 差异；共用结构见平台根目录 `network/`。
 - `page-structure/.gitkeep`：当前无助手专属页面结构差异；共用结构见平台根目录 `page-structure/`。
 
@@ -79,7 +79,7 @@
 
 ## 词表与环境变量
 
-- 闽南语业务词表：`backend/lexicon/minnan-lexicon.json`（不依赖 DataBaker 运行时路径）。
+- 闽南语业务词表存储于 SQLite，按平台隔离；现有 CSV 为初始导入来源。
 - 闽南语参考源：`backend/lexicon/minnan-lexicon.csv`。
 - 环境变量优先级：`MAGIC_DATA_MINNAN_AI_*` > `MAGIC_DATA_AI_*`。
 - `DASHSCOPE_API_KEY` / `DASHSCOPE_BASE_URL` 仍是统一 provider 配置。
@@ -87,3 +87,7 @@
 ## 安全边界
 
 - AI 仅做辅助建议，不自动保存、不自动提交、不自动领取、不自动审核、不自动流转。
+
+## 数据库维护
+
+运行时词表标识：`magic-data/minnan-helper`。首次启动前在仓库根目录执行 `node scripts/import-lexicons.js`；更新源文件后执行 `node scripts/import-lexicons.js --replace --lexicon magic-data/minnan-helper` 并重启后端。运行环境要求 Node.js 24，数据库路径由 `ASC_LEXICON_DB_PATH` 配置。完整备份、恢复和自定义来源说明见 `platform-resources/backend/README.md`。

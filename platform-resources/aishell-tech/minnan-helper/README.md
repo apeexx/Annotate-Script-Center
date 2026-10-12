@@ -10,9 +10,9 @@
 
 - 仅服务 `https://mark.aishelltech.com/mytask/mark?...` 的闽南语推荐文本助手。
 - 接口独立为 `/api/aishell-tech/minnan-helper/ai/recommend*`。
-- Prompt、模型白名单与默认模型仍参考现有 DataBaker 口径；Aishell 继续保留自己的闽南语转换词表副本路径，运行时主文件固定为 `minnan-lexicon.json`，参考源继续保留 `minnan-lexicon.csv`。当前这轮已与 DataBaker 同步落同一份词表内容；后续如需分叉，再分别维护各自副本。如果 JSON 缺失但本地 CSV 仍在，页面会在右下角弹出一次“没有字词对应表”提示，停留约 1 秒后自动消失，不会回退成 CSV 主读取。
+- Prompt、模型白名单与默认模型仍参考现有 DataBaker 口径；Aishell 继续保留自己的闽南语转换词表副本路径，运行时存储为 SQLite，`minnan-lexicon.json` 为导入来源，参考源继续保留 `minnan-lexicon.csv`。当前这轮已与 DataBaker 同步落同一份词表内容；后续如需分叉，再分别维护各自副本。数据库缺失或损坏时记录提示并按无词表模式继续。
 - 当前默认配置已收口为独立的 `转换 / 听音 / 比较` 三板块：`转换 qwen3.5-plus + 听音 qwen3.5-omni-flash + Qwen 比较 qwen3.5-plus`。
-- `转换` 当前改为“规则优先 + 歧义时 AI 兜底”：运行时主读 `minnan-lexicon.json`，参考源 `minnan-lexicon.csv` 仅保留给人工整理和外部 AI 处理；默认仍按 `对应华语 -> 建议用字` 做最长匹配替换，只有命中多候选或切分冲突时才调用转换模型。
+- `转换` 当前改为“规则优先 + 歧义时 AI 兜底”：运行时查询 SQLite 词表，参考源 `minnan-lexicon.csv` 仅保留给人工整理和外部 AI 处理；默认仍按 `对应华语 -> 建议用字` 做最长匹配替换，只有命中多候选或切分冲突时才调用转换模型。
 - options 页当前已与 DataBaker 共用固定顺序的右侧 `AI 设置` 模块；`AI 连续填入并发数量` 已移动到该区域，默认 `5`，Omni 范围 `1~25`，Fun-ASR 范围 `1~50`。
 - 当前只保留三板块并行口径：
   - `转换`：先按词表规则做最长匹配替换；只有命中歧义词或切分冲突时，才会调用文本模型做受限兜底，输出 `convertedText`。
@@ -58,3 +58,7 @@
   - 若真实 `POST /recommend` 在网络层失败，前端还会补打一条 `GET /recommend/health`；health 成功时会把问题归类为“服务器入口可达，但真实推荐请求链路被中断”，便于优先排查反向代理和 Node 进程层。
   - 批量失败清单的每条记录都支持 `查看详情 / 查看原始JSON`，方便区分是 AI 请求失败、切条失败还是保存失败，并直接查看对应上下文。
 - Aishell 前端支持独立快捷键配置：单条识别、批量识别、复制听音文本、复制推荐文本、填入并保存当前条、忽略结果；当前批量快捷键仍对应“未完成的AI批量识别”。
+
+## 数据库维护
+
+运行时词表标识：`aishell-tech/minnan-helper`。首次启动前在仓库根目录执行 `node scripts/import-lexicons.js`；更新源文件后执行 `node scripts/import-lexicons.js --replace --lexicon aishell-tech/minnan-helper` 并重启后端。运行环境要求 Node.js 24，数据库路径由 `ASC_LEXICON_DB_PATH` 配置。完整备份、恢复和自定义来源说明见 `platform-resources/backend/README.md`。

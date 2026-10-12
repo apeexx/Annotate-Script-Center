@@ -42,7 +42,7 @@
 
 - `./lexicon/hakka-lexicon.json`
 - `./lexicon/hakka-lexicon.csv`（参考源）
-- `hakka-lexicon.json` 为运行时主词表，继续复用 `platform-resources/backend/business-lexicon.js` 校验。
+- `hakka-lexicon.json` 为 SQLite 导入来源，继续复用 `platform-resources/backend/business-lexicon.js` 校验。
 - 客家话最终建议文本当前只对以下字段做 `exact` 正字归一化：
   - `dialectTextCheck.suggestedValue`
   - `recommendations.dialectText`
@@ -76,3 +76,7 @@
 
 - 不记录完整签名音频 URL、token、cookie、authorization、API Key。
 - 只提供 AI 建议，不触发平台保存/提交/审核/流转接口。
+
+## 数据库维护
+
+运行时词表标识：`magic-data/hakka-helper`。首次启动前在仓库根目录执行 `node scripts/import-lexicons.js`；更新源文件后执行 `node scripts/import-lexicons.js --replace --lexicon magic-data/hakka-helper` 并重启后端。运行环境要求 Node.js 24，数据库路径由 `ASC_LEXICON_DB_PATH` 配置。完整备份、恢复和自定义来源说明见 `platform-resources/backend/README.md`。
