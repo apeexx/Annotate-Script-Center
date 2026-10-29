@@ -18,9 +18,9 @@
 
 1. 打开 `edge://extensions/` 或 `chrome://extensions/`。
 2. 开启开发者模式。
-3. 加载 `D:\Annotate-Script-Center\extension`。
+3. 加载当前仓库下的 `extension` 目录。
 
-详细运行时说明见 `extension/README.md`。
+首次环境配置、词表初始化和前后端联调见 `docs/project-startup.md`；详细运行时说明见 `extension/README.md`。
 
 ### 本地启动后端
 
@@ -79,6 +79,7 @@ node scripts/package-crx-release.js
 - 统一后端说明：`platform-resources/backend/README.md`
 - 配置说明：`config/README.md`
 - docs 导航：`docs/README.md`
+- 项目启动说明：`docs/project-startup.md`
 - 平台与脚本索引：`docs/platforms-index.md`
 - 百炼官方文档入口：`docs/external-docs-aliyun-bailian.md`
 - 未完成模块说明：`docs/unfinished-crx-enterprise-managed-install.md`

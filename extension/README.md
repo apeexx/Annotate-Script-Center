@@ -6,7 +6,9 @@
 
 1. 打开 `edge://extensions/` 或 `chrome://extensions/`。
 2. 开启开发者模式。
-3. 加载 `D:\Annotate-Script-Center\extension`。
+3. 加载当前仓库下的 `extension` 目录。
+
+完整的首次环境配置、后端启动和本地联调步骤见 `docs/project-startup.md`。
 
 ## 主要入口
 

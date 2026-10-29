@@ -4,6 +4,9 @@
 
 ## 当前保留文件
 
+- [`docs/project-startup.md`](project-startup.md)
+  - Windows 本地环境、首次初始化、后端启动与扩展加载
+  - 新环境启动项目时先看这里
 - [`docs/platforms-index.md`](platforms-index.md)
   - 平台与脚本入口索引
   - 处理具体平台前先看这里
@@ -16,10 +19,11 @@
 ## 使用顺序
 
 1. 先读 [`AGENTS.md`](../AGENTS.md)
-2. 处理具体平台时再读 [`docs/platforms-index.md`](platforms-index.md)
-3. 涉及百炼能力时再读 [`docs/external-docs-aliyun-bailian.md`](external-docs-aliyun-bailian.md)
-4. 遇到企业托管自动安装问题时再读 [`docs/unfinished-crx-enterprise-managed-install.md`](unfinished-crx-enterprise-managed-install.md)
-5. 历史过程统一查看 [`log.md`](../log.md)
+2. 启动新环境时读 [`docs/project-startup.md`](project-startup.md)
+3. 处理具体平台时再读 [`docs/platforms-index.md`](platforms-index.md)
+4. 涉及百炼能力时再读 [`docs/external-docs-aliyun-bailian.md`](external-docs-aliyun-bailian.md)
+5. 遇到企业托管自动安装问题时再读 [`docs/unfinished-crx-enterprise-managed-install.md`](unfinished-crx-enterprise-managed-install.md)
+6. 历史过程统一查看 [`log.md`](../log.md)
 
 ## 当前原则
 
